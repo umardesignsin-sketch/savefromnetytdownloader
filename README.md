@@ -45,6 +45,29 @@ All optional, set as environment variables (see `config.py`):
 
 ---
 
+## Deploying to Render
+
+The repo includes a `render.yaml` blueprint — Render builds the same Dockerfile
+used for Railway.
+
+1. Go to [dashboard.render.com](https://dashboard.render.com) → **New →
+   Blueprint** → connect this GitHub repo. Render reads `render.yaml`
+   automatically and provisions the web service.
+2. **Free plan note:** Render's free tier has an **ephemeral filesystem** —
+   `disk:` in `render.yaml` (persistent storage) requires a paid plan
+   (Starter, ~$7/mo) to actually take effect. On the free plan, `history.db`
+   and any downloaded files are wiped on every restart/redeploy, and the
+   service **spins down after 15 minutes idle** with a ~30-60s cold start on
+   the next request. Fine for a quick test; not fine for anything you want to
+   rely on.
+3. Once deployed, Render gives you a `https://<name>.onrender.com` URL —
+   that's your live tool.
+
+Same YouTube-blocking-datacenter-IPs caveat as Railway applies here — see
+below.
+
+---
+
 ## Deploying to Railway
 
 The repo includes a `Dockerfile` and `railway.toml` — Railway builds and runs
