@@ -1,0 +1,36 @@
+body {
+  background: radial-gradient(1200px 600px at 50% -200px, #1c2333 0%, #12151c 60%);
+  min-height: 100vh;
+}
+
+.navbar {
+  background: rgba(18, 21, 28, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+.brand-dot {
+  display: inline-block;
+  width: .6rem;
+  height: .6rem;
+  border-radius: 50%;
+  background: #ff4d4f;
+  margin-right: .4rem;
+  vertical-align: middle;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: .9rem;
+}
+
+.table > :not(caption) > * > * {
+  background: transparent;
+}
+
+.title-cell {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
