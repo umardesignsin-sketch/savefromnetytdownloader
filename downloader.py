@@ -35,17 +35,19 @@ _TITLE = re.compile(r"^__TITLE__ (.*)$")
 
 
 # YouTube now serves some audio in IAMF, a codec yt-dlp's matcher rejects
-# ("Unknown codec iamf...") — a bare bv*+ba then resolves to nothing. Asking
-# for mp4/m4a first keeps selection on the widely-supported streams, with
-# progressively looser fallbacks so unusual videos still resolve.
+# ("Unknown codec iamf...") — a bare bv*+ba then resolves to nothing. The
+# format list an authenticated (cookied) request sees isn't the same as an
+# anonymous one, so preferring mp4/m4a containers isn't reliable — the
+# authenticated list may not offer them at all. Excluding iamf directly,
+# regardless of container, works against either format list; ffmpeg remuxes
+# whatever's left into mp4.
 # NB: don't fix this by forcing player_client=android — that client ignores
 # --cookies, which brings the "sign in to confirm you're not a bot" wall back.
 def _video(height=None):
     limit = f"[height<={height}]" if height else ""
     return (
-        f"bv*[ext=mp4]{limit}+ba[ext=m4a]/"
-        f"b[ext=mp4]{limit}/"
-        f"bv*{limit}+ba[acodec^=mp4a]/"
+        f"bv*{limit}[acodec!*=iamf]+ba[acodec!*=iamf]/"
+        f"b{limit}[acodec!*=iamf]/"
         f"bv*{limit}+ba/b{limit}"
     )
 
@@ -55,7 +57,7 @@ QUALITIES = {
     "1080p": ["-f", _video(1080), "--merge-output-format", "mp4"],
     "720p": ["-f", _video(720), "--merge-output-format", "mp4"],
     "480p": ["-f", _video(480), "--merge-output-format", "mp4"],
-    "audio": ["-f", "ba[ext=m4a]/ba[acodec^=mp4a]/ba/b", "-x", "--audio-format", "mp3"],
+    "audio": ["-f", "ba[acodec!*=iamf]/ba/b", "-x", "--audio-format", "mp3"],
 }
 
 # Map raw yt-dlp stderr to something a human can act on.
