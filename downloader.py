@@ -163,7 +163,11 @@ def _dump_formats(job_id, url, cookies_arg):
     debugged from Render's logs without shell access."""
     try:
         result = subprocess.run(
-            [YTDLP_BIN, "--no-warnings", *cookies_arg, "--list-formats", "--", url],
+            [
+                YTDLP_BIN, "--no-warnings", *cookies_arg,
+                "--extractor-args", "youtube:player_client=web_safari",
+                "--list-formats", "--", url,
+            ],
             capture_output=True, text=True, timeout=60,
         )
         print(f"[formats:{job_id}]\n{result.stdout}\n{result.stderr}", flush=True)
@@ -195,6 +199,12 @@ def _download(job_id, url, quality):
         "--print", "before_dl:__TITLE__ %(title)s",
         "-o", os.path.join(out_dir, "%(title)s.%(ext)s"),
         *cookies_arg,
+        # Now that the PO Token provider is running, force the client it
+        # actually mints tokens for. Without this, yt-dlp's own client
+        # negotiation still downgrades to "tv" for the main extraction
+        # (storyboards only) even while a valid PO token sits unused for
+        # web_safari. Unlike android/ios, web_safari honors --cookies.
+        "--extractor-args", "youtube:player_client=web_safari",
         *QUALITIES[quality],
         "--",
         url,
