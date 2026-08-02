@@ -34,19 +34,28 @@ _PROGRESS = re.compile(
 _TITLE = re.compile(r"^__TITLE__ (.*)$")
 
 
-# YouTube's web client formats can include codecs (e.g. IAMF audio) that
-# yt-dlp's format matcher doesn't yet recognize, making bv*+ba impossible to
-# satisfy even though compatible formats exist. Forcing the Android/iOS
-# player clients sidesteps this — they serve the older, universally-supported
-# codec set. See yt-dlp issue tracker for "Unknown codec iamf" reports.
-_CLIENT_ARGS = ["--extractor-args", "youtube:player_client=android,ios,web"]
+# YouTube now serves some audio in IAMF, a codec yt-dlp's matcher rejects
+# ("Unknown codec iamf...") — a bare bv*+ba then resolves to nothing. Asking
+# for mp4/m4a first keeps selection on the widely-supported streams, with
+# progressively looser fallbacks so unusual videos still resolve.
+# NB: don't fix this by forcing player_client=android — that client ignores
+# --cookies, which brings the "sign in to confirm you're not a bot" wall back.
+def _video(height=None):
+    limit = f"[height<={height}]" if height else ""
+    return (
+        f"bv*[ext=mp4]{limit}+ba[ext=m4a]/"
+        f"b[ext=mp4]{limit}/"
+        f"bv*{limit}+ba[acodec^=mp4a]/"
+        f"bv*{limit}+ba/b{limit}"
+    )
+
 
 QUALITIES = {
-    "best": [*_CLIENT_ARGS, "-f", "bv*+ba/b", "--merge-output-format", "mp4"],
-    "1080p": [*_CLIENT_ARGS, "-f", "bv*[height<=1080]+ba/b[height<=1080]", "--merge-output-format", "mp4"],
-    "720p": [*_CLIENT_ARGS, "-f", "bv*[height<=720]+ba/b[height<=720]", "--merge-output-format", "mp4"],
-    "480p": [*_CLIENT_ARGS, "-f", "bv*[height<=480]+ba/b[height<=480]", "--merge-output-format", "mp4"],
-    "audio": [*_CLIENT_ARGS, "-f", "ba/b", "-x", "--audio-format", "mp3"],
+    "best": ["-f", _video(), "--merge-output-format", "mp4"],
+    "1080p": ["-f", _video(1080), "--merge-output-format", "mp4"],
+    "720p": ["-f", _video(720), "--merge-output-format", "mp4"],
+    "480p": ["-f", _video(480), "--merge-output-format", "mp4"],
+    "audio": ["-f", "ba[ext=m4a]/ba[acodec^=mp4a]/ba/b", "-x", "--audio-format", "mp3"],
 }
 
 # Map raw yt-dlp stderr to something a human can act on.
