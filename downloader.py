@@ -217,6 +217,7 @@ def _download(job_id, url, quality):
     stderr = "\n".join(stderr_lines)
 
     if proc.returncode != 0:
+        print(f"[yt-dlp:{job_id}] exit {proc.returncode}\n{stderr}", flush=True)
         _fail(job_id, friendly_error(stderr))
         return
 
