@@ -157,6 +157,20 @@ def _run(job_id, url, quality):
         _slots.release()
 
 
+def _dump_formats(job_id, url, cookies_arg):
+    """One-shot diagnostic: log the real format list yt-dlp sees for this
+    request (same cookies/client), so format-selection failures can be
+    debugged from Render's logs without shell access."""
+    try:
+        result = subprocess.run(
+            [YTDLP_BIN, "--no-warnings", *cookies_arg, "--list-formats", "--", url],
+            capture_output=True, text=True, timeout=60,
+        )
+        print(f"[formats:{job_id}]\n{result.stdout}\n{result.stderr}", flush=True)
+    except Exception as exc:  # noqa: BLE001 - diagnostics must never crash the job
+        print(f"[formats:{job_id}] dump failed: {exc}", flush=True)
+
+
 def _download(job_id, url, quality):
     out_dir = _job_dir(job_id)
     os.makedirs(out_dir, exist_ok=True)
@@ -246,6 +260,8 @@ def _download(job_id, url, quality):
 
     if proc.returncode != 0:
         print(f"[yt-dlp:{job_id}] exit {proc.returncode}\n{stderr}", flush=True)
+        if "Requested format is not available" in stderr:
+            _dump_formats(job_id, url, cookies_arg)
         _fail(job_id, friendly_error(stderr))
         return
 
