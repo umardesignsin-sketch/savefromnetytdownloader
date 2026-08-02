@@ -38,10 +38,37 @@ All optional, set as environment variables (see `config.py`):
 | `DOWNLOAD_DIR` | `./downloads` | Where finished files are stored |
 | `DB_PATH` | `./history.db` | SQLite database file |
 | `YTDLP_BIN` | `yt-dlp` | Path to the yt-dlp binary |
-| `COOKIES_FILE` | *(unset)* | Path to a Netscape cookies.txt, for when YouTube blocks the server's IP |
+| `COOKIES_FILE` | *(unset)* | Path to a Netscape cookies.txt (optional, for age-gated/private content) |
+| `PROXY_URL` | *(unset)* | Residential proxy URL, e.g. `http://user:pass@p.webshare.io:80` — see below |
 | `JOB_TIMEOUT` | `1800` | Per-download timeout, seconds |
 | `JOB_TTL` | `3600` | How long finished jobs stay in memory |
 | `MAX_CONCURRENT_JOBS` | `3` | Simultaneous yt-dlp processes |
+
+---
+
+## Fixing "YouTube is blocking this server" with a residential proxy
+
+Cloud hosts (Render, Railway, any VPS) run on datacenter IP ranges, and
+YouTube blocks or heavily restricts those regardless of cookies. The actual
+fix is a **residential proxy** — it routes yt-dlp's traffic through a real
+home IP, so YouTube sees a normal user instead of a datacenter.
+
+1. Sign up at [webshare.io](https://www.webshare.io) and buy a **Residential**
+   plan (not their default "Datacenter" proxies — those get blocked the same
+   way). A small rotating-residential plan is enough for personal use.
+2. From their dashboard, get your proxy endpoint — it looks like
+   `p.webshare.io:80` with a username/password, or a single connection
+   string like `http://username:password@p.webshare.io:80`.
+3. Set `PROXY_URL` to that full string as an environment variable on your
+   host (Render: Environment tab → Environment Variables; do this directly
+   in Render's dashboard rather than sharing the credential elsewhere, since
+   it's a billed account).
+4. Redeploy. `downloader.py` passes it to yt-dlp via `--proxy` automatically
+   when set — no other config needed.
+
+With the proxy in place, cookies become optional again (only useful for
+age-restricted or private content) — the IP itself is what YouTube was
+actually gating on.
 
 ---
 

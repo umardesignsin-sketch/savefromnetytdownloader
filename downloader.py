@@ -14,6 +14,7 @@ from config import (
     JOB_TIMEOUT,
     JOB_TTL,
     MAX_CONCURRENT_JOBS,
+    PROXY_URL,
     YTDLP_BIN,
 )
 import db
@@ -189,16 +190,15 @@ def _download(job_id, url, quality):
     # Render (and similar platforms) mount secret files read-only, which
     # crashes the whole process. Give it a writable per-job copy instead.
     cookies_arg = []
-    client_arg = []
     if COOKIES_FILE and os.path.isfile(COOKIES_FILE):
         job_cookies = os.path.join(out_dir, "cookies.txt")
         shutil.copyfile(COOKIES_FILE, job_cookies)
         cookies_arg = ["--cookies", job_cookies]
-        # Only needed when running authenticated against a datacenter IP
-        # (e.g. behind a PO Token provider) — forcing this without cookies
-        # breaks the plain local case, which already works via yt-dlp's
-        # own default client negotiation.
-        client_arg = ["--extractor-args", "youtube:player_client=web_safari"]
+
+    # Residential proxy: the actual fix for YouTube blocking datacenter IPs.
+    # With this, yt-dlp's default client negotiation behaves the same as it
+    # does locally — no PO Token provider or forced client needed.
+    proxy_arg = ["--proxy", PROXY_URL] if PROXY_URL else []
 
     cmd = [
         YTDLP_BIN,
@@ -211,7 +211,7 @@ def _download(job_id, url, quality):
         "--print", "before_dl:__TITLE__ %(title)s",
         "-o", os.path.join(out_dir, "%(title)s.%(ext)s"),
         *cookies_arg,
-        *client_arg,
+        *proxy_arg,
         *QUALITIES[quality],
         "--",
         url,

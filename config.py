@@ -15,6 +15,13 @@ YTDLP_BIN = os.environ.get("YTDLP_BIN", "yt-dlp")
 # around it. Leave unset to run without cookies.
 COOKIES_FILE = os.environ.get("COOKIES_FILE", "")
 
+# Residential proxy URL, e.g. http://user:pass@p.webshare.io:80
+# The actual fix for datacenter-IP blocking: routes yt-dlp's traffic through
+# a residential IP so YouTube treats it like a normal home user. Cookies
+# alone (above) stop working once YouTube also gates the client on IP
+# reputation. Leave unset to connect directly.
+PROXY_URL = os.environ.get("PROXY_URL", "")
+
 # Hard ceiling so one job can't hang a worker forever (seconds).
 JOB_TIMEOUT = int(os.environ.get("JOB_TIMEOUT", "1800"))
 
