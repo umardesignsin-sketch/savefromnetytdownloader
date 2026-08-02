@@ -142,6 +142,15 @@ def _download(job_id, url, quality):
     out_dir = _job_dir(job_id)
     os.makedirs(out_dir, exist_ok=True)
 
+    # yt-dlp writes updated session cookies back to this file on exit, but
+    # Render (and similar platforms) mount secret files read-only, which
+    # crashes the whole process. Give it a writable per-job copy instead.
+    cookies_arg = []
+    if COOKIES_FILE and os.path.isfile(COOKIES_FILE):
+        job_cookies = os.path.join(out_dir, "cookies.txt")
+        shutil.copyfile(COOKIES_FILE, job_cookies)
+        cookies_arg = ["--cookies", job_cookies]
+
     cmd = [
         YTDLP_BIN,
         "--newline",                 # one progress update per line
@@ -152,7 +161,7 @@ def _download(job_id, url, quality):
         "--progress",
         "--print", "before_dl:__TITLE__ %(title)s",
         "-o", os.path.join(out_dir, "%(title)s.%(ext)s"),
-        *(["--cookies", COOKIES_FILE] if COOKIES_FILE else []),
+        *cookies_arg,
         *QUALITIES[quality],
         "--",
         url,
