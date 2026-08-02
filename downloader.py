@@ -189,10 +189,16 @@ def _download(job_id, url, quality):
     # Render (and similar platforms) mount secret files read-only, which
     # crashes the whole process. Give it a writable per-job copy instead.
     cookies_arg = []
+    client_arg = []
     if COOKIES_FILE and os.path.isfile(COOKIES_FILE):
         job_cookies = os.path.join(out_dir, "cookies.txt")
         shutil.copyfile(COOKIES_FILE, job_cookies)
         cookies_arg = ["--cookies", job_cookies]
+        # Only needed when running authenticated against a datacenter IP
+        # (e.g. behind a PO Token provider) — forcing this without cookies
+        # breaks the plain local case, which already works via yt-dlp's
+        # own default client negotiation.
+        client_arg = ["--extractor-args", "youtube:player_client=web_safari"]
 
     cmd = [
         YTDLP_BIN,
@@ -205,12 +211,7 @@ def _download(job_id, url, quality):
         "--print", "before_dl:__TITLE__ %(title)s",
         "-o", os.path.join(out_dir, "%(title)s.%(ext)s"),
         *cookies_arg,
-        # Now that the PO Token provider is running, force the client it
-        # actually mints tokens for. Without this, yt-dlp's own client
-        # negotiation still downgrades to "tv" for the main extraction
-        # (storyboards only) even while a valid PO token sits unused for
-        # web_safari. Unlike android/ios, web_safari honors --cookies.
-        "--extractor-args", "youtube:player_client=web_safari",
+        *client_arg,
         *QUALITIES[quality],
         "--",
         url,
