@@ -5,3 +5,4 @@ venv/
 downloads/
 history.db
 .env
+cookies.txt

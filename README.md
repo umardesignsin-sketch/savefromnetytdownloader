@@ -38,9 +38,44 @@ All optional, set as environment variables (see `config.py`):
 | `DOWNLOAD_DIR` | `./downloads` | Where finished files are stored |
 | `DB_PATH` | `./history.db` | SQLite database file |
 | `YTDLP_BIN` | `yt-dlp` | Path to the yt-dlp binary |
+| `COOKIES_FILE` | *(unset)* | Path to a Netscape cookies.txt, for when YouTube blocks the server's IP |
 | `JOB_TIMEOUT` | `1800` | Per-download timeout, seconds |
 | `JOB_TTL` | `3600` | How long finished jobs stay in memory |
 | `MAX_CONCURRENT_JOBS` | `3` | Simultaneous yt-dlp processes |
+
+---
+
+## Deploying to Railway
+
+The repo includes a `Dockerfile` and `railway.toml` — Railway builds and runs
+it with almost no manual setup.
+
+1. **New project → Deploy from GitHub repo** → pick this repo. Railway detects
+   the Dockerfile automatically.
+2. **Attach a volume**: Settings → Volumes → add a volume mounted at `/data`.
+   Without this, `history.db` and any file mid-download reset on every
+   redeploy — the Dockerfile already points `DOWNLOAD_DIR`/`DB_PATH` at
+   `/data`, so this is the only step you can't skip.
+3. **Set `MAX_CONCURRENT_JOBS`** (optional) if you want fewer than 3
+   simultaneous downloads on a small instance.
+4. Railway sets `$PORT` automatically; the Dockerfile's `CMD` already binds
+   to it.
+
+**About YouTube blocking the server.** Railway (and Render, and most VPS
+providers) run on datacenter IP ranges. YouTube frequently responds to those
+with "Sign in to confirm you're not a bot" and the download fails outright —
+this is unrelated to any bug in the app. If you hit it:
+
+1. Log into YouTube in a normal browser, export cookies with an extension
+   like *Get cookies.txt LOCALLY* (Netscape format).
+2. Upload `cookies.txt` into the attached volume (e.g. `/data/cookies.txt`)
+   — **do not** commit it to git, it's a live session credential.
+3. Set the `COOKIES_FILE` env var to that path (e.g. `/data/cookies.txt`).
+   `downloader.py` passes it to yt-dlp automatically when set.
+4. Cookies expire — you'll need to re-export and re-upload periodically.
+
+The container also runs `pip install --upgrade yt-dlp` on every start, since
+YouTube changes break older yt-dlp releases within weeks.
 
 ---
 

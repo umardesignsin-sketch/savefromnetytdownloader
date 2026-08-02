@@ -9,6 +9,12 @@ DB_PATH = os.environ.get("DB_PATH", os.path.join(BASE_DIR, "history.db"))
 # Absolute path to the yt-dlp binary (use the venv one on a VPS).
 YTDLP_BIN = os.environ.get("YTDLP_BIN", "yt-dlp")
 
+# Path to a Netscape-format cookies.txt exported from a logged-in YouTube
+# session. Datacenter IPs (Railway, Render, most VPS providers) frequently get
+# "Sign in to confirm you're not a bot" from YouTube; passing cookies works
+# around it. Leave unset to run without cookies.
+COOKIES_FILE = os.environ.get("COOKIES_FILE", "")
+
 # Hard ceiling so one job can't hang a worker forever (seconds).
 JOB_TIMEOUT = int(os.environ.get("JOB_TIMEOUT", "1800"))
 

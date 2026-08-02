@@ -9,6 +9,7 @@ import time
 import uuid
 
 from config import (
+    COOKIES_FILE,
     DOWNLOAD_DIR,
     JOB_TIMEOUT,
     JOB_TTL,
@@ -151,6 +152,7 @@ def _download(job_id, url, quality):
         "--progress",
         "--print", "before_dl:__TITLE__ %(title)s",
         "-o", os.path.join(out_dir, "%(title)s.%(ext)s"),
+        *(["--cookies", COOKIES_FILE] if COOKIES_FILE else []),
         *QUALITIES[quality],
         "--",
         url,

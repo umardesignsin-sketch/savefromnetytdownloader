@@ -1,0 +1,11 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+numReplicas = 1
+restartPolicyType = "ON_FAILURE"
+
+# Attach a Railway Volume mounted at /data in the dashboard (Settings → Volumes)
+# so DOWNLOAD_DIR and DB_PATH (both under /data, set in the Dockerfile) survive
+# redeploys. Without it, history and in-flight files reset on every deploy.
