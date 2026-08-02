@@ -164,13 +164,19 @@ def _dump_formats(job_id, url, cookies_arg):
     try:
         result = subprocess.run(
             [
-                YTDLP_BIN, "--no-warnings", *cookies_arg,
+                YTDLP_BIN, "-v", *cookies_arg,
                 "--extractor-args", "youtube:player_client=web_safari",
                 "--list-formats", "--", url,
             ],
             capture_output=True, text=True, timeout=60,
         )
-        print(f"[formats:{job_id}]\n{result.stdout}\n{result.stderr}", flush=True)
+        # -v is noisy; keep only the parts that explain client/token/format
+        # decisions instead of dumping the full trace into the logs.
+        keep = ("player_client", "PO Token", "pot:", "gvs", "player", "format",
+                "Available formats", "ERROR", "WARNING", "extract", "Extracting")
+        lines = [l for l in (result.stdout + "\n" + result.stderr).splitlines()
+                 if any(k.lower() in l.lower() for k in keep)]
+        print(f"[formats:{job_id}]\n" + "\n".join(lines[-120:]), flush=True)
     except Exception as exc:  # noqa: BLE001 - diagnostics must never crash the job
         print(f"[formats:{job_id}] dump failed: {exc}", flush=True)
 
