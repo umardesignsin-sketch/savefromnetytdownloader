@@ -7,7 +7,7 @@ services:
     envVars:
       - key: PORT
         value: 5000
-    disk:
-      name: ytdl-data
-      mountPath: /data
-      sizeGB: 1
+    # No `disk:` block: Render's free plan rejects persistent disks outright.
+    # The Dockerfile still writes to /data, it's just an ordinary directory
+    # in the container's ephemeral filesystem here — wiped on every restart.
+    # Add a disk (and upgrade to a paid plan) later for real persistence.
