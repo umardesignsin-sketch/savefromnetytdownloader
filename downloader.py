@@ -33,12 +33,20 @@ _PROGRESS = re.compile(
 )
 _TITLE = re.compile(r"^__TITLE__ (.*)$")
 
+
+# YouTube's web client formats can include codecs (e.g. IAMF audio) that
+# yt-dlp's format matcher doesn't yet recognize, making bv*+ba impossible to
+# satisfy even though compatible formats exist. Forcing the Android/iOS
+# player clients sidesteps this — they serve the older, universally-supported
+# codec set. See yt-dlp issue tracker for "Unknown codec iamf" reports.
+_CLIENT_ARGS = ["--extractor-args", "youtube:player_client=android,ios,web"]
+
 QUALITIES = {
-    "best": ["-f", "bv*+ba/b", "--merge-output-format", "mp4"],
-    "1080p": ["-f", "bv*[height<=1080]+ba/b[height<=1080]", "--merge-output-format", "mp4"],
-    "720p": ["-f", "bv*[height<=720]+ba/b[height<=720]", "--merge-output-format", "mp4"],
-    "480p": ["-f", "bv*[height<=480]+ba/b[height<=480]", "--merge-output-format", "mp4"],
-    "audio": ["-f", "ba/b", "-x", "--audio-format", "mp3"],
+    "best": [*_CLIENT_ARGS, "-f", "bv*+ba/b", "--merge-output-format", "mp4"],
+    "1080p": [*_CLIENT_ARGS, "-f", "bv*[height<=1080]+ba/b[height<=1080]", "--merge-output-format", "mp4"],
+    "720p": [*_CLIENT_ARGS, "-f", "bv*[height<=720]+ba/b[height<=720]", "--merge-output-format", "mp4"],
+    "480p": [*_CLIENT_ARGS, "-f", "bv*[height<=480]+ba/b[height<=480]", "--merge-output-format", "mp4"],
+    "audio": [*_CLIENT_ARGS, "-f", "ba/b", "-x", "--audio-format", "mp3"],
 }
 
 # Map raw yt-dlp stderr to something a human can act on.
