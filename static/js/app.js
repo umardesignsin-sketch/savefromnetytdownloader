@@ -141,7 +141,7 @@ function renderError(message) {
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text ?? '';
-  return div.innerHTML;
+  return div.innerHTML.replaceAll('"', '&quot;').replaceAll("'", '&#39;');
 }
 
 const STATUS_BADGE = {

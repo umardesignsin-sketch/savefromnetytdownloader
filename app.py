@@ -1,8 +1,9 @@
 import os
 import re
+import secrets
 from urllib.parse import urlparse
 
-from flask import Flask, jsonify, render_template, request, send_file
+from flask import Flask, g, jsonify, render_template, request, send_file
 
 import db
 import downloader
@@ -10,6 +11,31 @@ from config import DOWNLOAD_DIR
 
 app = Flask(__name__)
 db.init_db()
+CLIENT_ID = re.compile(r"^[A-Za-z0-9_-]{43}$")
+
+
+@app.before_request
+def identify_client():
+    if request.path in ("/healthz", "/api/activity"):
+        return
+    client_id = request.cookies.get("client_id", "")
+    if not CLIENT_ID.fullmatch(client_id):
+        client_id = secrets.token_urlsafe(32)
+        g.new_client_id = client_id
+    g.client_id = client_id
+
+
+@app.after_request
+def persist_client(response):
+    client_id = getattr(g, "new_client_id", None)
+    if client_id:
+        response.set_cookie(
+            "client_id", client_id, max_age=30 * 24 * 3600,
+            secure=request.is_secure or request.headers.get("X-Forwarded-Proto") == "https",
+            httponly=True, samesite="Lax",
+        )
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 ALLOWED_HOSTS = {
     "youtube.com", "www.youtube.com", "m.youtube.com",
@@ -80,21 +106,23 @@ def api_download():
     if not downloader.ytdlp_available():
         return jsonify({"error": "yt-dlp is not installed on the server."}), 503
 
-    job_id = downloader.start(url, quality)
+    job_id = downloader.start(url, quality, g.client_id)
+    if not job_id:
+        return jsonify({"error": "The server is busy. Please try again shortly."}), 429
     return jsonify({"job_id": job_id}), 202
 
 
 @app.get("/api/progress/<job_id>")
 def api_progress(job_id):
+    row = db.get_job(job_id, g.client_id)
+    if not row:
+        return jsonify({"error": "Unknown job."}), 404
     state = downloader.get_state(job_id)
     if state:
         state.pop("ended_at", None)
         return jsonify(state)
 
     # Job aged out of memory — fall back to what SQLite recorded.
-    row = db.get_job(job_id)
-    if not row:
-        return jsonify({"error": "Unknown job."}), 404
     return jsonify({
         "job_id": job_id,
         "status": row["status"],
@@ -110,7 +138,7 @@ def api_progress(job_id):
 
 @app.get("/api/file/<job_id>")
 def api_file(job_id):
-    row = db.get_job(job_id)
+    row = db.get_job(job_id, g.client_id)
     if not row or row["status"] != "done" or not row["filename"]:
         return jsonify({"error": "File is not available."}), 404
 
@@ -123,7 +151,7 @@ def api_file(job_id):
 
 @app.get("/api/history")
 def api_history():
-    rows = db.list_history(limit=50)
+    rows = db.list_history(g.client_id, limit=50)
     for r in rows:
         r["available"] = bool(
             r["filename"] and downloader.file_path(r["job_id"], r["filename"])
@@ -133,9 +161,16 @@ def api_history():
 
 @app.delete("/api/history/<job_id>")
 def api_history_delete(job_id):
+    if not db.get_job(job_id, g.client_id):
+        return jsonify({"error": "Unknown job."}), 404
     downloader.remove_files(job_id)
-    db.delete_history_entry(job_id)
+    db.delete_history_entry(job_id, g.client_id)
     return jsonify({"ok": True})
+
+
+@app.get("/api/activity")
+def api_activity():
+    return jsonify({"active": downloader.active_count()})
 
 
 @app.get("/healthz")
@@ -148,4 +183,4 @@ def healthz():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=False, threaded=True)
+    app.run(host="127.0.0.1", port=5000, debug=True)

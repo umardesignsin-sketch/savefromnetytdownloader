@@ -3,6 +3,24 @@
 A small web app that runs `yt-dlp` as a subprocess, streams its progress to the
 browser, and serves the finished file. History is stored in SQLite.
 
+## Cloudflare deployment
+
+The ZIP's Flask app runs in a Cloudflare Container behind `src/worker.js`. The
+Worker limits download starts to two per IP per minute; the single container
+accepts one active download at a time and `yt-dlp` caps files at 512 MB. Browser
+history and file access are scoped to an anonymous, HTTP-only browser cookie.
+The container stores files and SQLite history on ephemeral disk, so downloads
+and history disappear when the container stops or a new image is deployed.
+
+`wrangler.jsonc` defines the Worker and image. Build the Docker image with the
+manual GitHub Actions workflow in `.github/workflows/build-container.yml`, then
+pin its Git SHA tag in `wrangler.jsonc` and run `npm run deploy`. The workflow
+needs `CF_REGISTRY_USERNAME` and `CF_REGISTRY_PASSWORD` as temporary repository
+secrets while building; remove them after a successful build.
+
+The Worker can also serve `savefromnet.fun` as a Cloudflare Custom Domain once
+its route is added to `wrangler.jsonc`.
+
 ## Features
 
 - URL input with client- and server-side YouTube URL validation
@@ -38,94 +56,9 @@ All optional, set as environment variables (see `config.py`):
 | `DOWNLOAD_DIR` | `./downloads` | Where finished files are stored |
 | `DB_PATH` | `./history.db` | SQLite database file |
 | `YTDLP_BIN` | `yt-dlp` | Path to the yt-dlp binary |
-| `COOKIES_FILE` | *(unset)* | Path to a Netscape cookies.txt (optional, for age-gated/private content) |
-| `PROXY_URL` | *(unset)* | Residential proxy URL, e.g. `http://user:pass@p.webshare.io:80` — see below |
 | `JOB_TIMEOUT` | `1800` | Per-download timeout, seconds |
 | `JOB_TTL` | `3600` | How long finished jobs stay in memory |
 | `MAX_CONCURRENT_JOBS` | `3` | Simultaneous yt-dlp processes |
-
----
-
-## Fixing "YouTube is blocking this server" with a residential proxy
-
-Cloud hosts (Render, Railway, any VPS) run on datacenter IP ranges, and
-YouTube blocks or heavily restricts those regardless of cookies. The actual
-fix is a **residential proxy** — it routes yt-dlp's traffic through a real
-home IP, so YouTube sees a normal user instead of a datacenter.
-
-1. Sign up at [webshare.io](https://www.webshare.io) and buy a **Residential**
-   plan (not their default "Datacenter" proxies — those get blocked the same
-   way). A small rotating-residential plan is enough for personal use.
-2. From their dashboard, get your proxy endpoint — it looks like
-   `p.webshare.io:80` with a username/password, or a single connection
-   string like `http://username:password@p.webshare.io:80`.
-3. Set `PROXY_URL` to that full string as an environment variable on your
-   host (Render: Environment tab → Environment Variables; do this directly
-   in Render's dashboard rather than sharing the credential elsewhere, since
-   it's a billed account).
-4. Redeploy. `downloader.py` passes it to yt-dlp via `--proxy` automatically
-   when set — no other config needed.
-
-With the proxy in place, cookies become optional again (only useful for
-age-restricted or private content) — the IP itself is what YouTube was
-actually gating on.
-
----
-
-## Deploying to Render
-
-The repo includes a `render.yaml` blueprint — Render builds the same Dockerfile
-used for Railway.
-
-1. Go to [dashboard.render.com](https://dashboard.render.com) → **New →
-   Blueprint** → connect this GitHub repo. Render reads `render.yaml`
-   automatically and provisions the web service.
-2. **Free plan note:** Render's free tier has an **ephemeral filesystem** —
-   `disk:` in `render.yaml` (persistent storage) requires a paid plan
-   (Starter, ~$7/mo) to actually take effect. On the free plan, `history.db`
-   and any downloaded files are wiped on every restart/redeploy, and the
-   service **spins down after 15 minutes idle** with a ~30-60s cold start on
-   the next request. Fine for a quick test; not fine for anything you want to
-   rely on.
-3. Once deployed, Render gives you a `https://<name>.onrender.com` URL —
-   that's your live tool.
-
-Same YouTube-blocking-datacenter-IPs caveat as Railway applies here — see
-below.
-
----
-
-## Deploying to Railway
-
-The repo includes a `Dockerfile` and `railway.toml` — Railway builds and runs
-it with almost no manual setup.
-
-1. **New project → Deploy from GitHub repo** → pick this repo. Railway detects
-   the Dockerfile automatically.
-2. **Attach a volume**: Settings → Volumes → add a volume mounted at `/data`.
-   Without this, `history.db` and any file mid-download reset on every
-   redeploy — the Dockerfile already points `DOWNLOAD_DIR`/`DB_PATH` at
-   `/data`, so this is the only step you can't skip.
-3. **Set `MAX_CONCURRENT_JOBS`** (optional) if you want fewer than 3
-   simultaneous downloads on a small instance.
-4. Railway sets `$PORT` automatically; the Dockerfile's `CMD` already binds
-   to it.
-
-**About YouTube blocking the server.** Railway (and Render, and most VPS
-providers) run on datacenter IP ranges. YouTube frequently responds to those
-with "Sign in to confirm you're not a bot" and the download fails outright —
-this is unrelated to any bug in the app. If you hit it:
-
-1. Log into YouTube in a normal browser, export cookies with an extension
-   like *Get cookies.txt LOCALLY* (Netscape format).
-2. Upload `cookies.txt` into the attached volume (e.g. `/data/cookies.txt`)
-   — **do not** commit it to git, it's a live session credential.
-3. Set the `COOKIES_FILE` env var to that path (e.g. `/data/cookies.txt`).
-   `downloader.py` passes it to yt-dlp automatically when set.
-4. Cookies expire — you'll need to re-export and re-upload periodically.
-
-The container also runs `pip install --upgrade yt-dlp` on every start, since
-YouTube changes break older yt-dlp releases within weeks.
 
 ---
 

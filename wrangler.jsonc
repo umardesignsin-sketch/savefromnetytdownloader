@@ -1,0 +1,30 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "savefromnet-funyt",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-06",
+  "workers_dev": true,
+  "containers": [
+    {
+      "class_name": "DownloaderContainer",
+      "image": "registry.cloudflare.com/e216b35633d32ecc2a61a21369976716/savefromnet-final:latest",
+      "instance_type": "basic",
+      "max_instances": 1
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "DOWNLOADER", "class_name": "DownloaderContainer" }
+    ]
+  },
+  "ratelimits": [
+    {
+      "name": "DOWNLOAD_LIMIT",
+      "namespace_id": "157802",
+      "simple": { "limit": 2, "period": 60 }
+    }
+  ],
+  "exports": {
+    "DownloaderContainer": { "type": "durable-object", "storage": "sqlite" }
+  }
+}

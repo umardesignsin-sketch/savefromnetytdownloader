@@ -7,6 +7,7 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS downloads (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     job_id      TEXT UNIQUE NOT NULL,
+    owner_id    TEXT NOT NULL,
     url         TEXT NOT NULL,
     title       TEXT,
     quality     TEXT NOT NULL,
@@ -35,13 +36,17 @@ def get_db():
 def init_db():
     with get_db() as conn:
         conn.executescript(SCHEMA)
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(downloads)")}
+        if "owner_id" not in columns:
+            conn.execute("ALTER TABLE downloads ADD COLUMN owner_id TEXT NOT NULL DEFAULT ''")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_downloads_owner ON downloads(owner_id, id DESC)")
 
 
-def insert_job(job_id, url, quality):
+def insert_job(job_id, url, quality, owner_id):
     with get_db() as conn:
         conn.execute(
-            "INSERT INTO downloads (job_id, url, quality, status) VALUES (?, ?, ?, 'queued')",
-            (job_id, url, quality),
+            "INSERT INTO downloads (job_id, url, quality, owner_id, status) VALUES (?, ?, ?, ?, 'queued')",
+            (job_id, url, quality, owner_id),
         )
 
 
@@ -65,22 +70,23 @@ def finish_job(job_id, status, **fields):
         )
 
 
-def get_job(job_id):
+def get_job(job_id, owner_id):
     with get_db() as conn:
         row = conn.execute(
-            "SELECT * FROM downloads WHERE job_id = ?", (job_id,)
+            "SELECT * FROM downloads WHERE job_id = ? AND owner_id = ?", (job_id, owner_id)
         ).fetchone()
     return dict(row) if row else None
 
 
-def list_history(limit=50):
+def list_history(owner_id, limit=50):
     with get_db() as conn:
         rows = conn.execute(
-            "SELECT * FROM downloads ORDER BY id DESC LIMIT ?", (limit,)
+            "SELECT job_id, url, title, quality, status, error, filename, filesize, created_at, finished_at "
+            "FROM downloads WHERE owner_id = ? ORDER BY id DESC LIMIT ?", (owner_id, limit)
         ).fetchall()
     return [dict(r) for r in rows]
 
 
-def delete_history_entry(job_id):
+def delete_history_entry(job_id, owner_id):
     with get_db() as conn:
-        conn.execute("DELETE FROM downloads WHERE job_id = ?", (job_id,))
+        conn.execute("DELETE FROM downloads WHERE job_id = ? AND owner_id = ?", (job_id, owner_id))

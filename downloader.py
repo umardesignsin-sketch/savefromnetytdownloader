@@ -9,12 +9,11 @@ import time
 import uuid
 
 from config import (
-    COOKIES_FILE,
     DOWNLOAD_DIR,
     JOB_TIMEOUT,
     JOB_TTL,
     MAX_CONCURRENT_JOBS,
-    PROXY_URL,
+    MAX_FILESIZE,
     YTDLP_BIN,
 )
 import db
@@ -34,31 +33,12 @@ _PROGRESS = re.compile(
 )
 _TITLE = re.compile(r"^__TITLE__ (.*)$")
 
-
-# YouTube now serves some audio in IAMF, a codec yt-dlp's matcher rejects
-# ("Unknown codec iamf...") — a bare bv*+ba then resolves to nothing. The
-# format list an authenticated (cookied) request sees isn't the same as an
-# anonymous one, so preferring mp4/m4a containers isn't reliable — the
-# authenticated list may not offer them at all. Excluding iamf directly,
-# regardless of container, works against either format list; ffmpeg remuxes
-# whatever's left into mp4.
-# NB: don't fix this by forcing player_client=android — that client ignores
-# --cookies, which brings the "sign in to confirm you're not a bot" wall back.
-def _video(height=None):
-    limit = f"[height<={height}]" if height else ""
-    return (
-        f"bv*{limit}[acodec!*=iamf]+ba[acodec!*=iamf]/"
-        f"b{limit}[acodec!*=iamf]/"
-        f"bv*{limit}+ba/b{limit}"
-    )
-
-
 QUALITIES = {
-    "best": ["-f", _video(), "--merge-output-format", "mp4"],
-    "1080p": ["-f", _video(1080), "--merge-output-format", "mp4"],
-    "720p": ["-f", _video(720), "--merge-output-format", "mp4"],
-    "480p": ["-f", _video(480), "--merge-output-format", "mp4"],
-    "audio": ["-f", "ba[acodec!*=iamf]/ba/b", "-x", "--audio-format", "mp3"],
+    "best": ["-f", "bv*+ba/b", "--merge-output-format", "mp4"],
+    "1080p": ["-f", "bv*[height<=1080]+ba/b[height<=1080]", "--merge-output-format", "mp4"],
+    "720p": ["-f", "bv*[height<=720]+ba/b[height<=720]", "--merge-output-format", "mp4"],
+    "480p": ["-f", "bv*[height<=480]+ba/b[height<=480]", "--merge-output-format", "mp4"],
+    "audio": ["-f", "ba/b", "-x", "--audio-format", "mp3"],
 }
 
 # Map raw yt-dlp stderr to something a human can act on.
@@ -109,19 +89,29 @@ def _reap():
     """Drop finished jobs older than JOB_TTL from the in-memory map."""
     now = time.time()
     with _lock:
-        for jid in [
+        expired = [
             j for j, s in JOBS.items()
             if s.get("ended_at") and now - s["ended_at"] > JOB_TTL
-        ]:
+        ]
+        for jid in expired:
             JOBS.pop(jid, None)
+    for jid in expired:
+        remove_files(jid)
 
 
-def start(url, quality):
+def active_count():
+    with _lock:
+        return sum(s["status"] in ("queued", "downloading") for s in JOBS.values())
+
+
+def start(url, quality, owner_id):
     if quality not in QUALITIES:
         raise ValueError("Unknown quality option.")
     _reap()
     job_id = uuid.uuid4().hex
     with _lock:
+        if sum(s["status"] in ("queued", "downloading") for s in JOBS.values()) >= MAX_CONCURRENT_JOBS:
+            return None
         JOBS[job_id] = {
             "job_id": job_id,
             "url": url,
@@ -136,7 +126,7 @@ def start(url, quality):
             "error": None,
             "ended_at": None,
         }
-    db.insert_job(job_id, url, quality)
+    db.insert_job(job_id, url, quality, owner_id)
     threading.Thread(target=_run, args=(job_id, url, quality), daemon=True).start()
     return job_id
 
@@ -158,60 +148,22 @@ def _run(job_id, url, quality):
         _slots.release()
 
 
-def _dump_formats(job_id, url, cookies_arg):
-    """One-shot diagnostic: log the real format list yt-dlp sees for this
-    request (same cookies/client), so format-selection failures can be
-    debugged from Render's logs without shell access."""
-    try:
-        result = subprocess.run(
-            [
-                YTDLP_BIN, "-v", *cookies_arg,
-                "--extractor-args", "youtube:player_client=web_safari",
-                "--list-formats", "--", url,
-            ],
-            capture_output=True, text=True, timeout=60,
-        )
-        # -v is noisy; keep only the parts that explain client/token/format
-        # decisions instead of dumping the full trace into the logs.
-        keep = ("player_client", "PO Token", "pot:", "gvs", "player", "format",
-                "Available formats", "ERROR", "WARNING", "extract", "Extracting")
-        lines = [l for l in (result.stdout + "\n" + result.stderr).splitlines()
-                 if any(k.lower() in l.lower() for k in keep)]
-        print(f"[formats:{job_id}]\n" + "\n".join(lines[-120:]), flush=True)
-    except Exception as exc:  # noqa: BLE001 - diagnostics must never crash the job
-        print(f"[formats:{job_id}] dump failed: {exc}", flush=True)
-
-
 def _download(job_id, url, quality):
     out_dir = _job_dir(job_id)
     os.makedirs(out_dir, exist_ok=True)
-
-    # yt-dlp writes updated session cookies back to this file on exit, but
-    # Render (and similar platforms) mount secret files read-only, which
-    # crashes the whole process. Give it a writable per-job copy instead.
-    cookies_arg = []
-    if COOKIES_FILE and os.path.isfile(COOKIES_FILE):
-        job_cookies = os.path.join(out_dir, "cookies.txt")
-        shutil.copyfile(COOKIES_FILE, job_cookies)
-        cookies_arg = ["--cookies", job_cookies]
-
-    # Residential proxy: the actual fix for YouTube blocking datacenter IPs.
-    # With this, yt-dlp's default client negotiation behaves the same as it
-    # does locally — no PO Token provider or forced client needed.
-    proxy_arg = ["--proxy", PROXY_URL] if PROXY_URL else []
 
     cmd = [
         YTDLP_BIN,
         "--newline",                 # one progress update per line
         "--no-playlist",
+        "--max-filesize", MAX_FILESIZE,
+        "--js-runtimes", "node",
         "--no-color",
         "--restrict-filenames",
         "--no-warnings",
         "--progress",
         "--print", "before_dl:__TITLE__ %(title)s",
         "-o", os.path.join(out_dir, "%(title)s.%(ext)s"),
-        *cookies_arg,
-        *proxy_arg,
         *QUALITIES[quality],
         "--",
         url,
@@ -276,9 +228,6 @@ def _download(job_id, url, quality):
     stderr = "\n".join(stderr_lines)
 
     if proc.returncode != 0:
-        print(f"[yt-dlp:{job_id}] exit {proc.returncode}\n{stderr}", flush=True)
-        if "Requested format is not available" in stderr:
-            _dump_formats(job_id, url, cookies_arg)
         _fail(job_id, friendly_error(stderr))
         return
 

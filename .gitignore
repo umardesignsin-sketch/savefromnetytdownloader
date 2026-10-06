@@ -5,4 +5,5 @@ venv/
 downloads/
 history.db
 .env
-cookies.txt
+node_modules/
+.wrangler/
