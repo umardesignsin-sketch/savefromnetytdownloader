@@ -2,7 +2,8 @@
   "name": "savefromnet-cloudflare",
   "private": true,
   "scripts": {
-    "deploy": "wrangler deploy"
+    "build:site": "python generate_static.py",
+    "deploy": "python generate_static.py && wrangler deploy"
   },
   "devDependencies": {
     "@cloudflare/containers": "^0.3.7",

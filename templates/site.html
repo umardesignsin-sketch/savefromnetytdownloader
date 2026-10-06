@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f7f2">
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}">
+  <link rel="canonical" href="{{ canonical }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SaveFromNet">
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:description" content="{{ description }}">
+  <meta property="og:url" content="{{ canonical }}">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{ title }}">
+  <meta name="twitter:description" content="{{ description }}">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+  {% for item in schema %}<script type="application/ld+json">{{ item | tojson }}</script>{% endfor %}
+</head>
+<body data-tool="{{ tool.slug if tool else 'universal-video-downloader' }}">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="SaveFromNet home"><span class="brand-mark" aria-hidden="true">↓</span><span>savefromnet<span class="brand-dot">.</span>fun</span></a>
+      <button class="menu-toggle" type="button" aria-controls="main-nav" aria-expanded="false" aria-label="Open menu"><span></span><span></span><span></span></button>
+      <nav id="main-nav" class="main-nav" aria-label="Main navigation">
+        <details class="nav-dropdown"><summary>Downloaders <span aria-hidden="true">⌄</span></summary>
+          <div class="dropdown-panel">
+            {% for platform in platforms %}
+            {% set platform_tool = tools | selectattr('platform', 'equalto', platform) | first %}
+            <a href="{{ platform_tool.path }}"><span class="platform-icon {{ platform }}">{{ platform[0] | upper }}</span>{{ platform | title }}</a>
+            {% endfor %}
+          </div>
+        </details>
+        <a href="/#popular-tools">Tools</a>
+        <a href="/#how-it-works">How it works</a>
+        <a class="nav-cta" href="/universal-video-downloader">Try downloader <span aria-hidden="true">↗</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    {% if tool %}
+    <section class="tool-hero">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span>{{ tool.name }}</span></nav>
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> FREE ONLINE TOOL · {{ tool.platform | upper }}</div>
+            <h1>{{ tool.name }}</h1>
+            <p class="hero-subtitle">{{ tool.description }}</p>
+            <div class="hero-badges"><span>✓ Real available formats</span><span>✓ No sign-up</span><span>✓ Secure temporary files</span></div>
+          </div>
+          <div class="hero-art" aria-hidden="true"><div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div><div class="art-card"><div class="art-play">▶</div><div class="art-lines"><i></i><i></i></div><div class="art-arrow">↓</div></div><span class="art-spark spark-one">✳</span><span class="art-spark spark-two">✦</span></div>
+        </div>
+      </div>
+    </section>
+    {% else %}
+    <section class="home-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy"><div class="eyebrow"><span class="eyebrow-dot"></span> ONE LINK. ALL YOUR FAVORITES.</div><h1>Download Videos<br><em>From Anywhere.</em></h1><p class="hero-subtitle">Download videos, reels, shorts, photos and audio from your favorite platforms. Paste a public link and see what is actually available.</p><div class="hero-badges"><span>✓ 8 platforms</span><span>✓ Real formats</span><span>✓ No sign-up</span></div></div>
+        <div class="hero-art" aria-hidden="true"><div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div><div class="art-card"><div class="art-play">▶</div><div class="art-lines"><i></i><i></i></div><div class="art-arrow">↓</div></div><span class="art-spark spark-one">✳</span><span class="art-spark spark-two">✦</span></div>
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="download-zone" aria-labelledby="download-heading">
+      <div class="container narrow">
+        <div class="download-panel">
+          <div class="panel-top"><div><span class="live-dot"></span><span>LINK TO FILE, SIMPLIFIED</span></div><span class="panel-step">01 / PASTE A LINK</span></div>
+          <h2 id="download-heading">{{ 'Download your ' + tool.platform.title() + ' media' if tool and tool.platform != 'universal' else 'Start with a link' }}</h2>
+          <form id="download-form" novalidate>
+            <label for="url" class="sr-only">Public media URL</label>
+            <div class="input-row"><span class="input-icon" aria-hidden="true">↗</span><input id="url" type="url" inputmode="url" placeholder="Paste a video URL here..." autocomplete="url" required><button id="paste-btn" class="paste-btn" type="button">Paste</button><button id="submit-btn" class="submit-btn" type="submit">Analyze link <span aria-hidden="true">→</span></button></div>
+            <p class="form-error" id="url-error" role="alert" hidden></p>
+            <p class="input-hint">{{ tool.url_hint if tool else 'Supports public links from YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and Dailymotion.' }}</p>
+          </form>
+          <div id="analysis-status" class="analysis-status" role="status" aria-live="polite" hidden><span class="spinner"></span><span id="analysis-label">Analyzing URL...</span></div>
+        </div>
+        <div id="result" class="result-panel" aria-live="polite" hidden></div>
+        <div id="progress-card" class="progress-panel" aria-live="polite" hidden><div class="progress-head"><div><span class="section-kicker">PREPARING YOUR FILE</span><h3 id="job-title">Preparing…</h3><p id="job-stage">Queued</p></div><strong id="job-percent">0%</strong></div><div class="progress-track"><div id="progress-bar"></div></div><p id="job-meta"></p><div id="job-result"></div></div>
+        <p class="rights-note">Only download content you own or have permission to download. We do not bypass private posts, DRM, or access controls.</p>
+      </div>
+    </section>
+
+    <section class="platforms-section section-space" id="platforms"><div class="container"><div class="section-heading"><div><span class="section-kicker">SUPPORTED PLATFORMS</span><h2>One place for every link.</h2></div><p>Pick a platform to see its dedicated tools and supported URLs.</p></div><div class="platform-grid">
+      {% for platform in platforms %}{% set platform_tool = tools | selectattr('platform', 'equalto', platform) | first %}
+      <a class="platform-card" href="{{ platform_tool.path }}"><span class="platform-icon {{ platform }}">{{ platform[0] | upper }}</span><strong>{{ platform | title }}</strong><span class="card-arrow">↗</span></a>
+      {% endfor %}
+    </div></div></section>
+
+    <section class="tools-section section-space" id="popular-tools"><div class="container"><div class="section-heading"><div><span class="section-kicker">EXPLORE TOOLS</span><h2>{{ 'More ways to download.' if tool else 'The right tool for every format.' }}</h2></div><p>Each tool uses the same real analysis engine and only shows available choices.</p></div><div class="tool-grid">
+      {% for item in related %}<a class="tool-card" href="{{ item.path }}"><span class="tool-card-icon">{{ item.platform[0] | upper }}</span><span><strong>{{ item.name }}</strong><small>{{ item.description }}</small></span><span class="tool-card-arrow">↗</span></a>{% endfor %}
+    </div><div class="all-tools"><a href="/universal-video-downloader">Explore universal downloader <span aria-hidden="true">→</span></a></div></div></section>
+
+    <section class="directory-section section-space" id="all-tools"><div class="container"><div class="section-heading"><div><span class="section-kicker">ALL DOWNLOADERS</span><h2>Find your next tool.</h2></div><p>Choose a dedicated page for the type of public media you want to save.</p></div><div class="directory-grid">{% for platform in platforms %}<div class="directory-group"><h3>{{ platform | title }}</h3>{% for item in tools if item.platform == platform %}<a href="{{ item.path }}">{{ item.name }} <span aria-hidden="true">↗</span></a>{% endfor %}</div>{% endfor %}<div class="directory-group"><h3>All platforms</h3><a href="/universal-video-downloader">Universal Video Downloader <span aria-hidden="true">↗</span></a></div></div></div></section>
+
+    <section class="steps-section section-space" id="how-it-works"><div class="container"><div class="section-heading"><div><span class="section-kicker">HOW IT WORKS</span><h2>Three steps. That's it.</h2></div><p>No account, confusing settings, or guesswork about quality.</p></div><div class="steps-grid"><article><span class="step-number">01</span><div class="step-icon">⌁</div><h3>Paste a public link</h3><p>Copy the URL of media you own or have permission to save, then paste it above.</p></article><article><span class="step-number">02</span><div class="step-icon">✳</div><h3>See real formats</h3><p>We ask the source for metadata and show only the files and qualities it actually returns.</p></article><article><span class="step-number">03</span><div class="step-icon">↓</div><h3>Save your file</h3><p>Choose an available option. Processing runs in the background and your temporary file expires.</p></article></div></div></section>
+
+    {% if tool %}
+    <section class="detail-section section-space"><div class="container detail-grid"><div><span class="section-kicker">ABOUT THIS TOOL</span><h2>Built for {{ tool.name }}.</h2><p>{{ tool.description }}</p><p>{{ tool.format_note }}</p><div class="detail-callout"><strong>Supported links</strong><p>{{ tool.url_hint }}</p></div></div><div class="detail-card"><span class="section-kicker">GOOD TO KNOW</span><h3>When a link does not work</h3><p>{{ tool.problem }}</p><p>We only access content that the source makes publicly available without login. A format that is missing from the result is not offered as a download.</p><a href="#download-heading">Try another link <span aria-hidden="true">↑</span></a></div></div></section>
+    {% else %}
+    <section class="detail-section section-space"><div class="container detail-grid"><div><span class="section-kicker">WHY SAVEFROMNET</span><h2>Simple on the surface.<br>Careful underneath.</h2><p>Our downloader detects the source, checks the actual media, and prepares only a format that source provides. Photos, video, and audio use one clear flow.</p></div><div class="feature-list"><div><span>01</span><div><h3>Honest quality choices</h3><p>No made-up 4K or 320 kbps buttons. The result comes from the extractor.</p></div></div><div><span>02</span><div><h3>Private by default</h3><p>Temporary files expire, and download history is separated by your browser cookie.</p></div></div><div><span>03</span><div><h3>Made for every screen</h3><p>Paste a link, choose a format, and save on mobile or desktop.</p></div></div></div></div></section>
+    {% endif %}
+
+    <section class="faq-section section-space" id="faq"><div class="container faq-grid"><div><span class="section-kicker">FAQ</span><h2>Good questions.<br>Clear answers.</h2><p>Availability depends on the public source and the permission you have to download it.</p></div><div class="faq-list">
+      {% if tool %}{% for question, answer in tool.faq %}<details><summary>{{ question }}</summary><p>{{ answer }}</p></details>{% endfor %}
+      {% else %}<details><summary>Which platforms can I use?</summary><p>YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and Dailymotion public URLs are recognized. Each source may have its own access limits.</p></details><details><summary>Can I choose any quality I want?</summary><p>Only formats returned for the specific URL appear. Some files are converted or merged on the server when the source provides the required streams.</p></details><details><summary>Why did my link fail?</summary><p>The post may be private, deleted, region restricted, age restricted, live, or blocked for anonymous access. We do not bypass access controls.</p></details><details><summary>How long are files kept?</summary><p>Temporary completed files are removed after about one hour. The container may clear them sooner if it restarts.</p></details>{% endif %}
+    </div></div></section>
+
+    <section class="history-section section-space"><div class="container narrow"><details><summary><span><span class="section-kicker">YOUR BROWSER</span><strong>Recent downloads</strong></span><span>View history <span aria-hidden="true">⌄</span></span></summary><div id="history-list" class="history-list"><p>Loading…</p></div></details></div></section>
+  </main>
+  <footer class="site-footer"><div class="container footer-grid"><div><a class="brand footer-brand" href="/"><span class="brand-mark" aria-hidden="true">↓</span><span>savefromnet<span class="brand-dot">.</span>fun</span></a><p>Public media, made simple. Download only what you own or may use.</p></div><div><strong>Platforms</strong>{% for platform in platforms %}{% set platform_tool = tools | selectattr('platform', 'equalto', platform) | first %}<a href="{{ platform_tool.path }}">{{ platform | title }}</a>{% endfor %}</div><div><strong>Popular tools</strong>{% for item in tools[:8] %}<a href="{{ item.path }}">{{ item.name }}</a>{% endfor %}</div></div><div class="container footer-bottom"><span>© {{ 2026 }} SaveFromNet</span><span>Only download content you have rights to use.</span></div></footer>
+  <script src="{{ url_for('static', filename='js/site.js') }}" defer></script>
+</body>
+</html>

@@ -1,171 +1,318 @@
+"""SaveFromNet public site and JSON API."""
+
+import hashlib
+import hmac
 import os
 import re
 import secrets
-from urllib.parse import urlparse
+import threading
+import time
+from collections import defaultdict, deque
+from urllib.parse import urlencode
 
-from flask import Flask, g, jsonify, render_template, request, send_file
+from flask import Flask, g, jsonify, render_template, request, send_file, Response
 
 import db
 import downloader
 from config import DOWNLOAD_DIR
+from extractors import AnalysisError, DetectError, analyze, detect_url
+from extractors.service import resolve
+from tools import BY_SLUG, PLATFORMS, TOOLS, related_tools
 
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 4096
 db.init_db()
 CLIENT_ID = re.compile(r"^[A-Za-z0-9_-]{43}$")
+JOB_ID = re.compile(r"^[0-9a-f]{32}$")
+SIGNING_KEY = os.environ.get("DOWNLOAD_SIGNING_KEY", "").encode() or secrets.token_bytes(32)
+SITE_URL = "https://savefromnet.fun"
+_limits = defaultdict(deque)
+_limits_lock = threading.Lock()
+_analysis_slots = threading.BoundedSemaphore(4)
+_last_cleanup = 0
+
+
+@app.errorhandler(413)
+def request_too_large(_error):
+    if request.path.startswith("/api/"):
+        return _json_error("The request is too large. Paste one media URL.", "request_too_large", 413)
+    return "Request too large", 413
+
+
+@app.errorhandler(500)
+def internal_error(_error):
+    if request.path.startswith("/api/"):
+        return _json_error("A server error occurred. Please try again.", "server_error", 500)
+    return "Server error", 500
+
+
+def _json_error(message, code="error", status=400):
+    return jsonify({"error": message, "code": code}), status
+
+
+def _rate_limit(owner, action, max_calls, period=60):
+    key = (owner, action)
+    with _limits_lock:
+        calls = _limits[key]
+        now = time.monotonic()
+        while calls and now - calls[0] > period:
+            calls.popleft()
+        if len(calls) >= max_calls:
+            db.record_event("rate_limited", "unknown", "universal-video-downloader")
+            return False
+        calls.append(now)
+        return True
+
+
+def _cleanup():
+    global _last_cleanup
+    now = time.monotonic()
+    if now - _last_cleanup < 60:
+        return
+    _last_cleanup = now
+    for job_id in db.expired_files():
+        downloader.remove_files(job_id)
 
 
 @app.before_request
 def identify_client():
-    if request.path in ("/healthz", "/api/activity"):
+    if request.path == "/healthz":
         return
     client_id = request.cookies.get("client_id", "")
     if not CLIENT_ID.fullmatch(client_id):
         client_id = secrets.token_urlsafe(32)
         g.new_client_id = client_id
     g.client_id = client_id
+    _cleanup()
 
 
 @app.after_request
 def persist_client(response):
     client_id = getattr(g, "new_client_id", None)
     if client_id:
-        response.set_cookie(
-            "client_id", client_id, max_age=30 * 24 * 3600,
-            secure=request.is_secure or request.headers.get("X-Forwarded-Proto") == "https",
-            httponly=True, samesite="Lax",
-        )
-    response.headers["Cache-Control"] = "no-store"
+        response.set_cookie("client_id", client_id, max_age=30 * 24 * 3600,
+                            secure=request.is_secure or request.headers.get("X-Forwarded-Proto") == "https",
+                            httponly=True, samesite="Lax")
+    if request.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     return response
 
-ALLOWED_HOSTS = {
-    "youtube.com", "www.youtube.com", "m.youtube.com",
-    "music.youtube.com", "youtu.be", "www.youtu.be",
-}
 
-_YT_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
+def _signed_link(job_id, owner):
+    expires = int(time.time()) + 900
+    signature = hmac.new(SIGNING_KEY, f"{job_id}:{owner}:{expires}".encode(), hashlib.sha256).hexdigest()
+    return f"/api/file/{job_id}?{urlencode({'expires': expires, 'sig': signature})}"
 
 
-def validate_url(raw):
-    """Return (normalized_url, error). Only accepts YouTube video URLs."""
-    if not raw or not raw.strip():
-        return None, "Please enter a URL."
-    raw = raw.strip()
-    if not raw.startswith(("http://", "https://")):
-        raw = "https://" + raw
-
+def _verify_link(job_id, owner):
     try:
-        parsed = urlparse(raw)
+        expires = int(request.args.get("expires", "0"))
     except ValueError:
-        return None, "That URL could not be parsed."
+        return False
+    if expires < time.time() or expires > time.time() + 901:
+        return False
+    signature = request.args.get("sig", "")
+    expected = hmac.new(SIGNING_KEY, f"{job_id}:{owner}:{expires}".encode(), hashlib.sha256).hexdigest()
+    return hmac.compare_digest(signature, expected)
 
-    if parsed.scheme not in ("http", "https"):
-        return None, "Only http and https URLs are supported."
-    host = (parsed.hostname or "").lower()
-    if host not in ALLOWED_HOSTS:
-        return None, "Only YouTube links are supported."
 
-    if host.endswith("youtu.be"):
-        vid = parsed.path.lstrip("/").split("/")[0]
-    else:
-        if parsed.path not in ("/watch", "/shorts", "/live") and not parsed.path.startswith(
-            ("/shorts/", "/live/", "/embed/")
-        ):
-            return None, "That doesn't look like a link to a single video."
-        if parsed.path == "/watch":
-            from urllib.parse import parse_qs
-            vid = (parse_qs(parsed.query).get("v") or [""])[0]
-        else:
-            vid = parsed.path.rstrip("/").split("/")[-1]
+def _filter_formats(tool, media):
+    if tool.platform != "universal" and tool.platform != media["platform"]:
+        raise AnalysisError(f"Use a {tool.platform.title()} URL with this tool.", "wrong_platform")
+    if media["type"] not in tool.content_types:
+        raise AnalysisError("This tool needs a different kind of link. Check the supported URLs below.", "wrong_content_type")
+    slug = tool.slug
+    formats = media["formats"]
+    if slug.endswith("to-mp3") or slug in ("youtube-audio-downloader", "youtube-song-downloader", "youtube-music-downloader"):
+        formats = [f for f in formats if f["type"] == "audio" and (not slug.endswith("to-mp3") or f["extension"] == "mp3")]
+    elif slug == "youtube-to-mp4":
+        formats = [f for f in formats if f["extension"] == "mp4" and f["type"] == "video"]
+    elif slug == "instagram-photo-downloader":
+        formats = [f for f in formats if f["type"] == "image"]
+    elif slug in ("instagram-video-downloader", "instagram-reels-downloader", "youtube-video-downloader", "youtube-shorts-downloader", "youtube-movies-downloader", "facebook-video-downloader", "reddit-video-downloader", "threads-video-downloader", "dailymotion-video-downloader"):
+        formats = [f for f in formats if f["type"] == "video"]
+    if not formats:
+        raise AnalysisError("This source has no accessible format for this tool. Try a related tool.", "no_formats")
+    media["formats"] = formats
+    return media
 
-    if not _YT_ID.match(vid):
-        return None, "Couldn't find a valid video ID in that URL."
 
-    return f"https://www.youtube.com/watch?v={vid}", None
+def _page(tool=None):
+    title = tool.seo_title if tool else "SaveFromNet — Download Videos From Anywhere"
+    description = tool.seo_description if tool else "Download public videos, reels, shorts, photos and audio from your favorite platforms. See real formats before you save."
+    canonical = SITE_URL + tool.path if tool else SITE_URL + "/"
+    schema = [{"@context": "https://schema.org", "@type": "WebApplication", "name": tool.name if tool else "SaveFromNet",
+               "applicationCategory": "MultimediaApplication", "operatingSystem": "Any",
+               "url": canonical, "description": description,
+               "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}]
+    if tool:
+        schema.append({"@context": "https://schema.org", "@type": "FAQPage",
+                       "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}}
+                                      for q, a in tool.faq]})
+        schema.append({"@context": "https://schema.org", "@type": "BreadcrumbList",
+                       "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": SITE_URL + "/"},
+                                           {"@type": "ListItem", "position": 2, "name": tool.name, "item": canonical}]})
+    return render_template("site.html", tool=tool, title=title, description=description,
+                           canonical=canonical, tools=TOOLS, platforms=PLATFORMS,
+                           related=related_tools(tool) if tool else TOOLS[:10], schema=schema)
 
 
 @app.get("/")
 def index():
-    return render_template(
-        "index.html",
-        qualities=list(downloader.QUALITIES.keys()),
-        ytdlp_ok=downloader.ytdlp_available(),
-    )
+    return _page()
+
+
+@app.get("/<slug>")
+def tool_page(slug):
+    tool = BY_SLUG.get(slug)
+    if not tool:
+        return render_template("404.html", tools=TOOLS), 404
+    return _page(tool)
+
+
+@app.post("/api/analyze")
+def api_analyze():
+    if not _rate_limit(g.client_id, "analyze", 8):
+        return _json_error("Too many analyses. Please try again in a minute.", "rate_limited", 429)
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return _json_error("Send a URL in a JSON object.", "invalid_request")
+    slug = data.get("tool") or "universal-video-downloader"
+    tool = BY_SLUG.get(slug)
+    if not tool:
+        return _json_error("Unknown downloader tool.", "invalid_tool")
+    try:
+        detection = detect_url(data.get("url"))
+        db.record_event("url_submitted", detection.platform, slug)
+        db.record_event("platform_detected", detection.platform, slug)
+        if tool.platform != "universal" and tool.platform != detection.platform:
+            raise AnalysisError(f"Use a {tool.platform.title()} URL with this tool.", "wrong_platform")
+        if detection.content_type not in tool.content_types:
+            raise AnalysisError("This tool needs a different kind of link. Check the supported URLs below.", "wrong_content_type")
+        if not _analysis_slots.acquire(blocking=False):
+            return _json_error("Analysis capacity is busy. Please try again shortly.", "busy", 429)
+        try:
+            media = _filter_formats(tool, analyze(detection.normalized_url, g.client_id))
+        finally:
+            _analysis_slots.release()
+    except DetectError as exc:
+        db.record_event("analysis_failed", "unknown", slug)
+        return _json_error(str(exc), "invalid_url")
+    except AnalysisError as exc:
+        db.record_event("analysis_failed", detection.platform if "detection" in locals() else "unknown", slug)
+        return _json_error(str(exc), exc.code, 422)
+    db.record_event("analysis_successful", detection.platform, slug)
+    media["tool"] = slug
+    return jsonify(media)
 
 
 @app.post("/api/download")
 def api_download():
+    if not _rate_limit(g.client_id, "download", 2):
+        return _json_error("Too many downloads. Please try again in a minute.", "rate_limited", 429)
     data = request.get_json(silent=True) or {}
-    url, error = validate_url(data.get("url"))
-    if error:
-        return jsonify({"error": error}), 400
-
-    quality = data.get("quality", "best")
-    if quality not in downloader.QUALITIES:
-        return jsonify({"error": "Unknown quality option."}), 400
-
-    if not downloader.ytdlp_available():
-        return jsonify({"error": "yt-dlp is not installed on the server."}), 503
-
-    job_id = downloader.start(url, quality, g.client_id)
+    if not isinstance(data, dict):
+        return _json_error("Send a selected format in a JSON object.", "invalid_request")
+    try:
+        url, detection, spec = resolve(data.get("analysis_id", ""), data.get("format_id", ""), g.client_id)
+    except AnalysisError as exc:
+        return _json_error(str(exc), exc.code, 400)
+    slug = data.get("tool") or "universal-video-downloader"
+    if slug not in BY_SLUG:
+        return _json_error("Unknown downloader tool.", "invalid_tool")
+    if not downloader.ytdlp_available() and spec["engine"] == "yt-dlp":
+        return _json_error("The media extractor is unavailable. Please try later.", "server_error", 503)
+    job_id = downloader.start(url, spec["label"], g.client_id, spec, detection.platform, slug)
     if not job_id:
-        return jsonify({"error": "The server is busy. Please try again shortly."}), 429
-    return jsonify({"job_id": job_id}), 202
+        return _json_error("The server is busy. Please try again shortly.", "busy", 429)
+    db.record_event("download_clicked", detection.platform, slug, spec.get("extension"))
+    return jsonify({"job_id": job_id, "platform": detection.platform,
+                    "tool": slug, "format": spec.get("extension", "")}), 202
 
 
 @app.get("/api/progress/<job_id>")
 def api_progress(job_id):
+    if not JOB_ID.fullmatch(job_id):
+        return _json_error("Unknown job.", "not_found", 404)
     row = db.get_job(job_id, g.client_id)
     if not row:
-        return jsonify({"error": "Unknown job."}), 404
+        return _json_error("Unknown job.", "not_found", 404)
     state = downloader.get_state(job_id)
     if state:
-        state.pop("ended_at", None)
+        for key in ("ended_at", "spec", "url"):
+            state.pop(key, None)
+        if state["status"] == "done":
+            state["download_url"] = _signed_link(job_id, g.client_id)
         return jsonify(state)
-
-    # Job aged out of memory — fall back to what SQLite recorded.
-    return jsonify({
-        "job_id": job_id,
-        "status": row["status"],
-        "percent": 100.0 if row["status"] == "done" else 0.0,
-        "stage": "Complete" if row["status"] == "done" else "Failed",
-        "title": row["title"],
-        "filename": row["filename"],
-        "error": row["error"],
-        "speed": None,
-        "eta": None,
-    })
+    return jsonify({"job_id": job_id, "status": row["status"],
+                    "percent": 100.0 if row["status"] == "done" else 0.0,
+                    "stage": "Complete" if row["status"] == "done" else "Failed",
+                    "title": row["title"], "filename": row["filename"],
+                    "error": row["error"], "speed": None, "eta": None,
+                    "download_url": _signed_link(job_id, g.client_id) if row["status"] == "done" else None})
 
 
 @app.get("/api/file/<job_id>")
 def api_file(job_id):
+    if not JOB_ID.fullmatch(job_id) or not _verify_link(job_id, g.client_id):
+        return _json_error("This download link has expired. Refresh your history for a new link.", "expired", 403)
     row = db.get_job(job_id, g.client_id)
     if not row or row["status"] != "done" or not row["filename"]:
-        return jsonify({"error": "File is not available."}), 404
-
+        return _json_error("File is not available.", "not_found", 404)
     path = downloader.file_path(job_id, row["filename"])
     if not path:
-        return jsonify({"error": "File no longer exists on the server."}), 410
-
-    return send_file(path, as_attachment=True, download_name=os.path.basename(path))
+        return _json_error("This temporary file has expired.", "expired", 410)
+    response = send_file(path, as_attachment=True, download_name=os.path.basename(path))
+    if row["platform"] and row["tool_slug"]:
+        response.headers["X-SFN-Platform"] = row["platform"]
+        response.headers["X-SFN-Tool"] = row["tool_slug"]
+        response.headers["X-SFN-Format"] = row["file_format"]
+        response.call_on_close(lambda: db.record_event("download_completed", row["platform"], row["tool_slug"], row["file_format"]))
+    return response
 
 
 @app.get("/api/history")
 def api_history():
-    rows = db.list_history(g.client_id, limit=50)
-    for r in rows:
-        r["available"] = bool(
-            r["filename"] and downloader.file_path(r["job_id"], r["filename"])
-        )
+    rows = db.list_history(g.client_id, limit=30)
+    for row in rows:
+        row["available"] = bool(row["filename"] and downloader.file_path(row["job_id"], row["filename"]))
+        row["download_url"] = _signed_link(row["job_id"], g.client_id) if row["available"] else None
     return jsonify(rows)
 
 
 @app.delete("/api/history/<job_id>")
 def api_history_delete(job_id):
-    if not db.get_job(job_id, g.client_id):
-        return jsonify({"error": "Unknown job."}), 404
+    if not JOB_ID.fullmatch(job_id) or not db.get_job(job_id, g.client_id):
+        return _json_error("Unknown job.", "not_found", 404)
     downloader.remove_files(job_id)
     db.delete_history_entry(job_id, g.client_id)
     return jsonify({"ok": True})
+
+
+@app.post("/api/event")
+def api_event():
+    if not _rate_limit(g.client_id, "event", 30):
+        return _json_error("Too many events.", "rate_limited", 429)
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict) or data.get("event") not in ("format_selected", "error_occurred"):
+        return _json_error("Unknown event.", "invalid_event")
+    tool = BY_SLUG.get(data.get("tool"))
+    platform = data.get("platform")
+    if not tool or platform not in PLATFORMS:
+        return _json_error("Invalid event context.", "invalid_event")
+    db.record_event(data["event"], platform, tool.slug, str(data.get("format", ""))[:12])
+    return jsonify({"ok": True})
+
+
+@app.get("/api/metrics")
+def api_metrics():
+    admin_token = os.environ.get("ADMIN_METRICS_TOKEN", "")
+    supplied = request.headers.get("Authorization", "").removeprefix("Bearer ")
+    if not admin_token or not hmac.compare_digest(supplied, admin_token):
+        return _json_error("Not found.", "not_found", 404)
+    return jsonify(db.metrics())
 
 
 @app.get("/api/activity")
@@ -175,12 +322,20 @@ def api_activity():
 
 @app.get("/healthz")
 def healthz():
-    return jsonify({
-        "ok": True,
-        "ytdlp": downloader.ytdlp_available(),
-        "download_dir": DOWNLOAD_DIR,
-    })
+    return jsonify({"ok": True, "ytdlp": downloader.ytdlp_available(), "download_dir": DOWNLOAD_DIR})
+
+
+@app.get("/robots.txt")
+def robots():
+    return Response(f"User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: {SITE_URL}/sitemap.xml\n", mimetype="text/plain")
+
+
+@app.get("/sitemap.xml")
+def sitemap():
+    pages = [(SITE_URL + "/", "1.0")] + [(SITE_URL + tool.path, "0.7") for tool in TOOLS]
+    body = "".join(f"<url><loc>{url}</loc><changefreq>weekly</changefreq><priority>{priority}</priority></url>" for url, priority in pages)
+    return Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + body + "</urlset>", mimetype="application/xml")
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5000)

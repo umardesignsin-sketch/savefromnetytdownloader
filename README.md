@@ -1,223 +1,98 @@
-# YouTube Downloader (Flask + yt-dlp)
+# SaveFromNet
 
-A small web app that runs `yt-dlp` as a subprocess, streams its progress to the
-browser, and serves the finished file. History is stored in SQLite.
+A public media downloader for content the user owns or may download. It detects
+YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and
+Dailymotion links. The 25 pages share one URL validator, extraction service,
+result UI, and background job runner. Pages never invent formats: an option is
+shown only after a source extractor returns it.
+
+## Architecture
+
+```
+Cloudflare static assets: homepage, 25 tool pages, CSS, JS, sitemap
+       ↓ POST /api/analyze and /api/download
+Cloudflare Worker: per-IP rate limits
+       ↓
+Cloudflare Container: Flask + yt-dlp + gallery-dl + ffmpeg
+       ↓
+Ephemeral SQLite job history and temporary files
+       ↓
+15-minute signed, browser-bound file link
+```
+
+`generate_static.py` renders the Flask templates into edge assets for fast
+first loads. The Flask routes remain usable locally. `extractors/detect.py`
+normalizes allowlisted public URL shapes before any network request.
+`extractors/service.py` analyzes real source formats, caches public metadata
+for 90 seconds, and stores format selections under a short-lived analysis ID.
+`downloader.py` runs the selected format in a background process; it never
+passes a raw user URL or format string to a shell. `tools.py` owns tool-page
+content and metadata. `db.py` stores anonymous history and local aggregate
+events. The Worker also writes privacy-minimal, persistent aggregate events
+to Cloudflare Analytics Engine dataset `savefromnet_events`.
+
+`yt-dlp` handles public video/audio sources. `gallery-dl` handles accessible
+Instagram post/profile/story media, TikTok Stories, and Pinterest images/GIFs.
+Threads is limited to public posts that expose a video in Open Graph metadata.
+The service does not use account cookies or bypass DRM, paywalls, private posts,
+or other access controls. Source-site changes or data-center blocking can make
+some public URLs unavailable; the API returns a clear error in that case.
+
+## Local development
+
+Requires Python 3.10+, Node.js 22+, and ffmpeg. On Windows:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe app.py
+```
+
+Open `http://127.0.0.1:5000`. Put `.venv/Scripts` on `PATH` when testing real
+downloads so `yt-dlp` and `gallery-dl` CLI commands are found. To render the
+edge site, run `python generate_static.py`. Run checks with
+`python -m unittest discover -s tests -v`.
+
+## API
+
+- `POST /api/analyze` with `{ "url": "...", "tool": "youtube-to-mp3" }` returns
+  title, author, thumbnail, duration, real available formats, and an
+  `analysis_id`. Analysis IDs expire after 10 minutes and belong to the
+  requesting anonymous browser.
+- `POST /api/download` with `analysis_id`, a returned `format_id`, and the
+  tool slug starts a background job. The server rechecks ownership and the
+  selected format.
+- `GET /api/progress/{job_id}` reports progress and, when ready, a signed
+  `download_url`.
+- `GET /api/file/{job_id}` requires the signed link and the same browser
+  cookie. Links expire in 15 minutes; refresh history for a new link.
+- `GET /api/history` and `DELETE /api/history/{job_id}` manage that browser's
+  temporary files. `GET /healthz` reports service health.
+- `GET /api/metrics` returns aggregate counters only when
+`ADMIN_METRICS_TOKEN` is configured and supplied as a Bearer token. These
+local counters reset when the Container sleeps; the Cloudflare Analytics
+Engine dataset is the durable event source. No admin account system exists in
+this project.
+
+## Limits and storage
+
+The Worker allows eight analyses, two download starts, four signed file
+requests, and 30 analytics events per IP per minute.
+Flask also applies per-browser limits. One 512 MB job runs at a time, and four
+analyses may run concurrently. Completed files are cleaned up after about an
+hour when the container remains active. The Container sleeps after five minutes
+of inactivity; that can clear files sooner. SQLite history and metrics are
+ephemeral as well. A future persistent history or analytics feature would
+require a separate Cloudflare database; media files are deliberately not stored
+permanently.
 
 ## Cloudflare deployment
 
-The ZIP's Flask app runs in a Cloudflare Container behind `src/worker.js`. The
-Worker limits download starts to two per IP per minute; the single container
-accepts one active download at a time and `yt-dlp` caps files at 512 MB. Browser
-history and file access are scoped to an anonymous, HTTP-only browser cookie.
-The container stores files and SQLite history on ephemeral disk, so downloads
-and history disappear when the container stops or a new image is deployed.
-
-`wrangler.jsonc` defines the Worker and image. Build the Docker image with the
-manual GitHub Actions workflow in `.github/workflows/build-container.yml`, then
-pin its Git SHA tag in `wrangler.jsonc` and run `npm run deploy`. The workflow
-needs `CF_REGISTRY_USERNAME` and `CF_REGISTRY_PASSWORD` as temporary repository
-secrets while building; remove them after a successful build.
-
-The Worker serves all paths on `savefromnet.fun` through a Cloudflare Worker
-Route over the zone's existing proxied DNS records. The `workers.dev` URL
-remains available as a fallback.
-
-## Features
-
-- URL input with client- and server-side YouTube URL validation
-- Quality selection: best / 1080p / 720p / 480p / audio-only (MP3)
-- Live progress bar with percentage, speed and ETA (polled from parsed yt-dlp output)
-- Download history in SQLite, with re-download and remove
-- Human-readable errors for private, removed, age-restricted and geo-blocked videos
-
-## Requirements
-
-- Python 3.9+
-- `ffmpeg` on `PATH` (needed for merging video+audio and for MP3 extraction)
-
-## Local run
-
-```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python app.py
-```
-
-Then open http://127.0.0.1:5000.
-
-On Windows, activate with `.venv\Scripts\activate` and install ffmpeg via
-`winget install Gyan.FFmpeg`.
-
-## Configuration
-
-All optional, set as environment variables (see `config.py`):
-
-| Variable | Default | Meaning |
-| --- | --- | --- |
-| `DOWNLOAD_DIR` | `./downloads` | Where finished files are stored |
-| `DB_PATH` | `./history.db` | SQLite database file |
-| `YTDLP_BIN` | `yt-dlp` | Path to the yt-dlp binary |
-| `JOB_TIMEOUT` | `1800` | Per-download timeout, seconds |
-| `JOB_TTL` | `3600` | How long finished jobs stay in memory |
-| `MAX_CONCURRENT_JOBS` | `3` | Simultaneous yt-dlp processes |
-
----
-
-## Deploying to a Linux VPS (Ubuntu 22.04/24.04)
-
-### 1. System packages
-
-```bash
-sudo apt update && sudo apt install -y python3-venv python3-pip ffmpeg nginx
-```
-
-### 2. Create a service user and lay down the code
-
-```bash
-sudo adduser --system --group --home /opt/ytdl ytdl
-sudo -u ytdl git clone <your-repo-url> /opt/ytdl/app
-```
-
-(Or `scp` the directory to `/opt/ytdl/app` and `sudo chown -R ytdl:ytdl /opt/ytdl`.)
-
-### 3. Virtualenv
-
-```bash
-sudo -u ytdl python3 -m venv /opt/ytdl/venv
-sudo -u ytdl /opt/ytdl/venv/bin/pip install -r /opt/ytdl/app/requirements.txt
-```
-
-### 4. systemd unit
-
-**Important:** run exactly **one** Gunicorn worker. Job progress is held in
-process memory, so a second worker would not see jobs started by the first.
-Use threads (`--threads`) for concurrency instead of workers.
-
-```bash
-sudo tee /etc/systemd/system/ytdl.service >/dev/null <<'EOF'
-[Unit]
-Description=YouTube Downloader (Flask + yt-dlp)
-After=network.target
-
-[Service]
-User=ytdl
-Group=ytdl
-WorkingDirectory=/opt/ytdl/app
-Environment="DOWNLOAD_DIR=/var/lib/ytdl/downloads"
-Environment="DB_PATH=/var/lib/ytdl/history.db"
-Environment="YTDLP_BIN=/opt/ytdl/venv/bin/yt-dlp"
-ExecStart=/opt/ytdl/venv/bin/gunicorn \
-    --workers 1 --threads 8 --timeout 120 \
-    --bind 127.0.0.1:8000 wsgi:app
-Restart=always
-RestartSec=3
-
-# Hardening
-NoNewPrivileges=true
-PrivateTmp=true
-ProtectSystem=strict
-ProtectHome=true
-ReadWritePaths=/var/lib/ytdl
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo mkdir -p /var/lib/ytdl/downloads
-sudo chown -R ytdl:ytdl /var/lib/ytdl
-sudo systemctl daemon-reload
-sudo systemctl enable --now ytdl
-sudo systemctl status ytdl
-```
-
-### 5. Nginx reverse proxy
-
-```bash
-sudo tee /etc/nginx/sites-available/ytdl >/dev/null <<'EOF'
-server {
-    listen 80;
-    server_name your.domain.com;
-
-    # Large files are streamed straight through.
-    client_max_body_size 10m;
-    proxy_max_temp_file_size 0;
-
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_read_timeout 300s;
-        proxy_buffering off;
-    }
-}
-EOF
-
-sudo ln -sf /etc/nginx/sites-available/ytdl /etc/nginx/sites-enabled/ytdl
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo nginx -t && sudo systemctl reload nginx
-```
-
-### 6. HTTPS
-
-```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d your.domain.com
-```
-
-### 7. Firewall
-
-```bash
-sudo ufw allow OpenSSH && sudo ufw allow 'Nginx Full' && sudo ufw enable
-```
-
-### 8. Keep yt-dlp current
-
-YouTube changes break yt-dlp regularly; update it weekly:
-
-```bash
-sudo tee /etc/systemd/system/ytdl-update.service >/dev/null <<'EOF'
-[Unit]
-Description=Update yt-dlp
-[Service]
-Type=oneshot
-ExecStart=/opt/ytdl/venv/bin/pip install --upgrade yt-dlp
-ExecStartPost=/bin/systemctl restart ytdl
-EOF
-
-sudo tee /etc/systemd/system/ytdl-update.timer >/dev/null <<'EOF'
-[Unit]
-Description=Weekly yt-dlp update
-[Timer]
-OnCalendar=weekly
-Persistent=true
-[Install]
-WantedBy=timers.target
-EOF
-
-sudo systemctl enable --now ytdl-update.timer
-```
-
-### 9. Prune old downloads
-
-```bash
-echo '0 4 * * * find /var/lib/ytdl/downloads -mindepth 1 -maxdepth 1 -type d -mtime +1 -exec rm -rf {} +' \
-  | sudo crontab -u ytdl -
-```
-
-### Logs and health
-
-```bash
-journalctl -u ytdl -f
-curl -s localhost:8000/healthz
-```
-
-## Operational notes
-
-- **Access control.** There is no authentication. On a public VPS, put it behind
-  HTTP basic auth in Nginx or restrict by IP — an open downloader will be abused.
-- **Bot checks.** YouTube may ask a datacenter IP to "sign in to confirm you're
-  not a bot". If that happens, pass cookies to yt-dlp via `--cookies` in
-  `downloader.py`.
-- **Legal.** Download only content you have the right to download.
+The site is routed from `savefromnet.fun/*` to Worker `savefromnet-funyt`.
+`wrangler.jsonc` pins a Cloudflare Container image tag. The GitHub Actions
+workflow `.github/workflows/build-container.yml` builds and publishes that
+image when manually dispatched. It uses short-lived registry credentials in
+the repository's Actions secrets; remove them after a successful build.
+Update the image tag to the built commit SHA, then run `npm ci` and
+`npm run deploy`. The deploy script regenerates static pages before Wrangler
+uploads them. It does not change the zone's existing DNS records.

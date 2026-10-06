@@ -1,12 +1,16 @@
 """Job runner: wraps yt-dlp in a subprocess and tracks progress in memory."""
 import os
+import ipaddress
+import logging
 import re
 import shutil
 import signal
+import socket
 import subprocess
 import threading
 import time
 import uuid
+from urllib.parse import urlsplit
 
 from config import (
     DOWNLOAD_DIR,
@@ -104,8 +108,8 @@ def active_count():
         return sum(s["status"] in ("queued", "downloading") for s in JOBS.values())
 
 
-def start(url, quality, owner_id):
-    if quality not in QUALITIES:
+def start(url, quality, owner_id, spec=None, platform="", tool_slug=""):
+    if spec is None and quality not in QUALITIES:
         raise ValueError("Unknown quality option.")
     _reap()
     job_id = uuid.uuid4().hex
@@ -116,6 +120,7 @@ def start(url, quality, owner_id):
             "job_id": job_id,
             "url": url,
             "quality": quality,
+            "spec": spec,
             "status": "queued",
             "percent": 0.0,
             "stage": "Queued",
@@ -126,8 +131,9 @@ def start(url, quality, owner_id):
             "error": None,
             "ended_at": None,
         }
-    db.insert_job(job_id, url, quality, owner_id)
-    threading.Thread(target=_run, args=(job_id, url, quality), daemon=True).start()
+    db.insert_job(job_id, url, quality, owner_id, platform, tool_slug,
+                  spec.get("extension", "") if spec else "")
+    threading.Thread(target=_run, args=(job_id, url, quality, spec), daemon=True).start()
     return job_id
 
 
@@ -135,25 +141,42 @@ def _job_dir(job_id):
     return os.path.join(DOWNLOAD_DIR, job_id)
 
 
-def _run(job_id, url, quality):
+def _run(job_id, url, quality, spec):
     acquired = _slots.acquire(timeout=JOB_TIMEOUT)
     if not acquired:
         _fail(job_id, "Server is busy — too many downloads in progress. Try again shortly.")
         return
     try:
-        _download(job_id, url, quality)
-    except Exception as exc:  # noqa: BLE001 - surface anything unexpected to the user
-        _fail(job_id, f"Unexpected server error: {exc}")
+        _download(job_id, url, quality, spec)
+    except Exception:  # noqa: BLE001 - keep unexpected details in server logs
+        logging.exception("Download job failed")
+        _fail(job_id, "A server error interrupted this download. Please try again.")
     finally:
         _slots.release()
 
 
-def _download(job_id, url, quality):
+def _download(job_id, url, quality, spec=None):
     out_dir = _job_dir(job_id)
     os.makedirs(out_dir, exist_ok=True)
 
-    cmd = [
+    if spec and spec.get("engine") == "threads":
+        return _download_threads(job_id, spec, out_dir)
+
+    if spec and spec.get("engine") == "gallery-dl":
+        index = spec["index"]
+        cmd = ["gallery-dl", "--config-ignore", "--no-input", "--filesize-max", MAX_FILESIZE,
+               "--range", f"{index}-{index}", "--directory", out_dir, "--", url]
+    else:
+        options = QUALITIES[quality] if spec is None else ["-f", spec["selector"]]
+        if spec and spec.get("convert_mp3"):
+            options += ["-x", "--audio-format", "mp3"]
+        elif spec and spec.get("extension") in ("mp4", "webm"):
+            options += ["--merge-output-format", spec["extension"]]
+
+        cmd = [
         YTDLP_BIN,
+        "--ignore-config",
+        "--use-extractors", "default,-generic",
         "--newline",                 # one progress update per line
         "--no-playlist",
         "--max-filesize", MAX_FILESIZE,
@@ -164,10 +187,10 @@ def _download(job_id, url, quality):
         "--progress",
         "--print", "before_dl:__TITLE__ %(title)s",
         "-o", os.path.join(out_dir, "%(title)s.%(ext)s"),
-        *QUALITIES[quality],
+        *options,
         "--",
         url,
-    ]
+        ]
 
     _set(job_id, status="downloading", stage="Starting")
     db.update_job(job_id, status="downloading")
@@ -192,6 +215,15 @@ def _download(job_id, url, quality):
     err_thread.start()
 
     deadline = time.time() + JOB_TIMEOUT
+    timed_out = threading.Event()
+
+    def on_timeout():
+        timed_out.set()
+        _kill(proc)
+
+    watchdog = threading.Timer(JOB_TIMEOUT, on_timeout)
+    watchdog.daemon = True
+    watchdog.start()
     for line in proc.stdout:
         line = line.strip()
         if time.time() > deadline:
@@ -224,24 +256,30 @@ def _download(job_id, url, quality):
             _set(job_id, stage="Extracting audio", percent=99.0)
 
     proc.wait()
+    watchdog.cancel()
     err_thread.join(timeout=5)
     stderr = "\n".join(stderr_lines)
+
+    if timed_out.is_set():
+        _fail(job_id, "Download timed out. Please try a shorter or smaller video.")
+        return
 
     if proc.returncode != 0:
         _fail(job_id, friendly_error(stderr))
         return
 
-    files = [
-        f for f in os.listdir(out_dir)
-        if os.path.isfile(os.path.join(out_dir, f)) and not f.endswith(".part")
-    ]
+    files = [os.path.join(root, f) for root, _, names in os.walk(out_dir)
+             for f in names if not f.endswith((".part", ".ytdl"))]
     if not files:
         _fail(job_id, friendly_error(stderr))
         return
 
     # A merge can leave fragments behind; the finished file is the largest one.
-    filename = max(files, key=lambda f: os.path.getsize(os.path.join(out_dir, f)))
-    size = os.path.getsize(os.path.join(out_dir, filename))
+    selected = max(files, key=os.path.getsize)
+    filename = os.path.relpath(selected, out_dir)
+    size = os.path.getsize(selected)
+    if size > 512 * 1024 * 1024:
+        return _fail(job_id, "The finished file exceeds the 512 MB limit.")
 
     _set(
         job_id,
@@ -252,6 +290,44 @@ def _download(job_id, url, quality):
         ended_at=time.time(),
     )
     db.finish_job(job_id, "done", filename=filename, filesize=size)
+
+
+def _download_threads(job_id, spec, out_dir):
+    import requests
+    media_url = spec["media_url"]
+    host = (urlsplit(media_url).hostname or "").lower()
+    if not (host.endswith(".cdninstagram.com") or host.endswith(".fbcdn.net")):
+        return _fail(job_id, "The source video URL is unavailable.")
+    response = None
+    try:
+        addresses = socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)
+        if not addresses or any(not ipaddress.ip_address(a[4][0]).is_global for a in addresses):
+            return _fail(job_id, "The source video address is invalid.")
+        response = requests.get(media_url, stream=True, timeout=(8, 30), allow_redirects=False)
+        if response.status_code != 200:
+            return _fail(job_id, "The source video is no longer available.")
+        if not response.headers.get("Content-Type", "").lower().startswith("video/mp4"):
+            return _fail(job_id, "The source did not return an MP4 video.")
+        path = os.path.join(out_dir, "threads-video.mp4")
+        total = 0
+        deadline = time.monotonic() + JOB_TIMEOUT
+        with open(path, "wb") as output:
+            for chunk in response.iter_content(128 * 1024):
+                if time.monotonic() > deadline:
+                    return _fail(job_id, "Download timed out.")
+                total += len(chunk)
+                if total > 512 * 1024 * 1024:
+                    return _fail(job_id, "The file exceeds the 512 MB limit.")
+                output.write(chunk)
+        if not total:
+            return _fail(job_id, "The source returned an empty video.")
+        _set(job_id, status="done", percent=100.0, stage="Complete", filename="threads-video.mp4", ended_at=time.time())
+        db.finish_job(job_id, "done", filename="threads-video.mp4", filesize=total)
+    except (OSError, requests.RequestException):
+        _fail(job_id, "The source video could not be transferred.")
+    finally:
+        if response is not None:
+            response.close()
 
 
 def _kill(proc):

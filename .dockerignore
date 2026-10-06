@@ -9,3 +9,5 @@ downloads
 history.db
 .env
 .wrangler
+dist
+tests
