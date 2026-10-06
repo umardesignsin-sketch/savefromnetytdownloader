@@ -69,6 +69,35 @@ def _estimate(item):
     return int(size) if isinstance(size, (int, float)) and size > 0 else None
 
 
+def _bitrate_size(item, duration):
+    bitrate = item.get("tbr") or item.get("vbr") or item.get("abr")
+    if (not isinstance(bitrate, (int, float)) or bitrate <= 0 or
+            not isinstance(duration, (int, float)) or duration <= 0):
+        return None
+    return int(bitrate * 125 * duration)
+
+
+def _combined_size(video, audio, duration):
+    """Never present a known audio size as the size of an unknown video."""
+    video_size = _estimate(video)
+    audio_size = _estimate(audio) if audio else 0
+    video_rough = _bitrate_size(video, duration)
+    audio_rough = _bitrate_size(audio, duration) if audio else 0
+    rough = ((video_rough or 0) + (audio_rough or 0)
+             if video_rough and (not audio or audio_rough) else None)
+    complete = video_size is not None and audio_size is not None
+    if complete:
+        size = video_size + audio_size
+        estimated = not video.get("filesize") or bool(audio and not audio.get("filesize"))
+    elif video_size is not None and audio_rough:
+        size, estimated = video_size + audio_rough, True
+    elif video_rough and audio_size is not None:
+        size, estimated = video_rough + audio_size, True
+    else:
+        size, estimated = rough, rough is not None
+    return size, estimated, rough
+
+
 def _yt_formats(info):
     formats = info.get("formats") or []
     audio = [f for f in formats if f.get("acodec") not in (None, "none") and
@@ -89,15 +118,15 @@ def _yt_formats(info):
         partner = None if has_audio else next((a for a in audio if a.get("ext") == ("m4a" if f["ext"] == "mp4" else "webm")), None)
         if not has_audio and not partner:
             continue
-        size = (_estimate(f) or 0) + (_estimate(partner) or 0) if partner else _estimate(f)
-        if size and size > MAX_BYTES:
+        size, estimated, rough = _combined_size(f, partner, info.get("duration"))
+        if (size and size > MAX_BYTES) or (estimated and rough and rough > MAX_BYTES * 1.25):
             continue
         seen.add(key)
         selector = f["format_id"] + ("+" + partner["format_id"] if partner else "")
         result.append({"id": f"v{len(result)}", "type": "video", "extension": f["ext"],
                        "quality": f"{height}p", "resolution": [f.get("width"), height],
                        "bitrate": int(f["tbr"]) if f.get("tbr") else None,
-                       "filesize": size or None,
+                       "filesize": size, "filesize_estimated": estimated,
                        "_spec": {"engine": "yt-dlp", "selector": selector, "extension": f["ext"]}})
         if len(result) >= 12:
             break
@@ -110,6 +139,7 @@ def _yt_formats(info):
                            "quality": "Original audio", "resolution": None,
                            "bitrate": int(best["abr"]) if best.get("abr") else None,
                            "filesize": _estimate(best),
+                           "filesize_estimated": not bool(best.get("filesize")),
                            "_spec": {"engine": "yt-dlp", "selector": audio_selector, "extension": ext}})
         result.append({"id": "a-mp3", "type": "audio", "extension": "mp3",
                        "quality": "Converted MP3", "resolution": None, "bitrate": None,

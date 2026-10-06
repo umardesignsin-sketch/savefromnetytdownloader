@@ -1,4 +1,5 @@
 import { Container } from "@cloudflare/containers";
+import { guardAnalysis } from "./size-guard.mjs";
 
 function record(env, event, platform = "unknown", tool = "unknown", format = "", status = 0) {
   const clean = (value, pattern) => typeof value === "string" && pattern.test(value) ? value : "unknown";
@@ -94,8 +95,19 @@ export default {
       if (response.ok) {
         try {
           const result = await response.clone().json();
+          const safeResult = guardAnalysis(result);
+          if (!safeResult.formats.length) {
+            record(env, "analysis_failed", result.platform, result.tool, "", 422);
+            const headers = new Headers(response.headers);
+            headers.delete("Content-Length");
+            return new Response(JSON.stringify({ code: "no_formats", error: "No available format fits the 512 MB download limit." }),
+              { status: 422, headers });
+          }
           record(env, "platform_detected", result.platform, result.tool, "", response.status);
           record(env, "analysis_successful", result.platform, result.tool, "", response.status);
+          const headers = new Headers(response.headers);
+          headers.delete("Content-Length");
+          return new Response(JSON.stringify(safeResult), { status: response.status, headers });
         } catch { record(env, "analysis_failed", "unknown", "unknown", "", 500); }
       } else {
         record(env, "analysis_failed", "unknown", "unknown", "", response.status);

@@ -68,6 +68,27 @@ class FormatTests(unittest.TestCase):
                                            "acodec": "none", "height": 1080}]})
         self.assertEqual(found, [])
 
+    def test_missing_video_size_never_displays_audio_size_as_total(self):
+        found = _yt_formats({"formats": [
+            {"format_id": "v", "ext": "mp4", "vcodec": "av1", "acodec": "none", "height": 720},
+            {"format_id": "a", "ext": "m4a", "vcodec": "none", "acodec": "aac", "filesize": 25_077_688},
+        ]})
+        video = next(item for item in found if item["type"] == "video")
+        self.assertIsNone(video["filesize"])
+
+    def test_oversized_2160p_estimate_is_not_offered(self):
+        found = _yt_formats({"duration": 1549, "formats": [
+            {"format_id": "v2160", "ext": "mp4", "vcodec": "av1", "acodec": "none",
+             "height": 2160, "tbr": 19027},
+            {"format_id": "v720", "ext": "mp4", "vcodec": "h264", "acodec": "none",
+             "height": 720, "filesize": 120_000_000},
+            {"format_id": "a", "ext": "m4a", "vcodec": "none", "acodec": "aac",
+             "filesize": 25_077_688, "abr": 129},
+        ]})
+        videos = [item for item in found if item["type"] == "video"]
+        self.assertEqual([item["quality"] for item in videos], ["720p"])
+        self.assertEqual(videos[0]["filesize"], 145_077_688)
+
 
 class SiteTests(unittest.TestCase):
     def setUp(self):
