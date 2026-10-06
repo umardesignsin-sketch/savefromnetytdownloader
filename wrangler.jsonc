@@ -5,7 +5,7 @@
   "compatibility_date": "2026-10-06",
   "workers_dev": true,
   "routes": [
-    { "pattern": "savefromnet.fun", "custom_domain": true }
+    { "pattern": "savefromnet.fun/*", "zone_id": "1d7a01394100b39232e2f8a8b5380d78" }
   ],
   "containers": [
     {
