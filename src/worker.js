@@ -89,7 +89,7 @@ export default {
     if (pathname === "/api/analyze" && request.method === "POST") {
       record(env, "url_submitted", "unknown", "unknown");
     }
-    const response = await env.DOWNLOADER.getByName("flask-primary").fetch(request);
+    const response = await env.DOWNLOADER.getByName("multi-primary").fetch(request);
     if (pathname === "/api/analyze" && request.method === "POST") {
       if (response.ok) {
         try {
