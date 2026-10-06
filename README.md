@@ -18,8 +18,8 @@ pin its Git SHA tag in `wrangler.jsonc` and run `npm run deploy`. The workflow
 needs `CF_REGISTRY_USERNAME` and `CF_REGISTRY_PASSWORD` as temporary repository
 secrets while building; remove them after a successful build.
 
-The Worker can also serve `savefromnet.fun` as a Cloudflare Custom Domain once
-its route is added to `wrangler.jsonc`.
+The Worker serves `savefromnet.fun` as a Cloudflare Custom Domain, with the
+`workers.dev` URL retained as a fallback.
 
 ## Features
 
