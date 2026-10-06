@@ -20,8 +20,16 @@ class Tool:
         return "/" + self.slug
 
     @property
+    def heading(self):
+        return {
+            "youtube-to-mp3": "YouTube to MP3 Converter",
+            "tiktok-to-mp3": "TikTok to MP3 Converter",
+            "universal-video-downloader": "Universal Video Downloader & Converter",
+        }.get(self.slug, self.name)
+
+    @property
     def seo_title(self):
-        return f"{self.name} | SaveFromNet"
+        return f"{self.heading} | SaveFromNet"
 
     @property
     def seo_description(self):

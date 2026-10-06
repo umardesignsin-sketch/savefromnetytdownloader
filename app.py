@@ -140,7 +140,7 @@ def _filter_formats(tool, media):
 
 
 def _page(tool=None):
-    title = tool.seo_title if tool else "SaveFromNet — Download Videos From Anywhere"
+    title = tool.seo_title if tool else "SaveFromNet — Video Downloader & Converter"
     description = tool.seo_description if tool else "Download public videos, reels, shorts, photos and audio from your favorite platforms. See real formats before you save."
     canonical = SITE_URL + tool.path if tool else SITE_URL + "/"
     schema = [{"@context": "https://schema.org", "@type": "WebApplication", "name": tool.name if tool else "SaveFromNet",
