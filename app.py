@@ -164,6 +164,13 @@ def index():
     return _page()
 
 
+@app.get("/sw.js")
+def service_worker():
+    response = send_file(os.path.join(app.root_path, "sw.js"), mimetype="application/javascript")
+    response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
 @app.get("/<slug>")
 def tool_page(slug):
     tool = BY_SLUG.get(slug)

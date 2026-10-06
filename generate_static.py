@@ -36,6 +36,7 @@ def main():
         target = DIST / "static" / name
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
+    shutil.copy2(BASE / "sw.js", DIST / "sw.js")
     print(f"Rendered {len(TOOLS)} tool pages, homepage, and site assets to {DIST}")
 
 

@@ -89,6 +89,15 @@ class SiteTests(unittest.TestCase):
         home = self.client.get("/").get_data(as_text=True)
         self.assertIn("<h1>Video<br>Downloader<br><em>&amp; Converter.</em></h1>", home)
 
+    def test_root_service_worker_matches_supplied_file(self):
+        response = self.client.get("/sw.js")
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.mimetype, "application/javascript")
+            self.assertEqual(response.data, (Path(__file__).resolve().parents[1] / "sw.js").read_bytes())
+        finally:
+            response.close()
+
     def test_invalid_url_and_cross_browser_signed_file_denial(self):
         response = self.client.post("/api/analyze", json={"url": "http://127.0.0.1/"})
         self.assertEqual(response.status_code, 400)
