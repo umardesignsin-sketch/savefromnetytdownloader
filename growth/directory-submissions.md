@@ -4,7 +4,7 @@ Updated 2026-10-06. Canonical product URL: https://savefromnet.fun/
 
 The source list is the 43 recorded RankVyze directories, the 14 confirmed Mac Screen Recorder submissions, and the two confirmed FNJ submissions. An accepted form is not a public backlink. SaveFromNet is a free web downloader and converter for supported public media URLs; it does not use AI extraction, provide a Mac app, or bypass access controls. The owner-authorized contact email was supplied only where required and is not repeated in this public tracker.
 
-## Confirmed: 10 distinct directories
+## Confirmed: 12 distinct directories
 
 | Directory | Status | Evidence |
 | --- | --- | --- |
@@ -18,6 +18,8 @@ The source list is the 43 recorded RankVyze directories, the 14 confirmed Mac Sc
 | [AppRater](https://apprater.net/) | In review | A repeat check returned HTTP 409: “SaveFromNet has already been submitted and is still waiting for review.” No duplicate was created. |
 | [Startup Alternatives](https://www.startupalternatives.com/submit) | In review | Official API returned HTTP 200 and the page displayed “Thanks for sharing” with editorial review pending. |
 | [Awesome Tools](https://awesome.tools/submit/savefromnet/success) | In review; link verified | Agent submission accepted as a draft. The required visible footer link is live on SaveFromNet; Awesome Tools says “Link verified. SaveFromNet is in review.” |
+| [TryMy.App](https://trymy.app/submit) | In review | Official API returned HTTP 200 and the page said “savefromnet.fun is in the queue.” Paid featured placement was declined. |
+| [Launching Next](https://www.launchingnext.com/thanks/?i=157219) | In queue | The free submission redirected to a unique “SUBMITTED” receipt, ID 157219; the page estimates a four-month wait. The owner confirmed a $0 marketing budget. Paid fast track was declined. |
 
 ## Needs owner action
 
@@ -25,19 +27,17 @@ The source list is the 43 recorded RankVyze directories, the 14 confirmed Mac Sc
 
 ## Attempted without a verified submission
 
-- [Launching Next](https://www.launchingnext.com/submit/): the form returned to its start page without a receipt. Its required marketing-budget answer is not known; do not invent one.
-- [TryMy.App](https://trymy.app/submit): the form returned a query-string URL without a receipt or POST response.
 - [The Free Tools Directory](https://thefreetoolsdirectory.com/submit) and [Toolevate](https://toolevate.com/submit): a browser batch lost its final output. Neither is counted; check for a pending listing or email before retrying to avoid duplicates.
-- [FiveTaco](https://fivetaco.com/submit): URL entry returned to the same form without a receipt.
 - [LaunchPedia](https://launchpedia.co/submit/): the official embedded form rendered hidden and could not be completed through the normal visible workflow.
 - [Tools.so](https://tools.so/submit): the submission page displayed no usable product fields.
 
 ## Account, payment, or product-fit gates
 
 - [SaaSHub](https://www.saashub.com/services/submit), [AlternativeTo](https://alternativeto.net/software/new/), [Product Hunt](https://www.producthunt.com/posts/new), [BetaList](https://betalist.com/submit), [Uneed](https://www.uneed.best/submit-a-tool), [SideProjectors](https://www.sideprojectors.com/), and [The Hack Stack](https://thehackstack.com/add-product) require an account or inbox verification before a listing can be completed.
+- [FiveTaco](https://fivetaco.com/submit) requires account signup after the initial URL step; no listing receipt was issued.
 - [Fazier](https://fazier.com/submit) requires a reciprocal backlink for its free path or a paid placement. No purchase was made.
 - StartupStash rejects the authorized personal Gmail address and asks for a business email.
-- Startup88 requires a real founder identity and non-generic founder email. No founder details were invented.
+- Startup88 requires a real founder identity and non-generic founder email. The owner chose to skip it.
 - MadeWithStack requires a future badge commitment and specifically curates agent-built or agent-native products; no claim or commitment was invented.
 - No-Subscription.com and OwnYourMac curate Mac apps; ToolHunt accepts self-hosted or free Mac apps; the Snipping Tools Directory is for screen capture software. SaveFromNet does not fit those categories.
 - The RankVyze campaign's AISO Tools, CurataHub, Agent Visibility Directory, ListAi.cc, AI Nav, TopTrendy, CitedIndex, AISEO Dex, AISuperHub, AutoVenture, UStack, AI Search Visibility, TrendyInAI, Geodeck, LLM Relevance, Rundown Supertools, ListYourTool, Dynamite AI, Future AI Guide, ThatsMyAI, AI Tools Up, AI Tools Inc, AI Marketing Directory, MarsX AI Startups, and NextGenTools are AI, SEO, AEO, or GEO directories. SaveFromNet does not claim those features.
