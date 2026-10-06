@@ -44,44 +44,26 @@
   <main id="main">
     {% if tool %}
     <section class="tool-hero">
-      <div class="container">
-        <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span>{{ tool.name }}</span></nav>
-        <div class="hero-grid">
-          <div class="hero-copy">
-            <div class="eyebrow"><span class="eyebrow-dot"></span> FREE ONLINE TOOL · {{ tool.platform | upper }}</div>
-            <h1>{{ tool.heading }}</h1>
-            <p class="hero-subtitle">{{ tool.description }}</p>
-            <div class="hero-badges"><span>✓ Real available formats</span><span>✓ No sign-up</span><span>✓ Secure temporary files</span></div>
-          </div>
-          <div class="hero-art" aria-hidden="true"><div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div><div class="art-card"><div class="art-play">▶</div><div class="art-lines"><i></i><i></i></div><div class="art-arrow">↓</div></div><span class="art-spark spark-one">✳</span><span class="art-spark spark-two">✦</span></div>
-        </div>
-      </div>
+      <div class="container hero-centered"><h1 id="download-heading">{{ tool.heading }}</h1></div>
     </section>
     {% else %}
     <section class="home-hero">
-      <div class="container hero-grid">
-        <div class="hero-copy"><div class="eyebrow"><span class="eyebrow-dot"></span> ONE LINK. ALL YOUR FAVORITES.</div><h1>Video<br>Downloader<br><em>&amp; Converter.</em></h1><p class="hero-subtitle">Download videos, reels, shorts, photos and audio from your favorite platforms. Paste a public link and see what is actually available.</p><div class="hero-badges"><span>✓ 8 platforms</span><span>✓ Real formats</span><span>✓ No sign-up</span></div></div>
-        <div class="hero-art" aria-hidden="true"><div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div><div class="art-card"><div class="art-play">▶</div><div class="art-lines"><i></i><i></i></div><div class="art-arrow">↓</div></div><span class="art-spark spark-one">✳</span><span class="art-spark spark-two">✦</span></div>
-      </div>
+      <div class="container hero-centered"><h1 id="download-heading">Video Downloader <em>&amp; Converter</em></h1></div>
     </section>
     {% endif %}
 
     <section class="download-zone" aria-labelledby="download-heading">
       <div class="container narrow">
         <div class="download-panel">
-          <div class="panel-top"><div><span class="live-dot"></span><span>LINK TO FILE, SIMPLIFIED</span></div><span class="panel-step">01 / PASTE A LINK</span></div>
-          <h2 id="download-heading">{{ 'Download your ' + tool.platform.title() + ' media' if tool and tool.platform != 'universal' else 'Start with a link' }}</h2>
           <form id="download-form" novalidate>
             <label for="url" class="sr-only">Public media URL</label>
             <div class="input-row"><span class="input-icon" aria-hidden="true">↗</span><input id="url" type="url" inputmode="url" placeholder="Paste a video URL here..." autocomplete="url" required><button id="paste-btn" class="paste-btn" type="button">Paste</button><button id="submit-btn" class="submit-btn" type="submit">Analyze link <span aria-hidden="true">→</span></button></div>
             <p class="form-error" id="url-error" role="alert" hidden></p>
-            <p class="input-hint">{{ tool.url_hint if tool else 'Supports public links from YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and Dailymotion.' }}</p>
           </form>
           <div id="analysis-status" class="analysis-status" role="status" aria-live="polite" hidden><span class="spinner"></span><span id="analysis-label">Analyzing URL...</span></div>
         </div>
         <div id="result" class="result-panel" aria-live="polite" hidden></div>
         <div id="progress-card" class="progress-panel" aria-live="polite" hidden><div class="progress-head"><div><span class="section-kicker">PREPARING YOUR FILE</span><h3 id="job-title">Preparing…</h3><p id="job-stage">Queued</p></div><strong id="job-percent">0%</strong></div><div class="progress-track"><div id="progress-bar"></div></div><p id="job-meta"></p><div id="job-result"></div></div>
-        <p class="rights-note">Only download content you own or have permission to download. We do not bypass private posts, DRM, or access controls.</p>
       </div>
     </section>
 
@@ -100,7 +82,7 @@
     <section class="steps-section section-space" id="how-it-works"><div class="container"><div class="section-heading"><div><span class="section-kicker">HOW IT WORKS</span><h2>Three steps. That's it.</h2></div><p>No account, confusing settings, or guesswork about quality.</p></div><div class="steps-grid"><article><span class="step-number">01</span><div class="step-icon">⌁</div><h3>Paste a public link</h3><p>Copy the URL of media you own or have permission to save, then paste it above.</p></article><article><span class="step-number">02</span><div class="step-icon">✳</div><h3>See real formats</h3><p>We ask the source for metadata and show only the files and qualities it actually returns.</p></article><article><span class="step-number">03</span><div class="step-icon">↓</div><h3>Save your file</h3><p>Choose an available option. Processing runs in the background and your temporary file expires.</p></article></div></div></section>
 
     {% if tool %}
-    <section class="detail-section section-space"><div class="container detail-grid"><div><span class="section-kicker">ABOUT THIS TOOL</span><h2>Built for {{ tool.heading }}.</h2><p>{{ tool.description }}</p><p>{{ tool.format_note }}</p><div class="detail-callout"><strong>Supported links</strong><p>{{ tool.url_hint }}</p></div></div><div class="detail-card"><span class="section-kicker">GOOD TO KNOW</span><h3>When a link does not work</h3><p>{{ tool.problem }}</p><p>We only access content that the source makes publicly available without login. A format that is missing from the result is not offered as a download.</p><a href="#download-heading">Try another link <span aria-hidden="true">↑</span></a></div></div></section>
+    <section class="detail-section section-space"><div class="container detail-grid"><div><span class="section-kicker">ABOUT THIS TOOL</span><h2>Built for {{ tool.heading }}.</h2><p>{{ tool.description }}</p><p>{{ tool.format_note }}</p><div class="detail-callout"><strong>Supported links</strong><p>{{ tool.url_hint }}</p></div></div><div class="detail-card"><span class="section-kicker">GOOD TO KNOW</span><h3>When a link does not work</h3><p>{{ tool.problem }}</p><p>We only access content that the source makes publicly available without login. A format that is missing from the result is not offered as a download.</p><a href="#download-form">Try another link <span aria-hidden="true">↑</span></a></div></div></section>
     {% else %}
     <section class="detail-section section-space"><div class="container detail-grid"><div><span class="section-kicker">WHY SAVEFROMNET</span><h2>Simple on the surface.<br>Careful underneath.</h2><p>Our downloader detects the source, checks the actual media, and prepares only a format that source provides. Photos, video, and audio use one clear flow.</p></div><div class="feature-list"><div><span>01</span><div><h3>Honest quality choices</h3><p>No made-up 4K or 320 kbps buttons. The result comes from the extractor.</p></div></div><div><span>02</span><div><h3>Private by default</h3><p>Temporary files expire, and download history is separated by your browser cookie.</p></div></div><div><span>03</span><div><h3>Made for every screen</h3><p>Paste a link, choose a format, and save on mobile or desktop.</p></div></div></div></div></section>
     {% endif %}

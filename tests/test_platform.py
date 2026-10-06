@@ -81,13 +81,13 @@ class SiteTests(unittest.TestCase):
                 self.assertEqual(response.status_code, 200)
                 html = response.get_data(as_text=True)
                 self.assertIn(f'<link rel="canonical" href="https://savefromnet.fun{tool.path}">', html)
-                self.assertIn(f'<h1>{escape(tool.heading)}</h1>', html)
+                self.assertIn(f'<h1 id="download-heading">{escape(tool.heading)}</h1>', html)
                 schemas = [json.loads(block.split('</script>')[0]) for block in html.split('<script type="application/ld+json">')[1:]]
                 self.assertEqual({s["@type"] for s in schemas}, {"WebApplication", "FAQPage", "BreadcrumbList"})
         sitemap = self.client.get("/sitemap.xml").get_data(as_text=True)
         self.assertEqual(sitemap.count("<url>"), 26)
         home = self.client.get("/").get_data(as_text=True)
-        self.assertIn("<h1>Video<br>Downloader<br><em>&amp; Converter.</em></h1>", home)
+        self.assertIn("<h1 id=\"download-heading\">Video Downloader <em>&amp; Converter</em></h1>", home)
 
     def test_root_service_worker_matches_supplied_file(self):
         response = self.client.get("/sw.js")
