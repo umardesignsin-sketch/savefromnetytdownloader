@@ -2,11 +2,14 @@
 
 import json
 import os
+import re
 import tempfile
 import unittest
 from html import escape
 from pathlib import Path
+from urllib.parse import urlsplit
 from unittest.mock import patch
+from xml.etree import ElementTree
 
 _tmp = tempfile.TemporaryDirectory()
 os.environ["DB_PATH"] = str(Path(_tmp.name) / "test.db")
@@ -17,6 +20,7 @@ import db  # noqa: E402
 from downloader import file_path  # noqa: E402
 from extractors.detect import DetectError, detect_url  # noqa: E402
 from extractors.service import _yt_formats  # noqa: E402
+from guides import GUIDES  # noqa: E402
 from tools import TOOLS  # noqa: E402
 
 
@@ -106,9 +110,48 @@ class SiteTests(unittest.TestCase):
                 schemas = [json.loads(block.split('</script>')[0]) for block in html.split('<script type="application/ld+json">')[1:]]
                 self.assertEqual({s["@type"] for s in schemas}, {"WebApplication", "FAQPage", "BreadcrumbList"})
         sitemap = self.client.get("/sitemap.xml").get_data(as_text=True)
-        self.assertEqual(sitemap.count("<url>"), 26)
+        self.assertEqual(sitemap.count("<url>"), 27 + len(GUIDES))
         home = self.client.get("/").get_data(as_text=True)
         self.assertIn("<h1 id=\"download-heading\">Video Downloader <em>&amp; Converter</em></h1>", home)
+        self.assertIn('href="/guides"', home)
+
+    def test_guides_have_unique_content_working_forms_and_sitemap_urls(self):
+        self.assertEqual(len({guide.slug for guide in GUIDES}), len(GUIDES))
+        sitemap = self.client.get("/sitemap.xml").get_data(as_text=True)
+        hub = self.client.get("/guides").get_data(as_text=True)
+        self.assertIn('<link rel="canonical" href="https://savefromnet.fun/guides">', hub)
+        for guide in GUIDES:
+            with self.subTest(slug=guide.slug):
+                response = self.client.get(guide.path)
+                self.assertEqual(response.status_code, 200)
+                html = response.get_data(as_text=True)
+                self.assertIn(f'<link rel="canonical" href="https://savefromnet.fun{guide.path}">', html)
+                self.assertIn(f'<h1 id="download-heading">{escape(guide.title)}</h1>', html)
+                self.assertIn('id="download-form"', html)
+                self.assertIn(f'href="{guide.path}"', hub)
+                self.assertIn(f'<loc>https://savefromnet.fun{guide.path}</loc>', sitemap)
+                self.assertEqual(len(guide.sections), 3)
+                self.assertTrue(all(len(text.split()) >= 30 for _, text in guide.sections))
+                schemas = [json.loads(block.split('</script>')[0]) for block in html.split('<script type="application/ld+json">')[1:]]
+                self.assertEqual({schema["@type"] for schema in schemas}, {"Article", "FAQPage", "BreadcrumbList"})
+        self.assertEqual(self.client.get("/guides/not-a-guide").status_code, 404)
+
+    def test_public_navigation_and_sitemap_resolve(self):
+        paths = ["/", "/guides"] + [tool.path for tool in TOOLS] + [guide.path for guide in GUIDES]
+        sitemap = ElementTree.fromstring(self.client.get("/sitemap.xml").data)
+        locs = [node.text for node in sitemap.findall(".//{*}loc")]
+        self.assertEqual(set(locs), {"https://savefromnet.fun" + path for path in paths})
+        self.assertEqual(len(locs), len(paths))
+        for path in paths:
+            with self.subTest(path=path):
+                html = self.client.get(path).get_data(as_text=True)
+                links = {urlsplit(link).path or "/" for link in re.findall(r'href="(/[^"]*)"', html)}
+                for link in links:
+                    response = self.client.get(link)
+                    try:
+                        self.assertEqual(response.status_code, 200, f"Broken link {link} on {path}")
+                    finally:
+                        response.close()
 
     def test_root_service_worker_matches_supplied_file(self):
         response = self.client.get("/sw.js")

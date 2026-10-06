@@ -17,6 +17,7 @@ import downloader
 from config import DOWNLOAD_DIR
 from extractors import AnalysisError, DetectError, analyze, detect_url
 from extractors.service import resolve
+from guides import BY_SLUG as GUIDES_BY_SLUG, GUIDES
 from tools import BY_SLUG, PLATFORMS, TOOLS, related_tools
 
 app = Flask(__name__)
@@ -139,29 +140,76 @@ def _filter_formats(tool, media):
     return media
 
 
-def _page(tool=None):
-    title = tool.seo_title if tool else "SaveFromNet — Video Downloader & Converter"
-    description = tool.seo_description if tool else "Download public videos, reels, shorts, photos and audio from your favorite platforms. See real formats before you save."
-    canonical = SITE_URL + tool.path if tool else SITE_URL + "/"
-    schema = [{"@context": "https://schema.org", "@type": "WebApplication", "name": tool.name if tool else "SaveFromNet",
-               "applicationCategory": "MultimediaApplication", "operatingSystem": "Any",
-               "url": canonical, "description": description,
-               "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}]
-    if tool:
+def _page(tool=None, guide=None, guide_index=False):
+    if guide:
+        title = f"{guide.title} | SaveFromNet Guides"
+        description = guide.description
+        canonical = SITE_URL + guide.path
+    elif guide_index:
+        title = "Media Download Guides | SaveFromNet"
+        description = "Practical guides to public video, photo and audio links, available formats and common download problems across eight supported platforms."
+        canonical = SITE_URL + "/guides"
+    else:
+        title = tool.seo_title if tool else "SaveFromNet — Video Downloader & Converter"
+        description = tool.seo_description if tool else "Download public videos, reels, shorts, photos and audio from your favorite platforms. See real formats before you save."
+        canonical = SITE_URL + tool.path if tool else SITE_URL + "/"
+    if guide:
+        schema = [{"@context": "https://schema.org", "@type": "Article", "headline": guide.title,
+                   "description": description, "mainEntityOfPage": canonical,
+                   "publisher": {"@type": "Organization", "name": "SaveFromNet", "url": SITE_URL}}]
+    elif guide_index:
+        schema = [{"@context": "https://schema.org", "@type": "CollectionPage", "name": "Media Download Guides",
+                   "description": description, "url": canonical}]
+    else:
+        schema = [{"@context": "https://schema.org", "@type": "WebApplication", "name": tool.name if tool else "SaveFromNet",
+                   "applicationCategory": "MultimediaApplication", "operatingSystem": "Any",
+                   "url": canonical, "description": description,
+                   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}]
+    if guide:
+        schema.append({"@context": "https://schema.org", "@type": "FAQPage",
+                       "mainEntity": [{"@type": "Question", "name": q,
+                                       "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in guide.faq]})
+    elif tool:
         schema.append({"@context": "https://schema.org", "@type": "FAQPage",
                        "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}}
                                       for q, a in tool.faq]})
+    if guide or guide_index:
+        schema.append({"@context": "https://schema.org", "@type": "BreadcrumbList",
+                       "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": SITE_URL + "/"},
+                                           {"@type": "ListItem", "position": 2, "name": "Guides", "item": SITE_URL + "/guides"}]
+                                          + ([{"@type": "ListItem", "position": 3, "name": guide.title, "item": canonical}] if guide else [])})
+    elif tool:
         schema.append({"@context": "https://schema.org", "@type": "BreadcrumbList",
                        "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": SITE_URL + "/"},
                                            {"@type": "ListItem", "position": 2, "name": tool.name, "item": canonical}]})
+    platform_guides = {"youtube": "youtube-video-formats", "instagram": "instagram-public-media",
+                       "tiktok": "tiktok-video-and-audio", "facebook": "facebook-public-videos",
+                       "pinterest": "pinterest-pin-media", "reddit": "reddit-video-with-audio",
+                       "threads": "threads-video-availability", "dailymotion": "dailymotion-video-quality"}
+    platform_guide = GUIDES_BY_SLUG.get(platform_guides.get(tool.platform)) if tool else None
     return render_template("site.html", tool=tool, title=title, description=description,
                            canonical=canonical, tools=TOOLS, platforms=PLATFORMS,
-                           related=related_tools(tool) if tool else TOOLS[:10], schema=schema)
+                           related=related_tools(tool) if tool else TOOLS[:10], schema=schema,
+                           guide=guide, guide_index=guide_index, guides=GUIDES,
+                           platform_guide=platform_guide)
 
 
 @app.get("/")
 def index():
     return _page()
+
+
+@app.get("/guides")
+def guides_index():
+    return _page(guide_index=True)
+
+
+@app.get("/guides/<slug>")
+def guide_page(slug):
+    guide = GUIDES_BY_SLUG.get(slug)
+    if not guide:
+        return render_template("404.html", tools=TOOLS), 404
+    return _page(tool=BY_SLUG[guide.tool_slug], guide=guide)
 
 
 @app.get("/sw.js")
@@ -340,6 +388,8 @@ def robots():
 @app.get("/sitemap.xml")
 def sitemap():
     pages = [(SITE_URL + "/", "1.0")] + [(SITE_URL + tool.path, "0.7") for tool in TOOLS]
+    pages += [(SITE_URL + "/guides", "0.7")]
+    pages += [(SITE_URL + guide.path, "0.6") for guide in GUIDES]
     body = "".join(f"<url><loc>{url}</loc><changefreq>weekly</changefreq><priority>{priority}</priority></url>" for url, priority in pages)
     return Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + body + "</urlset>", mimetype="application/xml")
 

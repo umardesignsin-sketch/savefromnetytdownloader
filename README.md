@@ -3,13 +3,14 @@
 A public media downloader for content the user owns or may download. It detects
 YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and
 Dailymotion links. The 25 pages share one URL validator, extraction service,
-result UI, and background job runner. Pages never invent formats: an option is
+result UI, and background job runner. Ten practical guides and a guides hub
+explain supported links and formats. Pages never invent formats: an option is
 shown only after a source extractor returns it.
 
 ## Architecture
 
 ```
-Cloudflare static assets: homepage, 25 tool pages, CSS, JS, sitemap
+Cloudflare static assets: homepage, 25 tool pages, 11 guide pages, CSS, JS, sitemap
        ↓ POST /api/analyze and /api/download
 Cloudflare Worker: per-IP rate limits
        ↓
@@ -27,7 +28,8 @@ normalizes allowlisted public URL shapes before any network request.
 for 90 seconds, and stores format selections under a short-lived analysis ID.
 `downloader.py` runs the selected format in a background process; it never
 passes a raw user URL or format string to a shell. `tools.py` owns tool-page
-content and metadata. `db.py` stores anonymous history and local aggregate
+content and metadata. `guides.py` owns the editorial guides, each linked to a
+working downloader. `db.py` stores anonymous history and local aggregate
 events. The Worker also writes privacy-minimal, persistent aggregate events
 to Cloudflare Analytics Engine dataset `savefromnet_events`.
 

@@ -37,19 +37,24 @@
         </details>
         <a href="/#popular-tools">Tools</a>
         <a href="/#how-it-works">How it works</a>
+        <a href="/guides">Guides</a>
         <a class="nav-cta" href="/universal-video-downloader">Try downloader <span aria-hidden="true">↗</span></a>
       </nav>
     </div>
   </header>
 
   <main id="main">
-    {% if tool %}
+    {% if guide or guide_index %}
+    <section class="tool-hero guide-hero">
+      <div class="container hero-centered"><nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span><a href="/guides">Guides</a>{% if guide %}<span>›</span><span aria-current="page">{{ guide.title }}</span>{% endif %}</nav><h1 id="download-heading">{{ guide.title if guide else 'Media Download Guides' }}</h1><p class="guide-lead">{{ guide.intro if guide else 'Clear, practical explanations of supported links, real file formats, and the access limits that affect public media downloads.' }}</p></div>
+    </section>
+    {% elif tool %}
     <section class="tool-hero">
-      <div class="container hero-centered"><h1 id="download-heading">{{ tool.heading }}</h1></div>
+      <div class="container hero-centered"><h1 id="download-heading">{{ tool.heading }}</h1><p class="guide-lead">{{ tool.description }}</p></div>
     </section>
     {% else %}
     <section class="home-hero">
-      <div class="container hero-centered"><h1 id="download-heading">Video Downloader <em>&amp; Converter</em></h1></div>
+      <div class="container hero-centered"><h1 id="download-heading">Video Downloader <em>&amp; Converter</em></h1><p class="guide-lead">Download videos, reels, shorts, photos and audio from supported public links. See the formats actually available before you save.</p></div>
     </section>
     {% endif %}
 
@@ -68,6 +73,11 @@
       </div>
     </section>
 
+    {% if guide_index %}
+    <section class="guide-article section-space"><div class="container"><div class="guide-prose"><span class="section-kicker">START HERE</span><h2>Find the answer behind the download button.</h2><p>Every platform publishes media differently. These guides explain which individual links the downloader accepts, what file information it can show, and when a public-looking post is unavailable to an anonymous server.</p><p>Choose a topic below, then use the working downloader on that page with media you own or have permission to save. Available options always come from analysis of your actual link.</p></div><div class="guide-grid">{% for item in guides %}<a class="guide-card" href="{{ item.path }}"><span class="section-kicker">GUIDE {{ '%02d' | format(loop.index) }}</span><h3>{{ item.title }}</h3><p>{{ item.description }}</p><span class="guide-card-arrow">Read guide →</span></a>{% endfor %}</div></div></section>
+    {% elif guide %}
+    <article class="guide-article section-space"><div class="container guide-layout"><div class="guide-prose"><span class="section-kicker">PRACTICAL GUIDE</span>{% for heading, paragraph in guide.sections %}<section><h2>{{ heading }}</h2><p>{{ paragraph }}</p></section>{% endfor %}<p class="rights-note">Only download content you own or have permission to use. No login, paywall, DRM, or private-access bypass is offered.</p><section class="guide-faq" id="faq"><h2>Questions about this topic</h2>{% for question, answer in guide.faq %}<details><summary>{{ question }}</summary><p>{{ answer }}</p></details>{% endfor %}</section></div><aside class="guide-aside"><div class="detail-card"><span class="section-kicker">TRY THE TOOL</span><h2>{{ tool.heading }}</h2><p>{{ tool.description }}</p><a href="{{ tool.path }}">Open {{ tool.name }} →</a></div><div class="detail-card"><span class="section-kicker">KEEP READING</span><h2>More guides</h2>{% for item in guides if item.slug != guide.slug %}{% if loop.index <= 4 %}<a class="guide-side-link" href="{{ item.path }}">{{ item.title }} →</a>{% endif %}{% endfor %}<a class="guide-side-link" href="/guides">Browse all guides →</a></div></aside></div></article>
+    {% else %}
     <section class="platforms-section section-space" id="platforms"><div class="container"><div class="section-heading"><div><span class="section-kicker">SUPPORTED PLATFORMS</span><h2>One place for every link.</h2></div><p>Pick a platform to see its dedicated tools and supported URLs.</p></div><div class="platform-grid">
       {% for platform in platforms %}{% set platform_tool = tools | selectattr('platform', 'equalto', platform) | first %}
       <a class="platform-card" href="{{ platform_tool.path }}"><span class="platform-icon {{ platform }}">{{ platform[0] | upper }}</span><strong>{{ platform | title }}</strong><span class="card-arrow">↗</span></a>
@@ -80,7 +90,9 @@
 
     <section class="directory-section section-space" id="all-tools"><div class="container"><div class="section-heading"><div><span class="section-kicker">ALL DOWNLOADERS</span><h2>Find your next tool.</h2></div><p>Choose a dedicated page for the type of public media you want to save.</p></div><div class="directory-grid">{% for platform in platforms %}<div class="directory-group"><h3>{{ platform | title }}</h3>{% for item in tools if item.platform == platform %}<a href="{{ item.path }}">{{ item.name }} <span aria-hidden="true">↗</span></a>{% endfor %}</div>{% endfor %}<div class="directory-group"><h3>All platforms</h3><a href="/universal-video-downloader">Universal Video Downloader <span aria-hidden="true">↗</span></a></div></div></div></section>
 
-    <section class="steps-section section-space" id="how-it-works"><div class="container"><div class="section-heading"><div><span class="section-kicker">HOW IT WORKS</span><h2>Three steps. That's it.</h2></div><p>No account, confusing settings, or guesswork about quality.</p></div><div class="steps-grid"><article><span class="step-number">01</span><div class="step-icon">⌁</div><h3>Paste a public link</h3><p>Copy the URL of media you own or have permission to save, then paste it above.</p></article><article><span class="step-number">02</span><div class="step-icon">✳</div><h3>See real formats</h3><p>We ask the source for metadata and show only the files and qualities it actually returns.</p></article><article><span class="step-number">03</span><div class="step-icon">↓</div><h3>Save your file</h3><p>Choose an available option. Processing runs in the background and your temporary file expires.</p></article></div></div></section>
+    {% if not tool %}<section class="guides-section section-space" id="guides"><div class="container"><div class="section-heading"><div><span class="section-kicker">HELPFUL GUIDES</span><h2>Understand your options.</h2></div><p>Practical answers about formats, public links and common download problems.</p></div><div class="guide-grid">{% for item in guides[:6] %}<a class="guide-card" href="{{ item.path }}"><span class="section-kicker">GUIDE {{ '%02d' | format(loop.index) }}</span><h3>{{ item.title }}</h3><p>{{ item.description }}</p><span class="guide-card-arrow">Read guide →</span></a>{% endfor %}</div><p class="all-tools"><a href="/guides">Browse all guides →</a></p></div></section>{% elif platform_guide %}<section class="guide-promo section-space"><div class="container"><span class="section-kicker">LEARN MORE</span><h2>Make sense of {{ tool.platform | title }} downloads.</h2><p>{{ platform_guide.description }}</p><a class="ready-link" href="{{ platform_guide.path }}">Read {{ platform_guide.title }} →</a></div></section>{% endif %}
+
+    <section class="steps-section section-space" id="how-it-works"><div class="container"><div class="section-heading"><div><span class="section-kicker">HOW IT WORKS</span><h2>Three steps. That's it.</h2></div><p>No account, confusing settings, or guesswork about quality.</p></div><div class="steps-grid"><article><span class="step-number">01</span><div class="step-icon">⌁</div><h3>Paste a public link</h3><p>{{ tool.url_hint if tool else 'Copy the URL of media you own or have permission to save, then paste it above.' }}</p></article><article><span class="step-number">02</span><div class="step-icon">✳</div><h3>See real formats</h3><p>{{ tool.format_note if tool else 'We ask the source for metadata and show only the files and qualities it actually returns.' }}</p></article><article><span class="step-number">03</span><div class="step-icon">↓</div><h3>Save your file</h3><p>Choose an available option. Processing runs in the background and your temporary file expires.</p></article></div></div></section>
 
     {% if tool %}
     <section class="detail-section section-space"><div class="container detail-grid"><div><span class="section-kicker">ABOUT THIS TOOL</span><h2>Built for {{ tool.heading }}.</h2><p>{{ tool.description }}</p><p>{{ tool.format_note }}</p><div class="detail-callout"><strong>Supported links</strong><p>{{ tool.url_hint }}</p></div></div><div class="detail-card"><span class="section-kicker">GOOD TO KNOW</span><h3>When a link does not work</h3><p>{{ tool.problem }}</p><p>We only access content that the source makes publicly available without login. A format that is missing from the result is not offered as a download.</p><a href="#download-form">Try another link <span aria-hidden="true">↑</span></a></div></div></section>
@@ -92,10 +104,11 @@
       {% if tool %}{% for question, answer in tool.faq %}<details><summary>{{ question }}</summary><p>{{ answer }}</p></details>{% endfor %}
       {% else %}<details><summary>Which platforms can I use?</summary><p>YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and Dailymotion public URLs are recognized. Each source may have its own access limits.</p></details><details><summary>Can I choose any quality I want?</summary><p>Only formats returned for the specific URL appear. Some files are converted or merged on the server when the source provides the required streams.</p></details><details><summary>Why did my link fail?</summary><p>The post may be private, deleted, region restricted, age restricted, live, or blocked for anonymous access. We do not bypass access controls.</p></details><details><summary>How long are files kept?</summary><p>Temporary completed files are removed after about one hour. The container may clear them sooner if it restarts.</p></details>{% endif %}
     </div></div></section>
+    {% endif %}
 
     <section class="history-section section-space"><div class="container narrow"><details><summary><span><span class="section-kicker">YOUR BROWSER</span><strong>Recent downloads</strong></span><span>View history <span aria-hidden="true">⌄</span></span></summary><div id="history-list" class="history-list"><p>Loading…</p></div></details></div></section>
   </main>
-  <footer class="site-footer"><div class="container footer-grid"><div><a class="brand footer-brand" href="/"><span class="brand-mark" aria-hidden="true">↓</span><span>savefromnet<span class="brand-dot">.</span>fun</span></a><p>Public media, made simple. Download only what you own or may use.</p></div><div><strong>Platforms</strong>{% for platform in platforms %}{% set platform_tool = tools | selectattr('platform', 'equalto', platform) | first %}<a href="{{ platform_tool.path }}">{{ platform | title }}</a>{% endfor %}</div><div><strong>Popular tools</strong>{% for item in tools[:8] %}<a href="{{ item.path }}">{{ item.name }}</a>{% endfor %}</div></div><div class="container footer-bottom"><span>© {{ 2026 }} SaveFromNet</span><span>Only download content you have rights to use.</span><a href="https://awesome.tools">Listed on Awesome Tools</a></div></footer>
+  <footer class="site-footer"><div class="container footer-grid"><div><a class="brand footer-brand" href="/"><span class="brand-mark" aria-hidden="true">↓</span><span>savefromnet<span class="brand-dot">.</span>fun</span></a><p>Public media, made simple. Download only what you own or may use.</p></div><div><strong>Platforms</strong>{% for platform in platforms %}{% set platform_tool = tools | selectattr('platform', 'equalto', platform) | first %}<a href="{{ platform_tool.path }}">{{ platform | title }}</a>{% endfor %}</div><div><strong>Popular tools</strong>{% for item in tools[:8] %}<a href="{{ item.path }}">{{ item.name }}</a>{% endfor %}</div><div><strong>Resources</strong><a href="/guides">All guides</a>{% for item in guides[:4] %}<a href="{{ item.path }}">{{ item.title }}</a>{% endfor %}</div></div><div class="container footer-bottom"><span>© {{ 2026 }} SaveFromNet</span><span>Only download content you have rights to use.</span><a href="https://awesome.tools">Listed on Awesome Tools</a></div></footer>
   <script src="{{ url_for('static', filename='js/site.js') }}" defer></script>
 </body>
 </html>

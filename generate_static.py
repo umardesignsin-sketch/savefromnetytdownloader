@@ -8,6 +8,7 @@ from pathlib import Path
 import shutil
 
 from app import app
+from guides import GUIDES
 from tools import TOOLS
 
 BASE = Path(__file__).resolve().parent
@@ -25,19 +26,23 @@ def main():
     pages = [("/", "index.html"), ("/robots.txt", "robots.txt"),
              ("/sitemap.xml", "sitemap.xml"), ("/missing-page", "404.html")]
     pages += [(tool.path, f"{tool.slug}.html") for tool in TOOLS]
+    pages += [("/guides", "guides.html")]
+    pages += [(guide.path, f"guides/{guide.slug}.html") for guide in GUIDES]
     for route, filename in pages:
         response = client.get(route)
         expected = 404 if filename == "404.html" else 200
         if response.status_code != expected:
             raise RuntimeError(f"Could not render {route}: HTTP {response.status_code}")
-        (DIST / filename).write_bytes(response.data)
+        target = DIST / filename
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(response.data)
     for name in ("css/site.css", "js/site.js", "favicon.svg"):
         source = BASE / "static" / name
         target = DIST / "static" / name
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
     shutil.copy2(BASE / "sw.js", DIST / "sw.js")
-    print(f"Rendered {len(TOOLS)} tool pages, homepage, and site assets to {DIST}")
+    print(f"Rendered {len(TOOLS)} tool pages, {len(GUIDES)} guides, homepage, and site assets to {DIST}")
 
 
 if __name__ == "__main__":
