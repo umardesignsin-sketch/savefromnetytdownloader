@@ -30,6 +30,6 @@ export default {
         });
       }
     }
-    return env.DOWNLOADER.getByName("primary").fetch(request);
+    return env.DOWNLOADER.getByName("flask-primary").fetch(request);
   },
 };
