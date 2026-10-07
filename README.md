@@ -117,7 +117,9 @@ permanently.
 
 The site is routed from `savefromnet.fun/*` to Worker `savefromnet-funyt`.
 The separate `savefromnet-www-redirect` Worker routes `www.savefromnet.fun/*`
-to the HTTPS apex with a permanent redirect while preserving path and query.
+and `http://savefromnet.fun/*` to the HTTPS apex with a permanent redirect
+while preserving path and query. HTTPS apex requests continue to use the main
+static-asset Worker route.
 Deploy it with `npx wrangler deploy --config wrangler.www.jsonc`.
 `wrangler.jsonc` pins a Cloudflare Container image tag. The GitHub Actions
 workflow `.github/workflows/build-container.yml` builds and publishes that
