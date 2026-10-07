@@ -1,0 +1,51 @@
+.transcript-hero { padding-bottom: 0; }
+.transcript-hero .section-kicker { display: block; margin: 0 0 12px; color: var(--green); }
+.transcript-hero .guide-lead { max-width: 720px; }
+.transcript-workspace { padding: 32px 0 72px; background: var(--paper); }
+.transcript-workspace .narrow { max-width: 850px; }
+.transcript-form label { display: block; margin-bottom: 10px; color: var(--ink); font-weight: 700; }
+.transcript-form .input-row { width: 100%; }
+.transcript-form .input-row input { min-width: 0; }
+.transcript-form .form-error { margin-top: 10px; }
+.transcript-status { margin: 18px 0 0; color: var(--green); font-weight: 700; }
+.transcript-result { margin-top: 28px; padding: 26px; border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: var(--shadow); }
+.transcript-result-head { display: flex; justify-content: space-between; gap: 20px; align-items: start; border-bottom: 1px solid var(--line); padding-bottom: 18px; }
+.transcript-result-head h2 { margin: 8px 0 5px; font-size: clamp(1.25rem, 2.7vw, 1.9rem); line-height: 1.25; }
+.transcript-result-head p { margin: 0; color: var(--muted); }
+.transcript-result-head a { flex: 0 0 auto; color: var(--green); font-size: .9rem; font-weight: 700; }
+.transcript-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 20px 0 8px; }
+.transcript-controls label { display: grid; gap: 7px; font-weight: 700; font-size: .86rem; }
+.transcript-controls select,.transcript-controls input { width: 100%; min-height: 44px; padding: 9px 12px; border: 1px solid #a8b9a7; border-radius: 7px; background: #fff; color: var(--ink); font: inherit; }
+.transcript-controls select:focus,.transcript-controls input:focus { outline: 2px solid var(--green); outline-offset: 1px; }
+.transcript-track-note { margin: 12px 0 16px; color: var(--muted); font-size: .85rem; }
+.transcript-actions { display: flex; flex-wrap: wrap; gap: 9px; }
+.transcript-actions button { min-height: 40px; padding: 9px 14px; border: 1px solid #8db37a; border-radius: 6px; background: #e9f6e7; color: #263b1c; font: inherit; font-size: .84rem; font-weight: 700; cursor: pointer; }
+.transcript-actions button:hover { background: #d8eed3; }
+.transcript-count { margin: 24px 0 10px; color: var(--muted); font-size: .84rem; }
+.transcript-cues { max-height: 470px; overflow-y: auto; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.transcript-cues li { display: grid; grid-template-columns: 70px minmax(0,1fr); gap: 12px; padding: 12px 3px; border-bottom: 1px solid var(--line); line-height: 1.55; }
+.transcript-timestamp { color: var(--green); font-size: .85rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.transcript-reading { max-width: 880px; }
+.transcript-reading > p { color: #425157; line-height: 1.8; font-size: 1.04rem; }
+.transcript-answer { background: #f1f7ef; }
+.transcript-reading h2 { margin: 10px 0 17px; font-size: clamp(1.55rem, 3vw, 2.2rem); }
+.transcript-steps,.transcript-format-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; margin-top: 25px; }
+.transcript-steps > div,.transcript-format-grid > div { padding: 21px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+.transcript-steps strong { color: var(--green); }
+.transcript-steps h3,.transcript-format-grid h3 { font-size: 1.05rem; margin: 9px 0; }
+.transcript-steps p,.transcript-format-grid p { margin: 0; color: var(--muted); line-height: 1.65; font-size: .92rem; }
+.transcript-guide { background: #fff; }
+.transcript-guide section { padding: 23px 0; border-bottom: 1px solid var(--line); }
+.transcript-guide section p { margin: 0; color: #425157; line-height: 1.8; }
+.transcript-guide .priority-related { margin-top: 24px; }
+@media (max-width: 700px) {
+  .transcript-workspace { padding: 26px 0 50px; }
+  .transcript-form .input-row { flex-wrap: wrap; }
+  .transcript-form .input-row input { flex-basis: calc(100% - 76px); min-height: 52px; }
+  .transcript-form .input-row .submit-btn { width: 100%; }
+  .transcript-result { padding: 17px; }
+  .transcript-result-head { display: block; }
+  .transcript-result-head a { display: inline-block; margin-top: 12px; }
+  .transcript-controls { grid-template-columns: 1fr; }
+  .transcript-steps,.transcript-format-grid { grid-template-columns: 1fr; }
+}

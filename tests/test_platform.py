@@ -119,7 +119,7 @@ class SiteTests(unittest.TestCase):
         self.client = app.test_client()
 
     def test_all_tool_routes_have_metadata_and_schema(self):
-        self.assertEqual(len(TOOLS), 25)
+        self.assertEqual(len(TOOLS), 26)
         for tool in TOOLS:
             with self.subTest(slug=tool.slug):
                 response = self.client.get(tool.path)
@@ -130,7 +130,7 @@ class SiteTests(unittest.TestCase):
                 schemas = [json.loads(block.split('</script>')[0]) for block in html.split('<script type="application/ld+json">')[1:]]
                 self.assertEqual({s["@type"] for s in schemas}, {"WebApplication", "FAQPage", "BreadcrumbList"})
         sitemap = self.client.get("/sitemap.xml").get_data(as_text=True)
-        self.assertEqual(sitemap.count("<url>"), 27 + len(GUIDES) + len(PAGES) + len(IMAGE_TOOLS))
+        self.assertEqual(sitemap.count("<url>"), 28 + len(GUIDES) + len(PAGES) + len(IMAGE_TOOLS))
         home = self.client.get("/").get_data(as_text=True)
         self.assertIn("<h1 id=\"download-heading\">Video Downloader <em>&amp; Converter</em></h1>", home)
         self.assertIn('href="/guides"', home)
@@ -191,7 +191,8 @@ class SiteTests(unittest.TestCase):
             with self.subTest(slug=tool.slug):
                 self.assertGreaterEqual(len(tool.seo_sections), 2)
                 html = self.client.get(tool.path).get_data(as_text=True)
-                self.assertIn(f'{tool.platform.upper()} DOWNLOAD GUIDE', html)
+                guide_label = 'YOUTUBE TRANSCRIPT GUIDE' if tool.slug == 'youtube-to-transcript' else f'{tool.platform.upper()} DOWNLOAD GUIDE'
+                self.assertIn(guide_label, html)
                 for heading, paragraphs in tool.seo_sections:
                     headings.append(heading)
                     self.assertIn(f'<h2>{template_escape(heading)}</h2>', html)

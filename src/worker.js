@@ -76,10 +76,10 @@ export default {
       }
     }
     const body = request.method === "POST" && (pathname === "/api/analyze" || pathname === "/api/download" || pathname === "/api/event") ? await smallJson(request) : {};
-    if (request.method === "POST" && (pathname === "/api/download" || pathname === "/api/analyze" || pathname === "/api/event")) {
+    if (request.method === "POST" && (pathname === "/api/download" || pathname === "/api/analyze" || pathname === "/api/transcript" || pathname === "/api/event")) {
       const ip = request.headers.get("CF-Connecting-IP") || "unknown";
       const limiter = pathname === "/api/download" ? env.DOWNLOAD_LIMIT :
-        pathname === "/api/analyze" ? env.ANALYZE_LIMIT : env.EVENT_LIMIT;
+        pathname === "/api/analyze" || pathname === "/api/transcript" ? env.ANALYZE_LIMIT : env.EVENT_LIMIT;
       const { success } = await limiter.limit({ key: ip });
       if (!success) {
         record(env, "rate_limited", "unknown", "unknown", "", 429);
@@ -99,6 +99,9 @@ export default {
           headers: { "Content-Type": "application/json", "Retry-After": "60" },
         });
       }
+    }
+    if (pathname === "/api/transcript" && request.method === "POST") {
+      record(env, response.ok ? "transcript_successful" : "transcript_failed", "youtube", "youtube-to-transcript", "", response.status);
     }
     if (pathname === "/api/analyze" && request.method === "POST") {
       record(env, "url_submitted", "unknown", "unknown");

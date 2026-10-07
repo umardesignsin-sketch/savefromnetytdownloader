@@ -21,6 +21,7 @@ from guides import BY_SLUG as GUIDES_BY_SLUG, GUIDES
 from image_tools import BY_SLUG as IMAGE_BY_SLUG, IMAGE_TOOLS
 from site_pages import BY_SLUG as PAGES_BY_SLUG, PAGES, TOOL_GROUPS
 from tools import BY_SLUG, PLATFORMS, TOOLS, related_tools
+from transcripts import get_transcript
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 9 * 1024 * 1024
@@ -164,7 +165,7 @@ def _page(tool=None, guide=None, guide_index=False):
     primary_tools = [next(item for item in TOOLS if item.platform == platform) for platform in PLATFORMS]
     featured_tools = [BY_SLUG[slug] for slug in (
         "youtube-downloader", "youtube-video-downloader", "youtube-shorts-downloader",
-        "youtube-to-mp3", "youtube-to-mp4", "instagram-downloader",
+        "youtube-to-mp3", "youtube-to-transcript", "youtube-to-mp4", "instagram-downloader",
         "tiktok-downloader", "facebook-video-downloader",
         "reddit-video-downloader", "universal-video-downloader",
     )]
@@ -373,6 +374,26 @@ def api_analyze():
     db.record_event("analysis_successful", detection.platform, slug)
     media["tool"] = slug
     return jsonify(media)
+
+
+@app.post("/api/transcript")
+def api_transcript():
+    if not _rate_limit(g.client_id, "transcript", 4):
+        return _json_error("Too many transcript requests. Please try again in a minute.", "rate_limited", 429)
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return _json_error("Send one YouTube URL in a JSON object.", "invalid_request")
+    if not _analysis_slots.acquire(blocking=False):
+        return _json_error("Transcript processing is busy. Please try again shortly.", "busy", 429)
+    try:
+        transcript = get_transcript(data.get("url"), data.get("language"))
+    except DetectError as exc:
+        return _json_error(str(exc), "invalid_url")
+    except AnalysisError as exc:
+        return _json_error(str(exc), exc.code, 422)
+    finally:
+        _analysis_slots.release()
+    return jsonify(transcript)
 
 
 @app.post("/api/download")

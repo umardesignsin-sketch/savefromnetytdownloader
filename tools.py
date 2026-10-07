@@ -24,6 +24,7 @@ class Tool:
         return {
             "youtube-downloader": "YouTube Downloader & Converter",
             "youtube-to-mp3": "YouTube to MP3 Converter",
+            "youtube-to-transcript": "YouTube to Transcript Converter",
             "tiktok-to-mp3": "TikTok to MP3 Converter",
             "universal-video-downloader": "Universal Video Downloader & Converter",
         }.get(self.slug, self.name)
@@ -53,6 +54,15 @@ class Tool:
                 ("Which Reddit links does this downloader accept?", "Use an individual reddit.com/r/community/comments/post-id/ or reddit.com/user/name/comments/post-id/ permalink, or a redd.it/post-id short link. A subreddit feed, profile page or comment thread without a post ID is not one video."),
                 ("Why does a Reddit post have no video option?", "The post may be deleted, private, age-gated, quarantined, or unavailable to anonymous access. It may also link to an external host instead of containing Reddit-hosted video."),
             )
+        if self.slug == "youtube-to-transcript":
+            return (
+                ("How do I get a transcript from a YouTube video?", "Paste one public YouTube video or Shorts link and select Get transcript. If a caption track is publicly available, you can read it, copy the text, or download TXT, SRT, or VTT in your browser."),
+                ("Does this tool transcribe videos without captions?", "No. It retrieves caption tracks that YouTube makes available for the video. It does not run speech recognition or invent words when a video has no accessible captions."),
+                ("Can I choose a language?", "Yes, after a transcript loads you can choose from the caption languages returned for that video. Manual tracks are preferred when present. Automatic captions or translations may contain errors."),
+                ("What is the difference between TXT, SRT, and VTT?", "TXT is plain transcript text. SRT and WebVTT keep cue timestamps for subtitle editors and players. The files are generated in your browser from the caption cues shown on the page."),
+                ("Why can a public YouTube transcript fail?", "A video may have no captions, or YouTube may block the source request, require sign-in, restrict the region, or remove the upload. This tool does not bypass those limits."),
+                ("Can I use a YouTube Shorts link?", "Yes, direct Shorts links work when the Short has an accessible caption track. Playlists, private videos, live streams and links to an entire channel are not supported."),
+            )
         return (
             (f"Which links work with {self.name}?", self.url_hint),
             ("Which formats and qualities can I choose?", self.format_note + " Only formats returned by the source are displayed."),
@@ -81,6 +91,10 @@ TOOL_META = {
         "YouTube to MP3 Converter | SaveFromNet",
         "Convert a public YouTube video or Short to MP3. Check accessible audio, choose a real option, and prepare a temporary MP3 download.",
     ),
+    "youtube-to-transcript": (
+        "YouTube to Transcript Converter | SaveFromNet",
+        "Get a transcript from a public YouTube video or Short with captions. Read and copy timed text, or download TXT, SRT and VTT files.",
+    ),
     "reddit-video-downloader": (
         "Reddit Video Downloader | SaveFromNet",
         "Download Reddit video from a public post. Paste a Reddit permalink, see real MP4 choices, and save a file with sound when public audio is available.",
@@ -89,6 +103,20 @@ TOOL_META = {
 
 
 TOOL_SECTIONS = {
+    "youtube-to-transcript": (
+        ("How to get a YouTube video transcript", (
+            "Paste a direct public watch-page, youtu.be, or Shorts URL in the form above. SaveFromNet checks the caption tracks for that one video, retrieves an accessible track, and displays its actual words and timestamps. Choose a returned language if more than one is available, then copy the text or save a file.",
+        )),
+        ("Captions are the source of the text", (
+            "This YouTube transcript converter reads published manual or automatic caption tracks. It does not listen to the audio, translate on its own, or create a transcript for a video with no accessible captions. Automatically generated or translated captions can mishear names and punctuation; review them before quoting or publishing.",
+        )),
+        ("Choose TXT, SRT, or VTT for your next step", (
+            "Use TXT for notes, research, or accessible plain text. Use SRT when an editor needs numbered subtitle cues with timestamps. Use VTT for WebVTT-compatible players. The downloadable files are built in your browser from the same cues you can inspect on this page; no transcript file is kept as a download job on the server.",
+        )),
+        ("When a YouTube transcript is unavailable", (
+            "A valid video can have captions turned off or no caption track at all. Private, deleted, age- or region-restricted, and sign-in-gated videos may also be inaccessible. Try the direct video URL and confirm that YouTube itself shows captions; this tool does not bypass account access, DRM, or rights restrictions.",
+        )),
+    ),
     "youtube-downloader": (
         ("Choose video or audio in the YouTube converter", (
             "Paste a direct public YouTube watch-page or Shorts URL to inspect one upload. SaveFromNet can show finished video choices alongside source audio and an MP3 conversion when a usable sound stream is available. Choose the general tool when you want to compare both kinds of files before deciding which one to save.",
@@ -240,10 +268,11 @@ TOOL_SECTIONS = {
 
 
 TOOL_SEO_LINKS = {
-    "youtube-downloader": (("/youtube-video-downloader", "YouTube Video Downloader"), ("/youtube-to-mp3", "YouTube to MP3 Converter"), ("/youtube-to-mp4", "YouTube to MP4")),
-    "youtube-video-downloader": (("/guides/youtube-video-formats", "Understand YouTube formats"), ("/guides/video-file-size-estimates", "How file sizes are estimated"), ("/youtube-to-mp4", "MP4-only choices"), ("/youtube-to-mp3", "Convert YouTube audio to MP3")),
+    "youtube-to-transcript": (("/youtube-video-downloader", "Download an accessible YouTube video"), ("/youtube-to-mp3", "Convert accessible YouTube audio to MP3"), ("/youtube-shorts-downloader", "YouTube Shorts downloader"), ("/guides/youtube-video-formats", "Understand YouTube media formats")),
+    "youtube-downloader": (("/youtube-video-downloader", "YouTube Video Downloader"), ("/youtube-to-mp3", "YouTube to MP3 Converter"), ("/youtube-to-mp4", "YouTube to MP4"), ("/youtube-to-transcript", "YouTube to Transcript Converter")),
+    "youtube-video-downloader": (("/guides/youtube-video-formats", "Understand YouTube formats"), ("/guides/video-file-size-estimates", "How file sizes are estimated"), ("/youtube-to-mp4", "MP4-only choices"), ("/youtube-to-mp3", "Convert YouTube audio to MP3"), ("/youtube-to-transcript", "Get a YouTube transcript")),
     "youtube-shorts-downloader": (("/youtube-video-downloader", "Standard YouTube videos"), ("/youtube-to-mp3", "Shorts audio to MP3")),
-    "youtube-to-mp3": (("/youtube-audio-downloader", "YouTube audio formats"), ("/youtube-video-downloader", "Download the video instead"), ("/guides/mp3-vs-m4a", "MP3 versus M4A")),
+    "youtube-to-mp3": (("/youtube-audio-downloader", "YouTube audio formats"), ("/youtube-video-downloader", "Download the video instead"), ("/youtube-to-transcript", "Get a YouTube transcript"), ("/guides/mp3-vs-m4a", "MP3 versus M4A")),
     "youtube-to-mp4": (("/youtube-video-downloader", "All YouTube video formats"), ("/guides/video-with-no-sound", "When a video has no sound")),
     "instagram-downloader": (("/instagram-reels-downloader", "Reels video"), ("/instagram-carousel-downloader", "Carousel items")),
     "instagram-reels-downloader": (("/instagram-video-downloader", "Other Instagram videos"), ("/guides/instagram-public-media", "Instagram link guide")),
@@ -264,6 +293,7 @@ TOOLS = [
     Tool("youtube-video-downloader", "youtube", "YouTube Video Downloader", "Download a public YouTube watch-page video in an available resolution.", ("video",), "The result lists only video heights and containers found for this upload.", "Use a youtube.com/watch?v= video link or youtu.be short link.", "A requested resolution may not exist for every upload."),
     Tool("youtube-shorts-downloader", "youtube", "YouTube Shorts Downloader", "Save a public vertical Short in a format the source actually offers.", ("short",), "Shorts formats vary; available video and audio options appear after analysis.", "Use a youtube.com/shorts/ link.", "A Short can be removed, made private, or blocked by the source."),
     Tool("youtube-to-mp3", "youtube", "YouTube to MP3", "Convert a public YouTube video or Short to MP3 when audio is accessible.", ("video", "short"), "MP3 is created from a source audio stream with ffmpeg; no fixed bitrate is promised.", "Use a public YouTube video or Short URL.", "A source without accessible audio cannot be converted."),
+    Tool("youtube-to-transcript", "youtube", "YouTube to Transcript", "Turn accessible YouTube captions into readable text and timed subtitle files.", ("video", "short"), "Copy the actual caption text or save it as TXT, SRT, or VTT; available languages come from the video.", "Paste a direct public youtube.com/watch, youtube.com/shorts, or youtu.be URL to one video.", "Videos without public captions, or videos requiring sign-in, cannot produce a transcript."),
     Tool("youtube-audio-downloader", "youtube", "YouTube Audio Downloader", "Find source audio tracks and an MP3 conversion for a public YouTube upload.", ("video", "short"), "Original audio may be M4A or WebM; MP3 conversion appears when audio is present.", "Use a youtube.com/watch, music.youtube.com/watch, or youtu.be URL.", "Some music uploads are region or account restricted."),
     Tool("youtube-song-downloader", "youtube", "YouTube Song Downloader", "Save audio from a public song upload that you own or may download.", ("video", "short"), "Audio formats reflect the accessible upload, with MP3 conversion when possible.", "Paste the URL of one public YouTube song video.", "Official music content may have access, region, or rights restrictions."),
     Tool("youtube-to-mp4", "youtube", "YouTube to MP4", "Find available MP4 resolutions for a public YouTube video.", ("video", "short"), "Only MP4 streams found in the source results are offered; some need server-side audio merging.", "Paste a public YouTube video or Short link.", "Some uploads provide WebM only or lack a particular MP4 height."),

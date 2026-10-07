@@ -189,6 +189,7 @@ BY_SLUG = {page.slug: page for page in PAGES}
 TOOL_GROUPS = (
     ("Video downloaders", ("universal-video-downloader", "youtube-video-downloader", "youtube-shorts-downloader", "youtube-movies-downloader", "facebook-video-downloader", "reddit-video-downloader", "threads-video-downloader", "dailymotion-video-downloader")),
     ("Audio downloaders", ("youtube-to-mp3", "youtube-audio-downloader", "youtube-song-downloader", "youtube-music-downloader", "tiktok-to-mp3")),
+    ("Transcript tools", ("youtube-to-transcript",)),
     ("Social media downloaders", ("instagram-downloader", "instagram-video-downloader", "instagram-reels-downloader", "instagram-photo-downloader", "instagram-story-downloader", "instagram-carousel-downloader", "instagram-profile-downloader", "tiktok-downloader", "tiktok-story-downloader", "pinterest-video-downloader")),
     ("Converters", ("youtube-to-mp3", "youtube-to-mp4", "tiktok-to-mp3")),
     ("Platform tools", ("youtube-downloader", "instagram-downloader", "tiktok-downloader", "facebook-video-downloader", "pinterest-video-downloader", "reddit-video-downloader", "threads-video-downloader", "dailymotion-video-downloader")),

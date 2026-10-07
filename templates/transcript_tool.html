@@ -1,0 +1,44 @@
+<section class="tool-hero transcript-hero">
+  <div class="container hero-centered">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span><a href="/youtube-downloader">YouTube tools</a><span>›</span><span aria-current="page">YouTube to Transcript Converter</span></nav>
+    <span class="section-kicker">PUBLIC CAPTIONS · REAL TEXT</span>
+    <h1 id="download-heading">YouTube to Transcript Converter</h1>
+    <p class="guide-lead">Turn the captions of a public YouTube video or Short into readable text. Copy the transcript or save TXT, SRT, and VTT files with the timestamps actually supplied by YouTube.</p>
+  </div>
+</section>
+
+<section class="transcript-workspace" aria-label="YouTube transcript tool">
+  <div class="container narrow">
+    <form id="transcript-form" class="transcript-form" novalidate>
+      <label for="transcript-url">Paste a YouTube video link</label>
+      <div class="input-row"><input id="transcript-url" type="url" inputmode="url" autocomplete="url" placeholder="https://www.youtube.com/watch?v=..." required><button type="button" id="transcript-paste" class="paste-btn">Paste</button><button type="submit" id="transcript-submit" class="submit-btn">Get transcript</button></div>
+      <p id="transcript-error" class="form-error" role="alert" hidden></p>
+      <p class="download-note">Works with public watch, youtu.be, and Shorts links that have accessible captions. Use only content you own or have permission to use.</p>
+    </form>
+    <p id="transcript-status" class="transcript-status" role="status" aria-live="polite" hidden>Checking available captions…</p>
+    <section id="transcript-result" class="transcript-result" aria-labelledby="transcript-title" hidden>
+      <div class="transcript-result-head"><div><span class="section-kicker">CAPTIONS FOUND</span><h2 id="transcript-title"></h2><p id="transcript-meta"></p></div><a id="transcript-source" href="#" target="_blank" rel="noopener noreferrer">Open original video ↗</a></div>
+      <div class="transcript-controls"><label for="transcript-language">Caption language<select id="transcript-language"></select></label><label for="transcript-search">Find in transcript<input id="transcript-search" type="search" placeholder="Search the text"></label></div>
+      <p id="transcript-track-note" class="transcript-track-note"></p>
+      <div class="transcript-actions"><button id="transcript-copy" type="button">Copy text</button><button id="transcript-txt" type="button">Download TXT</button><button id="transcript-srt" type="button">Download SRT</button><button id="transcript-vtt" type="button">Download VTT</button></div>
+      <p id="transcript-action-status" class="sr-only" role="status" aria-live="polite"></p>
+      <p id="transcript-count" class="transcript-count"></p>
+      <ol id="transcript-cues" class="transcript-cues" aria-label="Transcript with timestamps"></ol>
+    </section>
+  </div>
+</section>
+
+<section class="transcript-answer section-space" id="how-it-works"><div class="container transcript-reading">
+  <span class="section-kicker">QUICK ANSWER</span>
+  <h2>How do you get a transcript from a YouTube video?</h2>
+  <p>Copy a direct video or Shorts URL, paste it above, and select <strong>Get transcript</strong>. When the video has publicly accessible captions, choose a language, read the timed text, then copy it or download TXT, SRT, or VTT. A video without captions cannot be transcribed by this tool.</p>
+  <div class="transcript-steps"><div><strong>01</strong><h3>Paste one video</h3><p>Use a watch-page, youtu.be, or Shorts link, not a playlist or channel.</p></div><div><strong>02</strong><h3>Read the captions</h3><p>See the caption language and whether its track is manual or automatic.</p></div><div><strong>03</strong><h3>Copy or export</h3><p>Save plain text for notes or timed subtitles for an editor or player.</p></div></div>
+</div></section>
+
+<article class="transcript-guide section-space"><div class="container transcript-reading"><span class="section-kicker">YOUTUBE TRANSCRIPT GUIDE</span>
+  {% for heading, paragraphs in tool.seo_sections %}<section><h2>{{ heading }}</h2>{% for paragraph in paragraphs %}<p>{{ paragraph }}</p>{% endfor %}</section>{% endfor %}
+  <section><h2>Which transcript file should you choose?</h2><div class="transcript-format-grid"><div><h3>TXT: plain text</h3><p>Best for reading, searchable notes, and quotations you will verify against the original video. The plain text export leaves out timestamps.</p></div><div><h3>SRT: timed subtitles</h3><p>Numbered cues with start and end times. Use this when your subtitle editor expects a .srt file.</p></div><div><h3>VTT: web captions</h3><p>WebVTT cues retain the same timing in a format used by web video players. All three exports come from the selected track.</p></div></div></section>
+  <nav class="priority-related" aria-label="Related YouTube tools">{% for href, label in tool.seo_links %}<a href="{{ href }}">{{ label }}</a>{% endfor %}<a href="/tools">Browse all tools</a></nav>
+</div></article>
+
+<section class="faq-section section-space" id="faq"><div class="container faq-grid"><div><span class="section-kicker">FAQ</span><h2>YouTube transcript questions</h2><p>Answers based on what this converter actually retrieves.</p></div><div class="faq-list">{% for question, answer in tool.faq %}<details><summary>{{ question }}</summary><p>{{ answer }}</p></details>{% endfor %}</div></div></section>

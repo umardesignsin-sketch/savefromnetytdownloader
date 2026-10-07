@@ -2,7 +2,7 @@
 
 A public media downloader for content the user owns or may download. It detects
 YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and
-Dailymotion links. The 25 tool pages share one URL validator, extraction service,
+Dailymotion links. The 26 media and transcript tool pages share one URL validator, extraction service,
 result UI, and background job runner. Nine working image tools and sixteen
 practical media guides have their own pages. A guides hub, tool directory,
 image-format guide and six trust pages bring the public canonical page count
@@ -12,7 +12,7 @@ shown only after a source extractor returns it.
 ## Architecture
 
 ```
-Cloudflare static assets: homepage, 25 media tools, 9 image tools, 17 media guide pages, 8 directory/resource/trust pages, CSS, JS, sitemap
+Cloudflare static assets: homepage, 26 media and transcript tools, 9 image tools, guides, directory/resource/trust pages, CSS, JS, sitemap
        ↓ POST /api/analyze and /api/download
 Cloudflare Worker: per-IP rate limits
        ↓
@@ -39,7 +39,7 @@ to Cloudflare Analytics Engine dataset `savefromnet_events`.
 
 ## Programmatic tool content
 
-`tools.py` is the registry for all 25 canonical downloader routes. Each tool
+`tools.py` is the registry for all 26 canonical media and transcript routes. Each tool
 defines its supported content types, link guidance, format explanation, errors,
 metadata, and FAQ. `TOOL_SECTIONS` adds distinct, task-specific guidance to
 selected routes; `TOOL_SEO_LINKS` connects those sections to relevant working
@@ -55,7 +55,7 @@ pages. Run `python growth/build_target_inventory.py` after changing public
 routes to refresh the canonical URL inventory; the tests compare that inventory
 with the generated sitemap.
 
-`yt-dlp` handles public video/audio sources. `gallery-dl` handles accessible
+`yt-dlp` handles public video/audio sources and the YouTube to Transcript page's public caption tracks. The transcript endpoint downloads only a selected caption track into a temporary directory, returns bounded timed cues, and deletes the temporary file; TXT, SRT and VTT exports are generated in the browser. It does not run speech recognition for videos without accessible captions. `gallery-dl` handles accessible
 Instagram post/profile/story media, TikTok Stories, and Pinterest images/GIFs.
 Threads is limited to public posts that expose a video in Open Graph metadata.
 The service does not use account cookies or bypass DRM, paywalls, private posts,
@@ -83,6 +83,9 @@ edge site, run `python generate_static.py`. Run checks with
   title, author, thumbnail, duration, real available formats, and an
   `analysis_id`. Analysis IDs expire after 10 minutes and belong to the
   requesting anonymous browser.
+- `POST /api/transcript` with a direct public YouTube `url` and optional returned
+  `language` code returns actual caption cues, track languages and video metadata.
+  The request is rate limited and does not store a transcript download file.
 - `POST /api/download` with `analysis_id`, a returned `format_id`, and the
   tool slug starts a background job. The server rechecks ownership and the
   selected format.
