@@ -141,6 +141,15 @@ def _filter_formats(tool, media):
 
 
 def _page(tool=None, guide=None, guide_index=False):
+    platform_home = next((item for item in TOOLS if tool and item.platform == tool.platform), None)
+    primary_tools = [next(item for item in TOOLS if item.platform == platform) for platform in PLATFORMS]
+    quick_links = []
+    if tool and tool.platform != "universal":
+        quick_links = [tool] + [item for item in TOOLS if item.platform == tool.platform and item.slug != tool.slug]
+        quick_links += [BY_SLUG["universal-video-downloader"]] + primary_tools
+    else:
+        quick_links = primary_tools
+    quick_links = list({item.slug: item for item in quick_links}.values())[:8]
     if guide:
         title = f"{guide.title} | SaveFromNet Guides"
         description = guide.description
@@ -180,8 +189,11 @@ def _page(tool=None, guide=None, guide_index=False):
                                           + ([{"@type": "ListItem", "position": 3, "name": guide.title, "item": canonical}] if guide else [])})
     elif tool:
         schema.append({"@context": "https://schema.org", "@type": "BreadcrumbList",
-                       "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": SITE_URL + "/"},
-                                           {"@type": "ListItem", "position": 2, "name": tool.name, "item": canonical}]})
+                       "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": SITE_URL + "/"}]
+                                          + ([{"@type": "ListItem", "position": 2, "name": platform_home.name,
+                                               "item": SITE_URL + platform_home.path}] if platform_home and platform_home.slug != tool.slug else [])
+                                          + [{"@type": "ListItem", "position": 3 if platform_home and platform_home.slug != tool.slug else 2,
+                                              "name": tool.name, "item": canonical}]})
     platform_guides = {"youtube": "youtube-video-formats", "instagram": "instagram-public-media",
                        "tiktok": "tiktok-video-and-audio", "facebook": "facebook-public-videos",
                        "pinterest": "pinterest-pin-media", "reddit": "reddit-video-with-audio",
@@ -191,7 +203,8 @@ def _page(tool=None, guide=None, guide_index=False):
                            canonical=canonical, tools=TOOLS, platforms=PLATFORMS,
                            related=related_tools(tool) if tool else TOOLS[:10], schema=schema,
                            guide=guide, guide_index=guide_index, guides=GUIDES,
-                           platform_guide=platform_guide)
+                           platform_guide=platform_guide, platform_home=platform_home,
+                           quick_links=quick_links)
 
 
 @app.get("/")

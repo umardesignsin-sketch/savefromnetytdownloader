@@ -84,7 +84,7 @@
       status.hidden = true;
     } finally {
       submit.disabled = false;
-      submit.innerHTML = 'Analyze link <span aria-hidden="true">→</span>';
+      submit.textContent = 'Download';
       status.hidden = true;
     }
   });

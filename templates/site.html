@@ -4,7 +4,7 @@
   <script src="https://quge5.com/88/tag.min.js" data-zone="291394" async data-cfasync="false"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f8f7f2">
+  <meta name="theme-color" content="#f7f8f6">
   <title>{{ title }}</title>
   <meta name="description" content="{{ description }}">
   <link rel="canonical" href="{{ canonical }}">
@@ -18,27 +18,30 @@
   <meta name="twitter:description" content="{{ description }}">
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/reference.css') }}">
   {% for item in schema %}<script type="application/ld+json">{{ item | tojson }}</script>{% endfor %}
 </head>
 <body data-tool="{{ tool.slug if tool else 'universal-video-downloader' }}">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="container header-inner">
-      <a class="brand" href="/" aria-label="SaveFromNet home"><span class="brand-mark" aria-hidden="true">↓</span><span>savefromnet<span class="brand-dot">.</span>fun</span></a>
+      <a class="brand" href="/" aria-label="SaveFromNet home">savefromnet<span class="brand-dot">.</span>fun</a>
       <button class="menu-toggle" type="button" aria-controls="main-nav" aria-expanded="false" aria-label="Open menu"><span></span><span></span><span></span></button>
       <nav id="main-nav" class="main-nav" aria-label="Main navigation">
-        <details class="nav-dropdown"><summary>Downloaders <span aria-hidden="true">⌄</span></summary>
+        <a href="/youtube-downloader">YouTube</a>
+        <a href="/facebook-video-downloader">Facebook</a>
+        <a href="/instagram-downloader">Instagram</a>
+        <a href="/tiktok-downloader">TikTok</a>
+        <details class="nav-dropdown"><summary>More <span aria-hidden="true">⌄</span></summary>
           <div class="dropdown-panel">
-            {% for platform in platforms %}
+            {% for platform in ('pinterest', 'reddit', 'threads', 'dailymotion') %}
             {% set platform_tool = tools | selectattr('platform', 'equalto', platform) | first %}
             <a href="{{ platform_tool.path }}"><span class="platform-icon {{ platform }}">{{ platform[0] | upper }}</span>{{ platform | title }}</a>
             {% endfor %}
           </div>
         </details>
-        <a href="/#popular-tools">Tools</a>
         <a href="/#how-it-works">How it works</a>
         <a href="/guides">Guides</a>
-        <a class="nav-cta" href="/universal-video-downloader">Try downloader <span aria-hidden="true">↗</span></a>
       </nav>
     </div>
   </header>
@@ -50,7 +53,7 @@
     </section>
     {% elif tool %}
     <section class="tool-hero">
-      <div class="container hero-centered"><h1 id="download-heading">{{ tool.heading }}</h1><p class="guide-lead">{{ tool.description }}</p></div>
+      <div class="container hero-centered"><nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span>{% if platform_home and platform_home.slug != tool.slug %}<a href="{{ platform_home.path }}">{{ tool.platform | title }} Downloader</a><span>›</span>{% endif %}<span aria-current="page">{{ tool.heading }}</span></nav><h1 id="download-heading">{{ tool.heading }}</h1><p class="guide-lead">{{ tool.description }}</p></div>
     </section>
     {% else %}
     <section class="home-hero">
@@ -63,9 +66,12 @@
         <div class="download-panel">
           <form id="download-form" novalidate>
             <label for="url" class="sr-only">Public media URL</label>
-            <div class="input-row"><span class="input-icon" aria-hidden="true">↗</span><input id="url" type="url" inputmode="url" placeholder="Paste a video URL here..." autocomplete="url" required><button id="paste-btn" class="paste-btn" type="button">Paste</button><button id="submit-btn" class="submit-btn" type="submit">Analyze link <span aria-hidden="true">→</span></button></div>
+            <div class="input-row"><input id="url" type="url" inputmode="url" placeholder="Paste your public video link here" autocomplete="url" required><button id="paste-btn" class="paste-btn" type="button">Paste</button><button id="submit-btn" class="submit-btn" type="submit">Download</button></div>
             <p class="form-error" id="url-error" role="alert" hidden></p>
           </form>
+          <p class="download-note">Use this service only for public media you own or have permission to download.</p>
+          <a class="howto-link" href="{{ '/#how-it-works' if guide or guide_index else '#how-it-works' }}"><span aria-hidden="true">▶</span> How to download? <small>See the three simple steps</small></a>
+          <div class="hero-highlights" aria-label="Service highlights"><span>✓ No account needed</span><span>✓ Real available formats</span><span>✓ Eight platforms</span></div>
           <div id="analysis-status" class="analysis-status" role="status" aria-live="polite" hidden><span class="spinner"></span><span id="analysis-label">Analyzing URL...</span></div>
         </div>
         <div id="result" class="result-panel" aria-live="polite" hidden></div>
@@ -73,22 +79,22 @@
       </div>
     </section>
 
+    {% if not guide and not guide_index %}
+    <section class="quick-tools" aria-label="Popular downloaders"><div class="container"><div class="quick-tools-grid">{% for item in quick_links %}<a class="quick-tool{% if tool and item.slug == tool.slug %} is-current{% endif %}" href="{{ item.path }}"{% if tool and item.slug == tool.slug %} aria-current="page"{% endif %}><span class="platform-icon {{ item.platform }}" aria-hidden="true">{{ item.platform[0] | upper }}</span><span>{{ item.name }}</span></a>{% endfor %}</div></div></section>
+    {% endif %}
+
     {% if guide_index %}
     <section class="guide-article section-space"><div class="container"><div class="guide-prose"><span class="section-kicker">START HERE</span><h2>Find the answer behind the download button.</h2><p>Every platform publishes media differently. These guides explain which individual links the downloader accepts, what file information it can show, and when a public-looking post is unavailable to an anonymous server.</p><p>Choose a topic below, then use the working downloader on that page with media you own or have permission to save. Available options always come from analysis of your actual link.</p></div><div class="guide-grid">{% for item in guides %}<a class="guide-card" href="{{ item.path }}"><span class="section-kicker">GUIDE {{ '%02d' | format(loop.index) }}</span><h3>{{ item.title }}</h3><p>{{ item.description }}</p><span class="guide-card-arrow">Read guide →</span></a>{% endfor %}</div></div></section>
     {% elif guide %}
     <article class="guide-article section-space"><div class="container guide-layout"><div class="guide-prose"><span class="section-kicker">PRACTICAL GUIDE</span>{% for heading, paragraph in guide.sections %}<section><h2>{{ heading }}</h2><p>{{ paragraph }}</p></section>{% endfor %}<p class="rights-note">Only download content you own or have permission to use. No login, paywall, DRM, or private-access bypass is offered.</p><section class="guide-faq" id="faq"><h2>Questions about this topic</h2>{% for question, answer in guide.faq %}<details><summary>{{ question }}</summary><p>{{ answer }}</p></details>{% endfor %}</section></div><aside class="guide-aside"><div class="detail-card"><span class="section-kicker">TRY THE TOOL</span><h2>{{ tool.heading }}</h2><p>{{ tool.description }}</p><a href="{{ tool.path }}">Open {{ tool.name }} →</a></div><div class="detail-card"><span class="section-kicker">KEEP READING</span><h2>More guides</h2>{% for item in guides if item.slug != guide.slug %}{% if loop.index <= 4 %}<a class="guide-side-link" href="{{ item.path }}">{{ item.title }} →</a>{% endif %}{% endfor %}<a class="guide-side-link" href="/guides">Browse all guides →</a></div></aside></div></article>
     {% else %}
-    <section class="platforms-section section-space" id="platforms"><div class="container"><div class="section-heading"><div><span class="section-kicker">SUPPORTED PLATFORMS</span><h2>One place for every link.</h2></div><p>Pick a platform to see its dedicated tools and supported URLs.</p></div><div class="platform-grid">
-      {% for platform in platforms %}{% set platform_tool = tools | selectattr('platform', 'equalto', platform) | first %}
-      <a class="platform-card" href="{{ platform_tool.path }}"><span class="platform-icon {{ platform }}">{{ platform[0] | upper }}</span><strong>{{ platform | title }}</strong><span class="card-arrow">↗</span></a>
-      {% endfor %}
-    </div></div></section>
-
+    {% if not tool %}
     <section class="tools-section section-space" id="popular-tools"><div class="container"><div class="section-heading"><div><span class="section-kicker">EXPLORE TOOLS</span><h2>{{ 'More ways to download and convert.' if tool else 'Downloaders and converters for every format.' }}</h2></div><p>Each tool uses the same real analysis engine and only shows available choices.</p></div><div class="tool-grid">
       {% for item in related %}<a class="tool-card" href="{{ item.path }}"><span class="tool-card-icon">{{ item.platform[0] | upper }}</span><span><strong>{{ item.name }}</strong><small>{{ item.description }}</small></span><span class="tool-card-arrow">↗</span></a>{% endfor %}
     </div><div class="all-tools"><a href="/universal-video-downloader">Explore universal downloader <span aria-hidden="true">→</span></a></div></div></section>
 
     <section class="directory-section section-space" id="all-tools"><div class="container"><div class="section-heading"><div><span class="section-kicker">ALL DOWNLOADERS</span><h2>Find your next tool.</h2></div><p>Choose a dedicated page for the type of public media you want to save.</p></div><div class="directory-grid">{% for platform in platforms %}<div class="directory-group"><h3>{{ platform | title }}</h3>{% for item in tools if item.platform == platform %}<a href="{{ item.path }}">{{ item.name }} <span aria-hidden="true">↗</span></a>{% endfor %}</div>{% endfor %}<div class="directory-group"><h3>All platforms</h3><a href="/universal-video-downloader">Universal Video Downloader <span aria-hidden="true">↗</span></a></div></div></div></section>
+    {% endif %}
 
     {% if not tool %}<section class="guides-section section-space" id="guides"><div class="container"><div class="section-heading"><div><span class="section-kicker">HELPFUL GUIDES</span><h2>Understand your options.</h2></div><p>Practical answers about formats, public links and common download problems.</p></div><div class="guide-grid">{% for item in guides[:6] %}<a class="guide-card" href="{{ item.path }}"><span class="section-kicker">GUIDE {{ '%02d' | format(loop.index) }}</span><h3>{{ item.title }}</h3><p>{{ item.description }}</p><span class="guide-card-arrow">Read guide →</span></a>{% endfor %}</div><p class="all-tools"><a href="/guides">Browse all guides →</a></p></div></section>{% elif platform_guide %}<section class="guide-promo section-space"><div class="container"><span class="section-kicker">LEARN MORE</span><h2>Make sense of {{ tool.platform | title }} downloads.</h2><p>{{ platform_guide.description }}</p><a class="ready-link" href="{{ platform_guide.path }}">Read {{ platform_guide.title }} →</a></div></section>{% endif %}
 
