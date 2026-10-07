@@ -18,11 +18,12 @@ from config import DOWNLOAD_DIR
 from extractors import AnalysisError, DetectError, analyze, detect_url
 from extractors.service import resolve
 from guides import BY_SLUG as GUIDES_BY_SLUG, GUIDES
+from image_tools import BY_SLUG as IMAGE_BY_SLUG, IMAGE_TOOLS
 from site_pages import BY_SLUG as PAGES_BY_SLUG, PAGES, TOOL_GROUPS
 from tools import BY_SLUG, PLATFORMS, TOOLS, related_tools
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 4096
+app.config["MAX_CONTENT_LENGTH"] = 9 * 1024 * 1024
 db.init_db()
 CLIENT_ID = re.compile(r"^[A-Za-z0-9_-]{43}$")
 JOB_ID = re.compile(r"^[0-9a-f]{32}$")
@@ -31,13 +32,14 @@ SITE_URL = "https://savefromnet.fun"
 _limits = defaultdict(deque)
 _limits_lock = threading.Lock()
 _analysis_slots = threading.BoundedSemaphore(4)
+_image_slots = threading.BoundedSemaphore(2)
 _last_cleanup = 0
 
 
 @app.errorhandler(413)
 def request_too_large(_error):
     if request.path.startswith("/api/"):
-        return _json_error("The request is too large. Paste one media URL.", "request_too_large", 413)
+        return _json_error("The request is too large. Use an image under 8 MB or paste one media URL.", "request_too_large", 413)
     return "Request too large", 413
 
 
@@ -80,6 +82,8 @@ def _cleanup():
 def identify_client():
     if request.path == "/healthz":
         return
+    if request.path.startswith("/api/") and request.path != "/api/image/process" and (request.content_length or 0) > 4096:
+        return _json_error("The request is too large.", "request_too_large", 413)
     client_id = request.cookies.get("client_id", "")
     if not CLIENT_ID.fullmatch(client_id):
         client_id = secrets.token_urlsafe(32)
@@ -261,6 +265,7 @@ def _content_page(page):
     ]
     groups = [(name, [BY_SLUG[slug] for slug in slugs]) for name, slugs in TOOL_GROUPS]
     return render_template("site.html", content_page=page, tool_groups=groups,
+                           image_tools=IMAGE_TOOLS,
                            title=page.title, description=page.description,
                            canonical=canonical, schema=schema, tool=None,
                            guide=None, guide_index=False, tools=TOOLS,
@@ -270,6 +275,26 @@ def _content_page(page):
 
 @app.get("/<slug>")
 def tool_page(slug):
+    image_tool = IMAGE_BY_SLUG.get(slug)
+    if image_tool:
+        canonical = SITE_URL + image_tool.path
+        schema = [
+            {"@context": "https://schema.org", "@type": "WebApplication", "name": image_tool.name,
+             "description": image_tool.description, "applicationCategory": "MultimediaApplication",
+             "operatingSystem": "Any", "url": canonical,
+             "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}},
+            {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+                {"@type": "Question", "name": question, "acceptedAnswer": {"@type": "Answer", "text": answer}}
+                for question, answer in image_tool.faq]},
+            {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "Home", "item": SITE_URL + "/"},
+                {"@type": "ListItem", "position": 2, "name": "Tools", "item": SITE_URL + "/tools"},
+                {"@type": "ListItem", "position": 3, "name": image_tool.name, "item": canonical}]},
+        ]
+        return render_template("site.html", image_tool=image_tool, image_tools=IMAGE_TOOLS,
+                               title=image_tool.title, description=image_tool.description,
+                               canonical=canonical, schema=schema, tool=None, guide=None,
+                               guide_index=False, tools=TOOLS, platforms=PLATFORMS, guides=GUIDES)
     tool = BY_SLUG.get(slug)
     if tool:
         return _page(tool)
@@ -277,6 +302,32 @@ def tool_page(slug):
     if page:
         return _content_page(page)
     return render_template("404.html", tools=TOOLS), 404
+
+
+@app.post("/api/image/process")
+def api_image_process():
+    if not _rate_limit(g.client_id, "image_process", 2):
+        return _json_error("Too many image requests. Please try again in a minute.", "rate_limited", 429)
+    tool = IMAGE_BY_SLUG.get(request.form.get("tool", ""))
+    if not tool:
+        return _json_error("Choose a valid image tool.", "invalid_tool")
+    upload = request.files.get("image")
+    if not upload:
+        return _json_error("Choose an image to upload.", "invalid_image")
+    from image_processing import ImageProcessError, process_image
+    if not _image_slots.acquire(blocking=False):
+        return _json_error("Image processing is busy. Please try again shortly.", "busy", 429)
+    try:
+        output, filename, mime, details = process_image(upload, tool, request.form.get("quality"), request.form.get("width"))
+    except ImageProcessError as exc:
+        return _json_error(str(exc), "invalid_image", 422)
+    finally:
+        _image_slots.release()
+    response = send_file(output, mimetype=mime, as_attachment=True, download_name=filename)
+    response.headers["X-SFN-Input-Bytes"] = str(details["input_bytes"])
+    response.headers["X-SFN-Output-Bytes"] = str(details["output_bytes"])
+    response.headers["X-SFN-Dimensions"] = f'{details["width"]}x{details["height"]}'
+    return response
 
 
 @app.post("/api/analyze")
@@ -440,6 +491,7 @@ def robots():
 @app.get("/sitemap.xml")
 def sitemap():
     pages = [(SITE_URL + "/", "1.0")] + [(SITE_URL + tool.path, "0.7") for tool in TOOLS]
+    pages += [(SITE_URL + tool.path, "0.7") for tool in IMAGE_TOOLS]
     pages += [(SITE_URL + "/guides", "0.7")]
     pages += [(SITE_URL + guide.path, "0.6") for guide in GUIDES]
     pages += [(SITE_URL + page.path, "0.8" if page.slug == "tools" else "0.4") for page in PAGES]

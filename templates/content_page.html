@@ -10,6 +10,7 @@
 <div class="content-body"><div class="container">
   <nav class="category-jump" aria-label="Tool categories">
     {% for name, items in tool_groups %}<a href="#category-{{ loop.index }}">{{ name }}</a>{% endfor %}
+    <a href="#image-tools">Image tools</a>
   </nav>
   {% for name, items in tool_groups %}
   <section class="tool-category" id="category-{{ loop.index }}" aria-labelledby="category-title-{{ loop.index }}">
@@ -27,6 +28,10 @@
     </div>
   </section>
   {% endfor %}
+  <section class="tool-category" id="image-tools" aria-labelledby="image-tools-heading">
+    <div class="content-section-heading"><h2 id="image-tools-heading">Image tools</h2><p>Upload your own image to compress, convert, or resize it.</p></div>
+    <div class="content-tool-grid">{% for item in image_tools %}<a class="content-tool-card" href="{{ item.path }}"><span class="content-tool-platform">Image</span><h3>{{ item.name }}</h3><p>{{ item.description }}</p><span class="content-tool-action">Open tool →</span></a>{% endfor %}</div>
+  </section>
   <section class="tool-category" aria-labelledby="specific-guides-heading">
     <div class="content-section-heading"><h2 id="specific-guides-heading">Specific links and download problems</h2><p>Practical help for supported media types, file sizes, and temporary downloads.</p></div>
     <div class="content-tool-grid">

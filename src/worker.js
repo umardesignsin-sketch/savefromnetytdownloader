@@ -6,7 +6,7 @@ function record(env, event, platform = "unknown", tool = "unknown", format = "",
   try {
     env.EVENTS?.writeDataPoint({
       blobs: [clean(event, /^[a-z_]{1,40}$/), clean(platform, /^(youtube|instagram|tiktok|facebook|pinterest|reddit|threads|dailymotion|unknown)$/),
-        clean(tool, /^[a-z0-9-]{1,60}$/), clean(format, /^(mp3|mp4|m4a|webm|jpg|jpeg|png|gif|webp|unknown|)$/), String(status)],
+        clean(tool, /^[a-z0-9-]{1,60}$/), clean(format, /^(mp3|mp4|m4a|webm|jpg|jpeg|png|gif|webp|heic|unknown|)$/), String(status)],
       doubles: [1],
       indexes: ["savefromnet"],
     });
@@ -62,6 +62,19 @@ export class DownloaderContainer extends Container {
 export default {
   async fetch(request, env) {
     const pathname = new URL(request.url).pathname;
+    if (request.method === "POST" && pathname === "/api/image/process") {
+      if (Number(request.headers.get("content-length") || 0) > 9 * 1024 * 1024) {
+        return new Response(JSON.stringify({ error: "Choose an image under 8 MB." }),
+          { status: 413, headers: { "Content-Type": "application/json" } });
+      }
+      const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+      const { success } = await env.DOWNLOAD_LIMIT.limit({ key: `image:${ip}` });
+      if (!success) {
+        record(env, "rate_limited", "unknown", "image", "", 429);
+        return new Response(JSON.stringify({ error: "Too many image requests. Please try again in a minute." }),
+          { status: 429, headers: { "Content-Type": "application/json", "Retry-After": "60" } });
+      }
+    }
     const body = request.method === "POST" && (pathname === "/api/analyze" || pathname === "/api/download" || pathname === "/api/event") ? await smallJson(request) : {};
     if (request.method === "POST" && (pathname === "/api/download" || pathname === "/api/analyze" || pathname === "/api/event")) {
       const ip = request.headers.get("CF-Connecting-IP") || "unknown";
@@ -101,6 +114,9 @@ export default {
         { status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
     }
     const response = await env.DOWNLOADER.getByName("multi-primary").fetch(request);
+    if (pathname === "/api/image/process" && request.method === "POST") {
+      record(env, response.ok ? "image_processed" : "image_failed", "unknown", "image", "", response.status);
+    }
     if (pathname === "/api/analyze" && request.method === "POST") {
       if (response.ok) {
         try {

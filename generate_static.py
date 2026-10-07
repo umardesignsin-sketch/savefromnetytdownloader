@@ -9,6 +9,7 @@ import shutil
 
 from app import app
 from guides import GUIDES
+from image_tools import IMAGE_TOOLS
 from site_pages import PAGES
 from tools import TOOLS
 
@@ -27,6 +28,7 @@ def main():
     pages = [("/", "index.html"), ("/robots.txt", "robots.txt"),
              ("/sitemap.xml", "sitemap.xml"), ("/missing-page", "404.html")]
     pages += [(tool.path, f"{tool.slug}.html") for tool in TOOLS]
+    pages += [(tool.path, f"{tool.slug}.html") for tool in IMAGE_TOOLS]
     pages += [("/guides", "guides.html")]
     pages += [(guide.path, f"guides/{guide.slug}.html") for guide in GUIDES]
     pages += [(page.path, f"{page.slug}.html") for page in PAGES]
@@ -38,14 +40,14 @@ def main():
         target = DIST / filename
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(response.data)
-    for name in ("css/site.css", "css/reference.css", "css/content.css", "js/site.js", "favicon.svg"):
+    for name in ("css/site.css", "css/reference.css", "css/content.css", "css/image-tools.css", "js/site.js", "js/image-tools.js", "favicon.svg"):
         source = BASE / "static" / name
         target = DIST / "static" / name
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
     shutil.copy2(BASE / "sw.js", DIST / "sw.js")
     shutil.copy2(BASE / "_headers", DIST / "_headers")
-    print(f"Rendered {len(TOOLS)} tool pages, {len(GUIDES)} guides, {len(PAGES)} directory and trust pages, homepage, and site assets to {DIST}")
+    print(f"Rendered {len(TOOLS)} media tools, {len(IMAGE_TOOLS)} image tools, {len(GUIDES)} guides, {len(PAGES)} directory and trust pages, homepage, and site assets to {DIST}")
 
 
 if __name__ == "__main__":

@@ -23,6 +23,7 @@ from downloader import file_path  # noqa: E402
 from extractors.detect import DetectError, detect_url  # noqa: E402
 from extractors.service import _yt_formats  # noqa: E402
 from guides import GUIDES  # noqa: E402
+from image_tools import IMAGE_TOOLS  # noqa: E402
 from site_pages import PAGES, TOOL_GROUPS  # noqa: E402
 from tools import TOOLS, TOOL_SECTIONS, TOOL_SEO_LINKS  # noqa: E402
 
@@ -113,7 +114,7 @@ class SiteTests(unittest.TestCase):
                 schemas = [json.loads(block.split('</script>')[0]) for block in html.split('<script type="application/ld+json">')[1:]]
                 self.assertEqual({s["@type"] for s in schemas}, {"WebApplication", "FAQPage", "BreadcrumbList"})
         sitemap = self.client.get("/sitemap.xml").get_data(as_text=True)
-        self.assertEqual(sitemap.count("<url>"), 27 + len(GUIDES) + len(PAGES))
+        self.assertEqual(sitemap.count("<url>"), 27 + len(GUIDES) + len(PAGES) + len(IMAGE_TOOLS))
         home = self.client.get("/").get_data(as_text=True)
         self.assertIn("<h1 id=\"download-heading\">Video Downloader <em>&amp; Converter</em></h1>", home)
         self.assertIn('href="/guides"', home)
@@ -191,7 +192,7 @@ class SiteTests(unittest.TestCase):
                 self.assertIn(kind, tool.content_types)
 
     def test_public_navigation_and_sitemap_resolve(self):
-        paths = ["/", "/guides"] + [tool.path for tool in TOOLS] + [guide.path for guide in GUIDES] + [page.path for page in PAGES]
+        paths = ["/", "/guides"] + [tool.path for tool in TOOLS] + [tool.path for tool in IMAGE_TOOLS] + [guide.path for guide in GUIDES] + [page.path for page in PAGES]
         sitemap = ElementTree.fromstring(self.client.get("/sitemap.xml").data)
         locs = [node.text for node in sitemap.findall(".//{*}loc")]
         self.assertEqual(set(locs), {"https://savefromnet.fun" + path for path in paths})

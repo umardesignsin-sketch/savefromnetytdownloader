@@ -34,10 +34,10 @@ class Page:
 
 PAGES = (
     Page(
-        "tools", "Media Download Tools | SaveFromNet",
-        "Browse SaveFromNet's working video, audio, photo and converter tools by platform. Every format choice comes from analysis of your public link.",
-        "Media download tools",
-        "Choose a tool for your source and format. Each page uses the same real downloader and shows only formats returned for the link you enter.",
+        "tools", "Media and Image Tools | SaveFromNet",
+        "Browse SaveFromNet's working downloaders, image compressor, image resizer and format converters.",
+        "Media and image tools",
+        "Choose a downloader for a public link, or upload your own image to compress, resize or convert it.",
         schema_type="CollectionPage",
     ),
     Page(
@@ -85,6 +85,10 @@ PAGES = (
             Section("Information used for a download", (
                 "When you submit a URL, the server processes that URL, the selected tool and format, and job status to complete your request. A browser identifier cookie associates an analysis and temporary download with the browser that requested it. The cookie lasts up to 30 days unless you clear it.",
                 "The processing container keeps job metadata, including the submitted URL and file details, in temporary local storage. Finished files are normally removed after about an hour and may disappear sooner if the container restarts. You can delete an entry and its file from the recent downloads section.",
+            )),
+            Section("Image conversions", (
+                "If you use an image tool, the uploaded still image is decoded and converted in memory. The image bytes are returned in the response and are not added to download history or saved as a temporary media file.",
+                "Image tools limit upload size and pixel dimensions. Processing may include stripping embedded metadata such as location information from the output file. Your browser keeps the result until you download it or leave the page.",
             )),
             Section("Limits and aggregate measurement", (
                 "Cloudflare uses the requesting IP address to apply rate limits. SaveFromNet records aggregate events such as platform, tool, format and success or failure. The analytics event payload does not include the submitted URL or a browser identifier.",

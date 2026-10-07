@@ -1,0 +1,28 @@
+<header class="image-hero">
+  <div class="container image-shell">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">›</span><a href="/tools">Tools</a><span aria-hidden="true">›</span><span aria-current="page">{{ image_tool.name }}</span></nav>
+    <span class="section-kicker">IMAGE TOOLS</span>
+    <h1>{{ image_tool.name }}</h1>
+    <p>{{ image_tool.description }}</p>
+  </div>
+</header>
+<section class="image-workspace" aria-label="Convert image"><div class="container image-shell">
+  <form id="image-form" data-tool="{{ image_tool.slug }}" enctype="multipart/form-data">
+    <label class="image-drop" for="image-file"><span class="image-upload-symbol" aria-hidden="true">↑</span><strong>Choose an image</strong><span id="image-file-label">{{ image_tool.input_formats | join(', ') }} · up to 8 MB and 20 megapixels</span></label>
+    <input id="image-file" name="image" type="file" accept="{% for fmt in image_tool.input_formats %}{{ {'JPEG':'image/jpeg','PNG':'image/png','WEBP':'image/webp','HEIC':'image/heic,image/heif'}[fmt] }}{% if not loop.last %},{% endif %}{% endfor %}" required>
+    <div class="image-options">
+      {% if image_tool.output_format not in ('PNG',) and image_tool.slug != 'image-resizer' %}<label for="image-quality">Quality <strong id="quality-value">82</strong><input id="image-quality" name="quality" type="range" min="40" max="95" value="82"></label>{% endif %}
+      {% if image_tool.slug == 'image-resizer' %}<label for="image-width">Output width in pixels<input id="image-width" name="width" type="number" min="1" max="8192" placeholder="e.g. 1200" required></label>{% endif %}
+    </div>
+    <button id="image-submit" class="submit-btn" type="submit">{{ 'Resize image' if image_tool.slug == 'image-resizer' else 'Compress image' if image_tool.slug == 'image-compressor' else 'Convert image' }} <span aria-hidden="true">→</span></button>
+    <p id="image-status" role="status" aria-live="polite"></p>
+    <p class="image-privacy">Your upload is processed in memory and is not saved on our server. The finished image downloads to your device.</p>
+  </form>
+  <div id="image-result" class="image-result" hidden><h2>Image ready</h2><p id="image-result-detail"></p><a id="image-download" class="submit-btn" href="#" download>Download file <span aria-hidden="true">↓</span></a></div>
+</div></section>
+<section class="image-content"><div class="container image-shell">
+  <div class="image-article"><span class="section-kicker">ABOUT THIS TOOL</span><h2>What happens to your image?</h2><p>{{ image_tool.explanation }}</p><p>{{ image_tool.tip }}</p></div>
+  <div class="image-article"><span class="section-kicker">HOW IT WORKS</span><h2>Upload, process, save.</h2><ol><li>Choose a supported still image from your device.</li><li>Set quality or width when the tool offers a control.</li><li>Process the image, compare the actual sizes, and save the result.</li></ol><p>No account is required. Animated, broken and oversized images are rejected.</p></div>
+  <div class="image-article"><span class="section-kicker">QUESTIONS</span><h2>Frequently asked questions</h2>{% for question, answer in image_tool.faq %}<details><summary>{{ question }}</summary><p>{{ answer }}</p></details>{% endfor %}</div>
+  <div class="image-article"><span class="section-kicker">KEEP GOING</span><h2>More image tools</h2><div class="image-related">{% for item in image_tools if item.slug != image_tool.slug %}<a href="{{ item.path }}">{{ item.name }} <span aria-hidden="true">↗</span></a>{% endfor %}</div></div>
+</div></section>
