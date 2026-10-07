@@ -1,0 +1,45 @@
+<header class="content-hero">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">›</span><span aria-current="page">{{ content_page.heading }}</span></nav>
+    <h1>{{ content_page.heading }}</h1>
+    <p>{{ content_page.intro }}</p>
+  </div>
+</header>
+
+{% if content_page.slug == 'tools' %}
+<div class="content-body"><div class="container">
+  <nav class="category-jump" aria-label="Tool categories">
+    {% for name, items in tool_groups %}<a href="#category-{{ loop.index }}">{{ name }}</a>{% endfor %}
+  </nav>
+  {% for name, items in tool_groups %}
+  <section class="tool-category" id="category-{{ loop.index }}" aria-labelledby="category-title-{{ loop.index }}">
+    <div class="content-section-heading"><h2 id="category-title-{{ loop.index }}">{{ name }}</h2><p>Available formats and quality are confirmed after you analyze a public link.</p></div>
+    <div class="content-tool-grid">
+      {% for item in items %}
+      <a class="content-tool-card" href="{{ item.path }}">
+        <span class="content-tool-platform">{{ item.platform | title }}</span>
+        <h3>{{ item.name }}</h3>
+        <p>{{ item.description }}</p>
+        <span class="content-tool-formats">{{ item.format_note }}</span>
+        <span class="content-tool-action">Open tool <span aria-hidden="true">→</span></span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+  <aside class="content-callout"><h2>Need help choosing?</h2><p>Start with the universal downloader. It identifies the supported platform from the URL and shows only the options found for that item.</p><a href="/universal-video-downloader">Open universal downloader <span aria-hidden="true">→</span></a></aside>
+</div></div>
+{% else %}
+<div class="content-body"><div class="container content-columns">
+  <article class="content-article">
+    {% for section in content_page.sections %}
+    <section aria-labelledby="section-{{ loop.index }}">
+      <h2 id="section-{{ loop.index }}">{{ section.heading }}</h2>
+      {% for paragraph in section.paragraphs %}<p>{{ paragraph }}</p>{% endfor %}
+      {% if section.links %}<div class="content-links">{% for href, label in section.links %}<a href="{{ href }}">{{ label }} <span aria-hidden="true">→</span></a>{% endfor %}</div>{% endif %}
+    </section>
+    {% endfor %}
+  </article>
+  <aside class="content-aside" aria-label="Related pages"><h2>Explore SaveFromNet</h2><a href="/tools">All working tools</a><a href="/guides">Practical guides</a><a href="/about">About the service</a><a href="/contact">Contact us</a></aside>
+</div></div>
+{% endif %}

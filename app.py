@@ -18,6 +18,7 @@ from config import DOWNLOAD_DIR
 from extractors import AnalysisError, DetectError, analyze, detect_url
 from extractors.service import resolve
 from guides import BY_SLUG as GUIDES_BY_SLUG, GUIDES
+from site_pages import BY_SLUG as PAGES_BY_SLUG, PAGES, TOOL_GROUPS
 from tools import BY_SLUG, PLATFORMS, TOOLS, related_tools
 
 app = Flask(__name__)
@@ -96,6 +97,8 @@ def persist_client(response):
                             httponly=True, samesite="Lax")
     if request.path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store"
+    if request.path.startswith("/api/") or request.path in ("/healthz", "/sw.js"):
+        response.headers["X-Robots-Tag"] = "noindex, nofollow"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     return response
@@ -232,12 +235,34 @@ def service_worker():
     return response
 
 
+def _content_page(page):
+    canonical = SITE_URL + page.path
+    schema = [
+        {"@context": "https://schema.org", "@type": page.schema_type,
+         "name": page.heading, "description": page.description, "url": canonical},
+        {"@context": "https://schema.org", "@type": "BreadcrumbList",
+         "itemListElement": [
+             {"@type": "ListItem", "position": 1, "name": "Home", "item": SITE_URL + "/"},
+             {"@type": "ListItem", "position": 2, "name": page.heading, "item": canonical},
+         ]},
+    ]
+    groups = [(name, [BY_SLUG[slug] for slug in slugs]) for name, slugs in TOOL_GROUPS]
+    return render_template("site.html", content_page=page, tool_groups=groups,
+                           title=page.title, description=page.description,
+                           canonical=canonical, schema=schema, tool=None,
+                           guide=None, guide_index=False, tools=TOOLS,
+                           platforms=PLATFORMS, guides=GUIDES)
+
+
 @app.get("/<slug>")
 def tool_page(slug):
     tool = BY_SLUG.get(slug)
-    if not tool:
-        return render_template("404.html", tools=TOOLS), 404
-    return _page(tool)
+    if tool:
+        return _page(tool)
+    page = PAGES_BY_SLUG.get(slug)
+    if page:
+        return _content_page(page)
+    return render_template("404.html", tools=TOOLS), 404
 
 
 @app.post("/api/analyze")
@@ -364,11 +389,11 @@ def api_event():
     if not _rate_limit(g.client_id, "event", 30):
         return _json_error("Too many events.", "rate_limited", 429)
     data = request.get_json(silent=True) or {}
-    if not isinstance(data, dict) or data.get("event") not in ("format_selected", "error_occurred"):
+    if not isinstance(data, dict) or data.get("event") not in ("format_selected", "error_occurred", "tool_page_view", "download_failed"):
         return _json_error("Unknown event.", "invalid_event")
     tool = BY_SLUG.get(data.get("tool"))
     platform = data.get("platform")
-    if not tool or platform not in PLATFORMS:
+    if not tool or platform not in (*PLATFORMS, "unknown") or (tool.platform != "universal" and tool.platform != platform):
         return _json_error("Invalid event context.", "invalid_event")
     db.record_event(data["event"], platform, tool.slug, str(data.get("format", ""))[:12])
     return jsonify({"ok": True})
@@ -395,7 +420,7 @@ def healthz():
 
 @app.get("/robots.txt")
 def robots():
-    return Response(f"User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: {SITE_URL}/sitemap.xml\n", mimetype="text/plain")
+    return Response(f"User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /healthz\nDisallow: /sw.js\nSitemap: {SITE_URL}/sitemap.xml\n", mimetype="text/plain")
 
 
 @app.get("/sitemap.xml")
@@ -403,6 +428,7 @@ def sitemap():
     pages = [(SITE_URL + "/", "1.0")] + [(SITE_URL + tool.path, "0.7") for tool in TOOLS]
     pages += [(SITE_URL + "/guides", "0.7")]
     pages += [(SITE_URL + guide.path, "0.6") for guide in GUIDES]
+    pages += [(SITE_URL + page.path, "0.8" if page.slug == "tools" else "0.4") for page in PAGES]
     body = "".join(f"<url><loc>{url}</loc><changefreq>weekly</changefreq><priority>{priority}</priority></url>" for url, priority in pages)
     return Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + body + "</urlset>", mimetype="application/xml")
 

@@ -37,11 +37,43 @@ class Tool:
 
     @property
     def faq(self):
+        if self.slug == "youtube-to-mp3":
+            return (
+                ("How does the YouTube to MP3 converter work?", "Paste one public YouTube video or Short URL. After analysis, choose an MP3 option returned for that link. The server extracts available audio and converts it with ffmpeg before offering a temporary file."),
+                ("Can I choose 320 kbps?", "Only choose from the options shown after analysis. A higher MP3 setting cannot add detail that is missing from the source audio, and no fixed 320 kbps result is promised."),
+                ("Why is no MP3 option available?", "The video may be private, deleted, live, region restricted, age restricted, or blocked from anonymous extraction. A video without accessible audio also cannot be converted."),
+                ("Does it work on a phone?", "The URL form works in a modern mobile browser. When processing finishes, save the temporary MP3 through your browser; the exact destination depends on your device."),
+            )
         return (
             (f"Which links work with {self.name}?", self.url_hint),
             ("Which formats and qualities can I choose?", self.format_note + " Only formats returned by the source are displayed."),
             ("Why might a link fail?", self.problem + " Private, deleted, restricted, and live media cannot be processed."),
         )
+
+    @property
+    def seo_sections(self):
+        return TOOL_SECTIONS.get(self.slug, ())
+
+
+TOOL_SECTIONS = {
+    "youtube-to-mp3": (
+        ("Convert a public YouTube video to MP3", (
+            "Open a public video or Short that you own or may download, copy its complete URL, and paste it into the converter above. Analysis checks whether the source exposes an audio stream and returns only the choices available for that upload.",
+            "Select an MP3 option to start the background job. The server extracts audio, converts it with ffmpeg, then provides a temporary download link. Keep this page open while processing; longer videos can take more time.",
+        )),
+        ("Understand the audio quality shown", (
+            "A source audio stream may use M4A or WebM. MP3 is a conversion of that stream, not an original YouTube file. The result card shows the actual option and any size estimate the extractor can support; missing or unreliable sizes are left unknown.",
+            "Changing the output bitrate cannot restore detail lost in the source. Compare the returned choices for the particular link instead of assuming every upload provides the same quality.",
+        )),
+        ("Fix common conversion problems", (
+            "If the URL is rejected, use a complete youtube.com/watch, youtube.com/shorts or youtu.be link to one item. Playlists and arbitrary sites are not accepted on this page.",
+            "If analysis fails, the post may have been removed, made private, restricted to a region or age group, or blocked for server access. If processing starts but times out, try a shorter public upload or another available audio option. The service does not bypass sign-in or access controls.",
+        )),
+        ("Use the converter on your device", (
+            "The same form works in current phone, tablet and desktop browsers. The temporary file is saved by your browser, so its destination depends on your device settings. Completed files normally expire after about an hour and may disappear sooner if the processing container restarts.",
+        )),
+    ),
+}
 
 
 TOOLS = [

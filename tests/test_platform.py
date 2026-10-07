@@ -21,6 +21,7 @@ from downloader import file_path  # noqa: E402
 from extractors.detect import DetectError, detect_url  # noqa: E402
 from extractors.service import _yt_formats  # noqa: E402
 from guides import GUIDES  # noqa: E402
+from site_pages import PAGES, TOOL_GROUPS  # noqa: E402
 from tools import TOOLS  # noqa: E402
 
 
@@ -110,7 +111,7 @@ class SiteTests(unittest.TestCase):
                 schemas = [json.loads(block.split('</script>')[0]) for block in html.split('<script type="application/ld+json">')[1:]]
                 self.assertEqual({s["@type"] for s in schemas}, {"WebApplication", "FAQPage", "BreadcrumbList"})
         sitemap = self.client.get("/sitemap.xml").get_data(as_text=True)
-        self.assertEqual(sitemap.count("<url>"), 27 + len(GUIDES))
+        self.assertEqual(sitemap.count("<url>"), 27 + len(GUIDES) + len(PAGES))
         home = self.client.get("/").get_data(as_text=True)
         self.assertIn("<h1 id=\"download-heading\">Video Downloader <em>&amp; Converter</em></h1>", home)
         self.assertIn('href="/guides"', home)
@@ -135,9 +136,12 @@ class SiteTests(unittest.TestCase):
                 schemas = [json.loads(block.split('</script>')[0]) for block in html.split('<script type="application/ld+json">')[1:]]
                 self.assertEqual({schema["@type"] for schema in schemas}, {"Article", "FAQPage", "BreadcrumbList"})
         self.assertEqual(self.client.get("/guides/not-a-guide").status_code, 404)
+        missing = self.client.get("/not-a-real-tool")
+        self.assertEqual(missing.status_code, 404)
+        self.assertIn('<meta name="robots" content="noindex,follow">', missing.get_data(as_text=True))
 
     def test_public_navigation_and_sitemap_resolve(self):
-        paths = ["/", "/guides"] + [tool.path for tool in TOOLS] + [guide.path for guide in GUIDES]
+        paths = ["/", "/guides"] + [tool.path for tool in TOOLS] + [guide.path for guide in GUIDES] + [page.path for page in PAGES]
         sitemap = ElementTree.fromstring(self.client.get("/sitemap.xml").data)
         locs = [node.text for node in sitemap.findall(".//{*}loc")]
         self.assertEqual(set(locs), {"https://savefromnet.fun" + path for path in paths})
@@ -152,6 +156,33 @@ class SiteTests(unittest.TestCase):
                         self.assertEqual(response.status_code, 200, f"Broken link {link} on {path}")
                     finally:
                         response.close()
+
+    def test_directory_and_trust_pages_are_unique_and_indexable(self):
+        self.assertEqual(len(PAGES), 7)
+        self.assertEqual(len({page.title for page in PAGES}), len(PAGES))
+        for page in PAGES:
+            with self.subTest(page=page.slug):
+                response = self.client.get(page.path)
+                self.assertEqual(response.status_code, 200)
+                html = response.get_data(as_text=True)
+                self.assertIn(f'<link rel="canonical" href="https://savefromnet.fun{page.path}">', html)
+                self.assertIn(f"<h1>{escape(page.heading)}</h1>", html)
+                self.assertNotIn('id="download-form"', html)
+                self.assertIn('href="/privacy-policy"', html)
+                self.assertIn('href="/terms"', html)
+        directory = self.client.get("/tools").get_data(as_text=True)
+        self.assertEqual({slug for _name, slugs in TOOL_GROUPS for slug in slugs}, {tool.slug for tool in TOOLS})
+        for _name, slugs in TOOL_GROUPS:
+            for slug in slugs:
+                self.assertIn(f'href="/{slug}"', directory)
+
+    def test_aggregate_events_accept_real_tool_context_only(self):
+        accepted = self.client.post("/api/event", json={"event": "tool_page_view", "platform": "youtube", "tool": "youtube-to-mp3"})
+        self.assertEqual(accepted.status_code, 200)
+        failure = self.client.post("/api/event", json={"event": "download_failed", "platform": "youtube", "tool": "youtube-to-mp3", "format": "mp3"})
+        self.assertEqual(failure.status_code, 200)
+        wrong = self.client.post("/api/event", json={"event": "tool_page_view", "platform": "tiktok", "tool": "youtube-to-mp3"})
+        self.assertEqual(wrong.status_code, 400)
 
     def test_root_service_worker_matches_supplied_file(self):
         response = self.client.get("/sw.js")

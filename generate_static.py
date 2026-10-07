@@ -9,6 +9,7 @@ import shutil
 
 from app import app
 from guides import GUIDES
+from site_pages import PAGES
 from tools import TOOLS
 
 BASE = Path(__file__).resolve().parent
@@ -28,6 +29,7 @@ def main():
     pages += [(tool.path, f"{tool.slug}.html") for tool in TOOLS]
     pages += [("/guides", "guides.html")]
     pages += [(guide.path, f"guides/{guide.slug}.html") for guide in GUIDES]
+    pages += [(page.path, f"{page.slug}.html") for page in PAGES]
     for route, filename in pages:
         response = client.get(route)
         expected = 404 if filename == "404.html" else 200
@@ -36,13 +38,14 @@ def main():
         target = DIST / filename
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(response.data)
-    for name in ("css/site.css", "css/reference.css", "js/site.js", "favicon.svg"):
+    for name in ("css/site.css", "css/reference.css", "css/content.css", "js/site.js", "favicon.svg"):
         source = BASE / "static" / name
         target = DIST / "static" / name
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
     shutil.copy2(BASE / "sw.js", DIST / "sw.js")
-    print(f"Rendered {len(TOOLS)} tool pages, {len(GUIDES)} guides, homepage, and site assets to {DIST}")
+    shutil.copy2(BASE / "_headers", DIST / "_headers")
+    print(f"Rendered {len(TOOLS)} tool pages, {len(GUIDES)} guides, {len(PAGES)} directory and trust pages, homepage, and site assets to {DIST}")
 
 
 if __name__ == "__main__":

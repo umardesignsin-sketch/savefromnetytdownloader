@@ -90,6 +90,16 @@ export default {
     if (pathname === "/api/analyze" && request.method === "POST") {
       record(env, "url_submitted", "unknown", "unknown");
     }
+    if (pathname === "/api/event" && request.method === "POST" && ["tool_page_view", "download_failed"].includes(body.event)) {
+      if (typeof body.tool !== "string" || !/^[a-z0-9-]{1,60}$/.test(body.tool) ||
+          !["youtube", "instagram", "tiktok", "facebook", "pinterest", "reddit", "threads", "dailymotion", "unknown"].includes(body.platform)) {
+        return new Response(JSON.stringify({ error: "Invalid event context." }),
+          { status: 400, headers: { "Content-Type": "application/json" } });
+      }
+      record(env, body.event, body.platform, body.tool, body.format || "", 200);
+      return new Response(JSON.stringify({ ok: true }),
+        { status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+    }
     const response = await env.DOWNLOADER.getByName("multi-primary").fetch(request);
     if (pathname === "/api/analyze" && request.method === "POST") {
       if (response.ok) {
@@ -116,6 +126,7 @@ export default {
       try {
         const result = await response.clone().json();
         record(env, "download_clicked", result.platform, result.tool, result.format, response.status);
+        record(env, "download_started", result.platform, result.tool, result.format, response.status);
       } catch { /* The Flask response still reaches the browser. */ }
     } else if (pathname === "/api/event" && request.method === "POST" && response.ok) {
       if (["format_selected", "error_occurred"].includes(body.event)) {

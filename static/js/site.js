@@ -20,6 +20,15 @@
     menu.setAttribute('aria-expanded', String(opened));
   });
 
+  // Trust and directory pages share the navigation but do not need the API UI.
+  if (!form) return;
+
+  if (document.body.dataset.pageType === 'tool') {
+    fetch('/api/event', {method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({event:'tool_page_view', platform:document.body.dataset.platform, tool}),
+      keepalive:true}).catch(() => {});
+  }
+
   function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   }
@@ -132,6 +141,7 @@
       document.getElementById('job-stage').textContent = 'Could not start';
       document.getElementById('job-result').innerHTML = `<p class="result-error">${escapeHtml(error.message)}</p>`;
       track('error_occurred', chosen.extension);
+      track('download_failed', chosen.extension);
       button.disabled = false;
       button.innerHTML = 'Prepare download <span aria-hidden="true">↓</span>';
     }
@@ -166,6 +176,7 @@
         document.getElementById('job-stage').textContent = 'Could not process this media';
         document.getElementById('job-result').innerHTML = `<p class="result-error">${escapeHtml(error.message)}</p>`;
         track('error_occurred', extension);
+        track('download_failed', extension);
         document.getElementById('start-download').disabled = false;
         document.getElementById('start-download').innerHTML = 'Prepare download <span aria-hidden="true">↓</span>';
         loadHistory();

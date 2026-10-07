@@ -26,10 +26,11 @@
   <meta name="twitter:description" content="{{ description }}">
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/content.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/reference.css') }}">
   {% for item in schema %}<script type="application/ld+json">{{ item | tojson }}</script>{% endfor %}
 </head>
-<body data-tool="{{ tool.slug if tool else 'universal-video-downloader' }}">
+<body data-tool="{{ tool.slug if tool else 'universal-video-downloader' }}" data-platform="{{ tool.platform if tool and tool.platform != 'universal' else 'unknown' }}" data-page-type="{{ 'content' if content_page else 'guide' if guide or guide_index else 'tool' if tool else 'home' }}">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="container header-inner">
@@ -40,6 +41,7 @@
         <a href="/facebook-video-downloader">Facebook</a>
         <a href="/instagram-downloader">Instagram</a>
         <a href="/tiktok-downloader">TikTok</a>
+        <a href="/tools">Tools</a>
         <details class="nav-dropdown"><summary>More <span aria-hidden="true">⌄</span></summary>
           <div class="dropdown-panel">
             {% for platform in ('pinterest', 'reddit', 'threads', 'dailymotion') %}
@@ -55,6 +57,9 @@
   </header>
 
   <main id="main">
+    {% if content_page %}
+    {% include 'content_page.html' %}
+    {% else %}
     {% if guide or guide_index %}
     <section class="tool-hero guide-hero">
       <div class="container hero-centered"><nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span><a href="/guides">Guides</a>{% if guide %}<span>›</span><span aria-current="page">{{ guide.title }}</span>{% endif %}</nav><h1 id="download-heading">{{ guide.title if guide else 'Media Download Guides' }}</h1><p class="guide-lead">{{ guide.intro if guide else 'Clear, practical explanations of supported links, real file formats, and the access limits that affect public media downloads.' }}</p></div>
@@ -110,8 +115,10 @@
 
     {% if tool %}
     <section class="detail-section section-space"><div class="container detail-grid"><div><span class="section-kicker">ABOUT THIS TOOL</span><h2>Built for {{ tool.heading }}.</h2><p>{{ tool.description }}</p><p>{{ tool.format_note }}</p><div class="detail-callout"><strong>Supported links</strong><p>{{ tool.url_hint }}</p></div></div><div class="detail-card"><span class="section-kicker">GOOD TO KNOW</span><h3>When a link does not work</h3><p>{{ tool.problem }}</p><p>We only access content that the source makes publicly available without login. A format that is missing from the result is not offered as a download.</p><a href="#download-form">Try another link <span aria-hidden="true">↑</span></a></div></div></section>
+    {% if tool.seo_sections %}<article class="priority-detail section-space"><div class="container priority-detail-inner"><span class="section-kicker">YOUTUBE AUDIO GUIDE</span>{% for heading, paragraphs in tool.seo_sections %}<section><h2>{{ heading }}</h2>{% for paragraph in paragraphs %}<p>{{ paragraph }}</p>{% endfor %}</section>{% endfor %}<nav class="priority-related" aria-label="Related audio tools"><a href="/youtube-audio-downloader">YouTube audio formats</a><a href="/tiktok-to-mp3">TikTok to MP3</a><a href="/guides/mp3-vs-m4a">MP3 versus M4A guide</a></nav></div></article>{% endif %}
     {% else %}
     <section class="detail-section section-space"><div class="container detail-grid"><div><span class="section-kicker">WHY SAVEFROMNET</span><h2>Simple on the surface.<br>Careful underneath.</h2><p>Our downloader detects the source, checks the actual media, and prepares only a format that source provides. Photos, video, and audio use one clear flow.</p></div><div class="feature-list"><div><span>01</span><div><h3>Honest quality choices</h3><p>No made-up 4K or 320 kbps buttons. The result comes from the extractor.</p></div></div><div><span>02</span><div><h3>Private by default</h3><p>Temporary files expire, and download history is separated by your browser cookie.</p></div></div><div><span>03</span><div><h3>Made for every screen</h3><p>Paste a link, choose a format, and save on mobile or desktop.</p></div></div></div></div></section>
+    <section class="priority-detail section-space"><div class="container priority-detail-inner"><span class="section-kicker">SAVEFROMNET AUDIO</span><h2>Need an MP3 from a public link?</h2><p>SaveFromNet checks the audio actually available for a supported public video before offering a conversion. Paste a link above for automatic platform detection, or use a dedicated converter when you know the source. The MP3 is prepared from source audio; a higher output setting does not create missing detail.</p><p>For a public YouTube video or Short, the <a href="/youtube-to-mp3">YouTube to MP3 converter</a> keeps the results focused on audio. For a TikTok video with accessible sound, use <a href="/tiktok-to-mp3">TikTok to MP3</a>. Private posts, deleted videos, live streams, and sources requiring sign-in cannot be processed.</p><nav class="priority-related" aria-label="Related MP3 help"><a href="/guides/mp3-vs-m4a">Compare MP3 and M4A</a><a href="/tools">Browse all tools</a></nav></div></section>
     {% endif %}
 
     <section class="faq-section section-space" id="faq"><div class="container faq-grid"><div><span class="section-kicker">FAQ</span><h2>Good questions.<br>Clear answers.</h2><p>Availability depends on the public source and the permission you have to download it.</p></div><div class="faq-list">
@@ -121,8 +128,9 @@
     {% endif %}
 
     <section class="history-section section-space"><div class="container narrow"><details><summary><span><span class="section-kicker">YOUR BROWSER</span><strong>Recent downloads</strong></span><span>View history <span aria-hidden="true">⌄</span></span></summary><div id="history-list" class="history-list"><p>Loading…</p></div></details></div></section>
+    {% endif %}
   </main>
-  <footer class="site-footer"><div class="container footer-grid"><div><a class="brand footer-brand" href="/"><span class="brand-mark" aria-hidden="true">↓</span><span>savefromnet<span class="brand-dot">.</span>fun</span></a><p>Public media, made simple. Download only what you own or may use.</p></div><div><strong>Platforms</strong>{% for platform in platforms %}{% set platform_tool = tools | selectattr('platform', 'equalto', platform) | first %}<a href="{{ platform_tool.path }}">{{ platform | title }}</a>{% endfor %}</div><div><strong>Popular tools</strong>{% for item in tools[:8] %}<a href="{{ item.path }}">{{ item.name }}</a>{% endfor %}</div><div><strong>Resources</strong><a href="/guides">All guides</a>{% for item in guides[:4] %}<a href="{{ item.path }}">{{ item.title }}</a>{% endfor %}</div></div><div class="container footer-bottom"><span>© {{ 2026 }} SaveFromNet</span><span>Only download content you have rights to use.</span><a href="https://awesome.tools">Listed on Awesome Tools</a></div></footer>
+  <footer class="site-footer"><div class="container footer-grid"><div><a class="brand footer-brand" href="/"><span class="brand-mark" aria-hidden="true">↓</span><span>savefromnet<span class="brand-dot">.</span>fun</span></a><p>Public media, made simple. Download only what you own or may use.</p></div><div><strong>Platforms</strong>{% for platform in platforms %}{% set platform_tool = tools | selectattr('platform', 'equalto', platform) | first %}<a href="{{ platform_tool.path }}">{{ platform | title }}</a>{% endfor %}</div><div><strong>Popular tools</strong>{% for item in tools[:8] %}<a href="{{ item.path }}">{{ item.name }}</a>{% endfor %}</div><div><strong>Resources</strong><a href="/tools">All tools</a><a href="/guides">All guides</a>{% for item in guides[:4] %}<a href="{{ item.path }}">{{ item.title }}</a>{% endfor %}</div></div><div class="container footer-bottom"><span>© {{ 2026 }} SaveFromNet</span><span>Only download content you have rights to use.</span><a href="https://awesome.tools">Listed on Awesome Tools</a></div><nav class="container content-footer-links" aria-label="Company and policies"><a href="/about">About</a><a href="/contact">Contact</a><a href="/privacy-policy">Privacy</a><a href="/terms">Terms</a><a href="/dmca">Copyright reports</a><a href="/copyright">Copyright</a></nav></footer>
   <script src="{{ url_for('static', filename='js/site.js') }}" defer></script>
 </body>
 </html>
