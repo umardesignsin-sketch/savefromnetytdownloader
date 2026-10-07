@@ -41,6 +41,30 @@ PAGES = (
         schema_type="CollectionPage",
     ),
     Page(
+        "image-format-guide", "JPG vs PNG vs WebP vs HEIC | Image Format Guide",
+        "Choose between JPG, PNG, WebP and HEIC for photos, transparent graphics and sharing. See what conversion changes and use working image tools.",
+        "JPG vs PNG vs WebP vs HEIC: which image format should you use?",
+        "The right output depends on where the image will go. Compare compatibility, transparency and the quality trade-offs before converting a file you own.",
+        (
+            Section("Choose for the destination", (
+                "JPG is a practical choice for a photograph that must open in many apps and on many websites. It does not carry transparent pixels. PNG keeps decoded pixels without another lossy encoding step and supports transparency, making it useful when an editor needs a graphic with clean edges. A PNG of a photo is often larger than a JPG of the same scene.",
+                "WebP can encode photos compactly while retaining transparency when the source has it. HEIC can be compact for photos, but the recipient's software must support it. If you are sending an image to a specific app, check that app's accepted formats before choosing the smallest file.",
+            ), (("/heic-to-jpg", "Convert HEIC to JPG for compatibility"), ("/webp-to-png", "Convert WebP to PNG for an editor"))),
+            Section("Understand what conversion can and cannot do", (
+                "Changing a JPG into PNG does not restore detail already discarded by JPG compression. Converting a PNG photo to HEIC or WebP can reduce bytes, but those tools use lossy output quality settings, so fine detail may change. Save a copy of the original if you might need to edit or re-encode it later.",
+                "The image compressor on SaveFromNet accepts JPG, PNG and WebP but always produces WebP; it does not return a smaller file in the original format. The result shows the actual input and output byte counts, because a different format is not guaranteed to be smaller for every image.",
+            ), (("/jpg-to-png", "Convert JPG to PNG"), ("/png-to-webp", "Convert PNG to WebP"), ("/image-compressor", "Compare real compressed file sizes"))),
+            Section("Transparency and animation matter", (
+                "PNG and WebP can keep a transparent background. JPG cannot: SaveFromNet places transparent pixels on white when converting a transparent HEIC image to JPG. HEIC may retain an alpha channel, but software support for it varies. Inspect the finished image in the program where you plan to use it.",
+                "These converters process still images. Animated WebP, multi-frame HEIC and other animated or multi-frame uploads are rejected rather than silently reduced to one frame. A Live Photo's video component is outside the still-image workflow.",
+            ), (("/heic-to-png", "Convert HEIC to PNG"), ("/png-to-heic", "Convert PNG to HEIC"))),
+            Section("Work within the actual tool limits", (
+                "Upload one supported still image of up to 8 MB, 20 megapixels and 8192 pixels on either side. The server decodes it in memory, applies orientation, rebuilds the pixels without source EXIF metadata, and returns the converted file to your browser. It does not add the image to media-download history.",
+                "If an upload is already near the limit, resize the original first. The resizer preserves aspect ratio and only reduces width; it keeps the original file type. For photo compression, compare appearance as well as the reported byte counts before discarding a source file.",
+            ), (("/image-resizer", "Resize an image without stretching it"), ("/tools#image-tools", "Browse all working image tools"))),
+        ),
+    ),
+    Page(
         "about", "About SaveFromNet | Public Media Downloader",
         "How SaveFromNet analyzes public media links, prepares temporary downloads, and handles unsupported or restricted content.",
         "About SaveFromNet",

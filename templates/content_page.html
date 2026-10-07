@@ -29,7 +29,7 @@
   </section>
   {% endfor %}
   <section class="tool-category" id="image-tools" aria-labelledby="image-tools-heading">
-    <div class="content-section-heading"><h2 id="image-tools-heading">Image tools</h2><p>Upload your own image to compress, convert, or resize it.</p></div>
+    <div class="content-section-heading"><h2 id="image-tools-heading">Image tools</h2><p>Upload your own image to compress, convert, or resize it. <a href="/image-format-guide">Compare JPG, PNG, WebP and HEIC</a> before choosing a format.</p></div>
     <div class="content-tool-grid">{% for item in image_tools %}<a class="content-tool-card" href="{{ item.path }}"><span class="content-tool-platform">Image</span><h3>{{ item.name }}</h3><p>{{ item.description }}</p><span class="content-tool-action">Open tool →</span></a>{% endfor %}</div>
   </section>
   <section class="tool-category" aria-labelledby="specific-guides-heading">

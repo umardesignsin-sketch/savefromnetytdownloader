@@ -1,0 +1,16 @@
+<section class="size-calculator" aria-labelledby="size-calculator-heading">
+  <h2 id="size-calculator-heading">Estimate file size from bitrate</h2>
+  <p>Enter the runtime and the bitrates of the streams you plan to save. This runs in your browser; it does not analyze or download a URL.</p>
+  <form id="size-estimator">
+    <div class="size-calculator-grid">
+      <label>Minutes <input name="minutes" type="number" inputmode="numeric" min="0" max="10000" value="25" required></label>
+      <label>Seconds <input name="seconds" type="number" inputmode="numeric" min="0" max="59" value="0" required></label>
+      <label>Video bitrate (kbps) <input name="videoKbps" type="number" inputmode="numeric" min="1" max="1000000" value="19000" required></label>
+      <label>Audio bitrate (kbps) <input name="audioKbps" type="number" inputmode="numeric" min="0" max="100000" value="128" required></label>
+    </div>
+    <button class="submit-btn" type="submit">Estimate size</button>
+    <p class="size-calculator-note">The starting values are an example, not a measured file. If the source gives no audio bitrate, enter 0; that estimate will exclude audio.</p>
+  </form>
+  <output id="size-estimate-result" class="size-calculator-result" role="status" aria-live="polite" hidden></output>
+  <p>A source-reported byte count is more useful than this calculation. Variable bitrate, muxing and conversion can change the finished file. Read <a href="/guides/youtube-video-formats">how YouTube streams and formats work</a> before choosing a file.</p>
+</section>

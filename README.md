@@ -3,15 +3,16 @@
 A public media downloader for content the user owns or may download. It detects
 YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and
 Dailymotion links. The 25 tool pages share one URL validator, extraction service,
-result UI, and background job runner. Sixteen practical guides and a guides hub
-explain supported links and formats. A tool directory and six trust pages bring
-the public canonical page count to 50. Pages never invent formats: an option is
+result UI, and background job runner. Nine working image tools and sixteen
+practical media guides have their own pages. A guides hub, tool directory,
+image-format guide and six trust pages bring the public canonical page count
+to 60. Pages never invent formats: an option is
 shown only after a source extractor returns it.
 
 ## Architecture
 
 ```
-Cloudflare static assets: homepage, 25 tool pages, 17 guide pages, 7 directory/trust pages, CSS, JS, sitemap
+Cloudflare static assets: homepage, 25 media tools, 9 image tools, 17 media guide pages, 8 directory/resource/trust pages, CSS, JS, sitemap
        ↓ POST /api/analyze and /api/download
 Cloudflare Worker: per-IP rate limits
        ↓

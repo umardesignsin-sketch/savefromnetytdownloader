@@ -211,6 +211,23 @@ class SiteTests(unittest.TestCase):
                 self.assertEqual(detected.platform, tool.platform)
                 self.assertIn(kind, tool.content_types)
 
+    def test_format_guide_and_size_calculator_are_linked_to_working_tools(self):
+        image_guide = self.client.get("/image-format-guide")
+        self.assertEqual(image_guide.status_code, 200)
+        image_html = image_guide.get_data(as_text=True)
+        self.assertIn('href="/image-compressor"', image_html)
+        self.assertIn('href="/heic-to-jpg"', image_html)
+        self.assertIn('href="/image-resizer"', image_html)
+        self.assertIn('href="/image-format-guide"', self.client.get("/tools").get_data(as_text=True))
+        self.assertIn('href="/image-format-guide"', self.client.get("/png-to-heic").get_data(as_text=True))
+
+        size_html = self.client.get("/guides/video-file-size-estimates").get_data(as_text=True)
+        self.assertIn('id="size-estimator"', size_html)
+        self.assertIn('name="videoKbps"', size_html)
+        self.assertIn('name="audioKbps"', size_html)
+        self.assertIn('src="/static/js/size-estimator.mjs"', size_html)
+        self.assertIn('href="/guides/video-file-size-estimates"', self.client.get("/").get_data(as_text=True))
+
     def test_public_navigation_and_sitemap_resolve(self):
         paths = ["/", "/guides"] + [tool.path for tool in TOOLS] + [tool.path for tool in IMAGE_TOOLS] + [guide.path for guide in GUIDES] + [page.path for page in PAGES]
         sitemap = ElementTree.fromstring(self.client.get("/sitemap.xml").data)
@@ -244,8 +261,8 @@ class SiteTests(unittest.TestCase):
         self.assertEqual(len(titles), len(paths))
         self.assertEqual(len(descriptions), len(paths))
 
-    def test_directory_and_trust_pages_are_unique_and_indexable(self):
-        self.assertEqual(len(PAGES), 7)
+    def test_directory_resource_and_trust_pages_are_unique_and_indexable(self):
+        self.assertEqual(len(PAGES), 8)
         self.assertEqual(len({page.title for page in PAGES}), len(PAGES))
         for page in PAGES:
             with self.subTest(page=page.slug):

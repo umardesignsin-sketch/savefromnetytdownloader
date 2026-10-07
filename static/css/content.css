@@ -41,5 +41,18 @@
 .priority-detail section{padding:0 0 24px;margin:0 0 30px;border-bottom:1px solid var(--line)}
 .priority-detail a{color:#356309;text-decoration:underline;text-underline-offset:3px}
 .priority-related{display:flex;flex-wrap:wrap;gap:13px 22px;padding-top:10px;font-weight:700;font-size:.93rem}
+.size-calculator-section{background:#fff;padding:30px 0 72px}
+.size-calculator{max-width:850px;margin:0 auto;padding:27px;border:1px solid #c8e0d2;border-radius:18px;background:#f1f9f4}
+.size-calculator h2{font-size:clamp(1.7rem,3vw,2.5rem);margin:0 0 16px}
+.size-calculator p{color:#425157;line-height:1.7}
+.size-calculator>p:first-of-type{margin-top:0}
+.size-calculator-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:22px 0}
+.size-calculator-grid label{display:grid;gap:7px;font-size:.9rem;font-weight:700;color:var(--ink)}
+.size-calculator-grid input{width:100%;min-width:0;border:1px solid #b9cec1;border-radius:9px;background:#fff;padding:12px;color:var(--ink);font:inherit}
+.size-calculator-grid input:focus-visible{outline:3px solid #6cb58c;outline-offset:2px}
+.size-calculator .size-calculator-note{font-size:.82rem;line-height:1.5;margin:11px 0 0}
+.size-calculator-result{display:block;margin:20px 0;padding:18px;border-radius:12px;background:#def0e4;color:#174d3a;font-weight:750;line-height:1.5}
+.size-calculator-result[hidden]{display:none}
+.size-calculator a{color:#356309;text-decoration:underline;text-underline-offset:3px}
 @media(max-width:900px){.content-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.content-columns{grid-template-columns:minmax(0,1fr) 230px;gap:30px}}
-@media(max-width:700px){.content-hero{padding:24px 0 46px}.content-body{padding:38px 0 64px}.content-columns,.content-tool-grid{grid-template-columns:1fr}.content-aside{position:static}.content-section-heading{display:block}.content-section-heading p{margin-top:8px}.category-jump{margin-bottom:38px}.content-tool-card{padding:22px}}
+@media(max-width:700px){.content-hero{padding:24px 0 46px}.content-body{padding:38px 0 64px}.content-columns,.content-tool-grid,.size-calculator-grid{grid-template-columns:1fr}.content-aside{position:static}.content-section-heading{display:block}.content-section-heading p{margin-top:8px}.category-jump{margin-bottom:38px}.content-tool-card{padding:22px}.size-calculator-section{padding:0 0 50px}.size-calculator{padding:20px}}
