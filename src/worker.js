@@ -100,9 +100,6 @@ export default {
         });
       }
     }
-    if (pathname === "/api/transcript" && request.method === "POST") {
-      record(env, response.ok ? "transcript_successful" : "transcript_failed", "youtube", "youtube-to-transcript", "", response.status);
-    }
     if (pathname === "/api/analyze" && request.method === "POST") {
       record(env, "url_submitted", "unknown", "unknown");
     }
@@ -117,6 +114,9 @@ export default {
         { status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
     }
     const response = await env.DOWNLOADER.getByName("multi-primary").fetch(request);
+    if (pathname === "/api/transcript" && request.method === "POST") {
+      record(env, response.ok ? "transcript_successful" : "transcript_failed", "youtube", "youtube-to-transcript", "", response.status);
+    }
     if (pathname === "/api/image/process" && request.method === "POST") {
       record(env, response.ok ? "image_processed" : "image_failed", "unknown", "image", "", response.status);
     }
