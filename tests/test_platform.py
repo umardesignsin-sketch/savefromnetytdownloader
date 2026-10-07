@@ -10,6 +10,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 from unittest.mock import patch
 from xml.etree import ElementTree
+from markupsafe import escape as template_escape
 
 _tmp = tempfile.TemporaryDirectory()
 os.environ["DB_PATH"] = str(Path(_tmp.name) / "test.db")
@@ -22,7 +23,7 @@ from extractors.detect import DetectError, detect_url  # noqa: E402
 from extractors.service import _yt_formats  # noqa: E402
 from guides import GUIDES  # noqa: E402
 from site_pages import PAGES, TOOL_GROUPS  # noqa: E402
-from tools import TOOLS  # noqa: E402
+from tools import TOOLS, TOOL_SECTIONS, TOOL_SEO_LINKS  # noqa: E402
 
 
 class DetectorTests(unittest.TestCase):
@@ -115,6 +116,26 @@ class SiteTests(unittest.TestCase):
         home = self.client.get("/").get_data(as_text=True)
         self.assertIn("<h1 id=\"download-heading\">Video Downloader <em>&amp; Converter</em></h1>", home)
         self.assertIn('href="/guides"', home)
+
+    def test_editorial_tool_sections_are_distinct_and_link_to_real_pages(self):
+        self.assertGreaterEqual(len(TOOL_SECTIONS), 15)
+        self.assertEqual(set(TOOL_SECTIONS), set(TOOL_SEO_LINKS))
+        headings = []
+        for tool in TOOLS:
+            if not tool.seo_sections:
+                continue
+            with self.subTest(slug=tool.slug):
+                self.assertGreaterEqual(len(tool.seo_sections), 2)
+                html = self.client.get(tool.path).get_data(as_text=True)
+                self.assertIn(f'{tool.platform.upper()} DOWNLOAD GUIDE', html)
+                for heading, paragraphs in tool.seo_sections:
+                    headings.append(heading)
+                    self.assertIn(f'<h2>{template_escape(heading)}</h2>', html)
+                    self.assertTrue(all(len(paragraph.split()) >= 20 for paragraph in paragraphs))
+                for path, label in tool.seo_links:
+                    self.assertIn(f'href="{path}">{escape(label)}</a>', html)
+                    self.assertEqual(self.client.get(path).status_code, 200)
+        self.assertEqual(len(headings), len(set(headings)))
 
     def test_guides_have_unique_content_working_forms_and_sitemap_urls(self):
         self.assertEqual(len({guide.slug for guide in GUIDES}), len(GUIDES))

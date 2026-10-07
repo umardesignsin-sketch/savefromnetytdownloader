@@ -36,6 +36,19 @@ overlapping MP3 landing pages were deferred. `db.py` stores anonymous history an
 events. The Worker also writes privacy-minimal, persistent aggregate events
 to Cloudflare Analytics Engine dataset `savefromnet_events`.
 
+## Programmatic tool content
+
+`tools.py` is the registry for all 25 canonical downloader routes. Each tool
+defines its supported content types, link guidance, format explanation, errors,
+metadata, and FAQ. `TOOL_SECTIONS` adds distinct, task-specific guidance to
+selected routes; `TOOL_SEO_LINKS` connects those sections to relevant working
+tools and guides. The shared `templates/site.html` renders these records, so a
+copy change does not require a new route or a duplicate page template. Keep
+claims aligned with `extractors/detect.py`, `extractors/service.py`, and the
+tool-specific filtering in `app.py`. Add a new indexable URL only when its
+actual downloader behavior and search intent differ from an existing route.
+The route, link, and editorial-content checks live in `tests/test_platform.py`.
+
 `yt-dlp` handles public video/audio sources. `gallery-dl` handles accessible
 Instagram post/profile/story media, TikTok Stories, and Pinterest images/GIFs.
 Threads is limited to public posts that expose a video in Open Graph metadata.
