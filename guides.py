@@ -12,6 +12,7 @@ class Guide:
     tool_slug: str
     sections: tuple
     faq: tuple
+    related: tuple[str, ...] = ()
 
     @property
     def path(self):
@@ -148,6 +149,90 @@ GUIDES = (
         ),
         (("Can the site use my login to fetch it?", "No. The downloader does not accept account credentials or cookies."),
          ("Can I download DRM-protected or purchased media?", "No. The service does not bypass DRM, paywalls or other access controls.")),
+    ),
+    Guide(
+        "tiktok-photo-posts", "How to download public TikTok photo posts",
+        "Use a direct TikTok photo-post link, understand individual image results, and troubleshoot posts that cannot be read anonymously.",
+        "A TikTok photo post is not a video with a different label. Its direct /photo/ link can expose separate images, while a /video/ link is processed as a video. This guide explains what the working TikTok tool can actually save.",
+        "tiktok-downloader",
+        (
+            ("Copy the individual photo-post link", "Open a public TikTok post and copy its tiktok.com/@creator/photo/numeric-id URL. A profile, hashtag feed or Story does not identify the same item. The URL detector sends a supported photo link to the image extractor rather than pretending it is a video stream."),
+            ("Choose from the returned image items", "An accessible photo post can return multiple image files, shown separately in the result. SaveFromNet inspects up to 12 items and displays their source extensions when known; it does not fabricate an MP4 or offer a ZIP archive. Save only the items you own or may use."),
+            ("Why a slideshow may not load", "A public-looking post may be removed, restricted by region or account, or blocked from data-center requests. Try the direct photo URL while signed out. The downloader does not use your TikTok credentials or bypass private access, and an unavailable source cannot produce image files."),
+        ),
+        (("Can I paste a video URL instead?", "Yes, the general TikTok tool also accepts public /video/ links, but it will show video formats rather than photo items."),
+         ("Will a photo post provide MP3?", "Not through this photo workflow. The TikTok to MP3 tool accepts a video with accessible audio.")),
+        ("tiktok-video-and-audio", "why-media-links-fail"),
+    ),
+    Guide(
+        "facebook-reels", "How to download a public Facebook Reel",
+        "Find a direct public Facebook Reel link, check anonymous access, and choose only video formats actually returned for it.",
+        "Facebook Reels use the same real video-processing backend as other public Facebook videos. The important difference is the link: copy the individual Reel, then check which formats that post exposes without an account.",
+        "facebook-video-downloader",
+        (
+            ("Use the Reel permalink", "Copy the public facebook.com/reel/ link from the individual Reel. A watch or fb.watch link to the same public video may also work, while a profile or group feed does not identify one downloadable item. Paste the direct link into the Facebook Video Downloader above."),
+            ("Check access outside your account", "A Reel can play for you because you are signed in or belong to a group. Open its link in a signed-out window: if Facebook requires login, says it is unavailable, or limits it to friends, the anonymous server cannot retrieve it. SaveFromNet does not accept cookies or change sharing settings."),
+            ("Read the actual result before saving", "A successful analysis reports the video's accessible container and resolution when the source provides them. HD is not guaranteed for every Reel. Choose one returned option, let the background job prepare it, and save the temporary file before it expires."),
+        ),
+        (("Is there a separate Reel extractor?", "The Facebook Video Downloader handles supported public /reel/ links through its existing Facebook extractor."),
+         ("Can it save a friends-only Reel?", "No. Content that needs your Facebook session is unavailable to this public downloader.")),
+        ("facebook-public-videos", "why-media-links-fail"),
+    ),
+    Guide(
+        "pinterest-images", "How to save an image from a public Pinterest Pin",
+        "Identify an individual Pin, distinguish a hosted image from a linked website, and inspect the image format returned by Pinterest.",
+        "A Pinterest Pin can contain an image, GIF, or video, and some Pins mainly link to another website. SaveFromNet lists a file only when the public Pin itself exposes supported media.",
+        "pinterest-video-downloader",
+        (
+            ("Copy one Pin, not a board", "Open the specific public Pin and copy its pinterest.com/pin/numeric-id/ URL or pin.it short link. A board or search page holds many Pins, so it is not an individual media URL. The downloader validates the Pin before contacting the source extractor."),
+            ("Check the returned image type", "A still Pin may expose JPEG, PNG, or WebP; an animated Pin may expose a GIF or a video instead. The result reflects the source item and may not know its dimensions or size in advance. Choose the returned file rather than assuming every preview has an original GIF."),
+            ("When the Pin only links elsewhere", "Some Pins use an image as a preview for an article or video on another website. This tool does not crawl the destination or claim to download its media. If Pinterest provides no accessible source file, there is no file to offer here."),
+        ),
+        (("Can I download every image on a board?", "No. Paste an individual public Pin link for each item you have permission to save."),
+         ("Why did I get WebP instead of JPEG?", "The extension comes from the media returned for that Pin; the service does not rename another format as JPEG.")),
+        ("pinterest-pin-media", "why-media-links-fail"),
+    ),
+    Guide(
+        "video-file-size-estimates", "Why video download size estimates can be missing",
+        "Understand source-reported sizes, bitrate estimates, combined audio and video streams, and SaveFromNet's 512 MB processing limit.",
+        "Resolution alone does not determine file size. Duration, bitrate, codec, and whether audio is delivered separately all matter. SaveFromNet leaves size unknown when the source does not provide enough information for a defensible total.",
+        "youtube-video-downloader",
+        (
+            ("A reported size is different from an estimate", "Some source formats include an explicit byte count; others offer only an approximate size or bitrate. An estimate based on bitrate also needs a valid duration. The result should not present a guessed number as a measured file size, and unknown is more honest than a misleading tiny 4K file."),
+            ("Video and audio may arrive separately", "A high-resolution video stream may contain picture only. When a compatible audio stream is available, the server combines them for the finished file. The displayed total must account for both streams; an audio-only size cannot stand in for the whole video. Actual output can still differ from an estimate."),
+            ("The processing ceiling changes the choices", "SaveFromNet limits a prepared job to 512 MB. An option known or strongly estimated to exceed that ceiling is omitted. If a size is unknown, a job can still stop when the real file reaches the limit. Select a lower available resolution for a long upload."),
+        ),
+        (("Can a 25-minute 4K video really be tiny?", "A very small number beside a long 4K video is suspect unless the source reports that complete file size. SaveFromNet now leaves the total unknown when it cannot account for video and audio."),
+         ("Does 1080p always use less space than 4K?", "Usually for the same encoding, but codec, bitrate, content, and audio can change the comparison. Check the options returned for your actual upload.")),
+        ("youtube-video-formats", "reddit-video-with-audio"),
+    ),
+    Guide(
+        "temporary-download-links", "How SaveFromNet temporary download links work",
+        "Learn why signed file links expire, when recent history can refresh a link, and how temporary processing protects storage.",
+        "A completed download is a temporary file, not a permanent hosted copy. Its link is signed for one browser and a short period, while the file itself normally disappears after about an hour or earlier if the processing container restarts.",
+        "universal-video-downloader",
+        (
+            ("A link belongs to the browser that started the job", "After analysis and processing, SaveFromNet issues a signed URL bound to the anonymous browser cookie used for that job. The URL expires after 15 minutes. Sharing it with another browser or device will not give that browser access to your temporary file."),
+            ("Refresh a link while the file still exists", "The Recent downloads section can request a fresh signed link for a completed job if its file remains in the active container. A link may expire even though the file is temporarily present. If the container restarted or cleanup removed the file, analyze and prepare the public source again."),
+            ("Save the file before cleanup", "Completed files are normally removed after about an hour, but an idle container can stop sooner. Download the prepared file to your device when it is ready; do not use the temporary link as a permanent bookmark or storage service. You can also remove your own recent job entry."),
+        ),
+        (("Why does my link say expired?", "The 15-minute signature elapsed, the browser cookie changed, or the temporary file was cleared. Check Recent downloads in the original browser for a fresh link if available."),
+         ("Can someone else open my link?", "The signed URL is bound to the browser cookie that started the job, so a different browser cannot use it.")),
+        ("why-media-links-fail", "video-file-size-estimates"),
+    ),
+    Guide(
+        "video-with-no-sound", "Why a downloaded video may have no sound",
+        "Troubleshoot silent source clips, separate audio streams, and unavailable sound before choosing a video or MP3 result.",
+        "A video page can show moving pictures without offering a usable audio track. Some platforms deliver picture and sound separately; others publish a genuinely silent clip. Inspect the returned choices before preparing a file.",
+        "universal-video-downloader",
+        (
+            ("Check whether the original post has audio", "Play the public post while signed out and confirm that it really contains sound. A muted recording or silent animation cannot be made audible by conversion. If the media belongs to another supported platform, use its direct post URL so the correct extractor handles it."),
+            ("Separate streams need a compatible partner", "YouTube and Reddit can supply video and audio as different streams. SaveFromNet combines compatible streams when both are accessible and does not offer a video-only source as a normal finished video with sound. Some source pages still expose only silent or incomplete media to anonymous visitors."),
+            ("MP3 is not a repair for missing audio", "An MP3 option appears only when the extractor finds usable sound. If the result has no audio choice, check whether the post is restricted, removed, still live, or simply silent. Higher output bitrate cannot restore a track that does not exist."),
+        ),
+        (("Will changing from MP4 to WebM add sound?", "No. A container name does not create an audio track; the source must expose audio that can be combined or extracted."),
+         ("Why does a Reddit video need merging?", "Reddit may publish picture and sound separately. The Reddit guide explains that source behavior in more detail.")),
+        ("reddit-video-with-audio", "youtube-video-formats"),
     ),
 )
 

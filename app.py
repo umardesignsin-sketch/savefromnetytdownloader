@@ -143,6 +143,18 @@ def _filter_formats(tool, media):
     return media
 
 
+def _related_guides(guide):
+    if not guide:
+        return ()
+    platform = BY_SLUG[guide.tool_slug].platform
+    candidates = list(guide.related)
+    candidates += [item.slug for item in reversed(GUIDES)
+                   if item.slug != guide.slug and BY_SLUG[item.tool_slug].platform == platform]
+    candidates.append("why-media-links-fail")
+    return tuple(GUIDES_BY_SLUG[slug] for slug in dict.fromkeys(candidates)
+                 if slug != guide.slug and slug in GUIDES_BY_SLUG)[:4]
+
+
 def _page(tool=None, guide=None, guide_index=False):
     platform_home = next((item for item in TOOLS if tool and item.platform == tool.platform), None)
     primary_tools = [next(item for item in TOOLS if item.platform == platform) for platform in PLATFORMS]
@@ -206,6 +218,7 @@ def _page(tool=None, guide=None, guide_index=False):
                            canonical=canonical, tools=TOOLS, platforms=PLATFORMS,
                            related=related_tools(tool) if tool else TOOLS[:10], schema=schema,
                            guide=guide, guide_index=guide_index, guides=GUIDES,
+                           related_guides=_related_guides(guide),
                            platform_guide=platform_guide, platform_home=platform_home,
                            quick_links=quick_links)
 
@@ -251,7 +264,8 @@ def _content_page(page):
                            title=page.title, description=page.description,
                            canonical=canonical, schema=schema, tool=None,
                            guide=None, guide_index=False, tools=TOOLS,
-                           platforms=PLATFORMS, guides=GUIDES)
+                           platforms=PLATFORMS, guides=GUIDES,
+                           featured_guides=GUIDES[-6:])
 
 
 @app.get("/<slug>")

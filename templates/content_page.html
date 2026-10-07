@@ -27,6 +27,19 @@
     </div>
   </section>
   {% endfor %}
+  <section class="tool-category" aria-labelledby="specific-guides-heading">
+    <div class="content-section-heading"><h2 id="specific-guides-heading">Specific links and download problems</h2><p>Practical help for supported media types, file sizes, and temporary downloads.</p></div>
+    <div class="content-tool-grid">
+      {% for item in featured_guides %}
+      <a class="content-tool-card" href="{{ item.path }}">
+        <span class="content-tool-platform">Guide</span>
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.description }}</p>
+        <span class="content-tool-action">Read guide <span aria-hidden="true">→</span></span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
   <aside class="content-callout"><h2>Need help choosing?</h2><p>Start with the universal downloader. It identifies the supported platform from the URL and shows only the options found for that item.</p><a href="/universal-video-downloader">Open universal downloader <span aria-hidden="true">→</span></a></aside>
 </div></div>
 {% else %}

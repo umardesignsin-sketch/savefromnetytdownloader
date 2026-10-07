@@ -191,25 +191,34 @@ TOOL_SECTIONS = {
             "Channel and playlist pages do not identify a single video for this tool. Private, deleted and region-blocked uploads also cannot be processed. If the link is valid but no format is returned, try the video's direct public URL rather than a collection page.",
         )),
     ),
+    "universal-video-downloader": (
+        ("One form for eight supported platforms", (
+            "Paste one public video, photo, Reel, Short, Story, profile or Pin link from a supported platform. The URL detector checks its host and path, then sends that exact item to the appropriate extractor. A profile, board or feed is accepted only where a dedicated extractor explicitly supports it.",
+        )),
+        ("Understand the result before processing", (
+            "The source decides whether the result contains video, audio or image choices. Missing resolutions, unknown file sizes and unavailable sound are not filled in with placeholders. Choose an actual returned option and save the temporary file when its background job finishes.",
+        )),
+    ),
 }
 
 
 TOOL_SEO_LINKS = {
     "youtube-downloader": (("/youtube-video-downloader", "Video-only choices"), ("/youtube-to-mp3", "Convert accessible audio")),
-    "youtube-video-downloader": (("/guides/youtube-video-formats", "Understand YouTube formats"), ("/youtube-to-mp4", "MP4-only choices")),
+    "youtube-video-downloader": (("/guides/youtube-video-formats", "Understand YouTube formats"), ("/guides/video-file-size-estimates", "How file sizes are estimated"), ("/youtube-to-mp4", "MP4-only choices")),
     "youtube-shorts-downloader": (("/youtube-video-downloader", "Standard YouTube videos"), ("/youtube-to-mp3", "Shorts audio to MP3")),
     "youtube-to-mp3": (("/youtube-audio-downloader", "YouTube audio formats"), ("/guides/mp3-vs-m4a", "MP3 versus M4A")),
-    "youtube-to-mp4": (("/youtube-video-downloader", "All YouTube video formats"), ("/guides/youtube-video-formats", "Understand MP4 and WebM")),
+    "youtube-to-mp4": (("/youtube-video-downloader", "All YouTube video formats"), ("/guides/video-with-no-sound", "When a video has no sound")),
     "instagram-downloader": (("/instagram-reels-downloader", "Reels video"), ("/instagram-carousel-downloader", "Carousel items")),
     "instagram-reels-downloader": (("/instagram-video-downloader", "Other Instagram videos"), ("/guides/instagram-public-media", "Instagram link guide")),
     "instagram-carousel-downloader": (("/instagram-photo-downloader", "Single photo posts"), ("/guides/instagram-public-media", "Carousel and Story guide")),
-    "tiktok-downloader": (("/tiktok-to-mp3", "Video audio to MP3"), ("/guides/tiktok-video-and-audio", "TikTok link guide")),
+    "tiktok-downloader": (("/guides/tiktok-photo-posts", "TikTok photo posts"), ("/tiktok-to-mp3", "Video audio to MP3"), ("/guides/tiktok-video-and-audio", "TikTok link guide")),
     "tiktok-to-mp3": (("/tiktok-downloader", "TikTok video and photos"), ("/guides/tiktok-video-and-audio", "TikTok audio guide")),
-    "facebook-video-downloader": (("/guides/facebook-public-videos", "Facebook link guide"), ("/universal-video-downloader", "Other supported platforms")),
-    "pinterest-video-downloader": (("/guides/pinterest-pin-media", "Images, GIFs and video"), ("/universal-video-downloader", "Other supported platforms")),
+    "facebook-video-downloader": (("/guides/facebook-reels", "Public Facebook Reels"), ("/guides/facebook-public-videos", "Facebook link guide")),
+    "pinterest-video-downloader": (("/guides/pinterest-images", "Save an image from a Pin"), ("/guides/pinterest-pin-media", "Images, GIFs and video")),
     "reddit-video-downloader": (("/guides/reddit-video-with-audio", "Reddit audio guide"), ("/universal-video-downloader", "Other supported platforms")),
     "threads-video-downloader": (("/guides/threads-video-availability", "Threads availability guide"), ("/universal-video-downloader", "Other supported platforms")),
     "dailymotion-video-downloader": (("/guides/dailymotion-video-quality", "Dailymotion quality guide"), ("/universal-video-downloader", "Other supported platforms")),
+    "universal-video-downloader": (("/guides/temporary-download-links", "Temporary download links"), ("/guides/video-with-no-sound", "Why a file has no sound")),
 }
 
 

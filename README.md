@@ -3,15 +3,15 @@
 A public media downloader for content the user owns or may download. It detects
 YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and
 Dailymotion links. The 25 tool pages share one URL validator, extraction service,
-result UI, and background job runner. Ten practical guides and a guides hub
+result UI, and background job runner. Sixteen practical guides and a guides hub
 explain supported links and formats. A tool directory and six trust pages bring
-the public canonical page count to 44. Pages never invent formats: an option is
+the public canonical page count to 50. Pages never invent formats: an option is
 shown only after a source extractor returns it.
 
 ## Architecture
 
 ```
-Cloudflare static assets: homepage, 25 tool pages, 11 guide pages, 7 directory/trust pages, CSS, JS, sitemap
+Cloudflare static assets: homepage, 25 tool pages, 17 guide pages, 7 directory/trust pages, CSS, JS, sitemap
        ↓ POST /api/analyze and /api/download
 Cloudflare Worker: per-IP rate limits
        ↓
@@ -48,6 +48,11 @@ claims aligned with `extractors/detect.py`, `extractors/service.py`, and the
 tool-specific filtering in `app.py`. Add a new indexable URL only when its
 actual downloader behavior and search intent differ from an existing route.
 The route, link, and editorial-content checks live in `tests/test_platform.py`.
+`guides.py` now includes specific-link and troubleshooting pages with a real
+tool form and contextual related guides. The tools directory links to the new
+pages. Run `python growth/build_target_inventory.py` after changing public
+routes to refresh the canonical URL inventory; the tests compare that inventory
+with the generated sitemap.
 
 `yt-dlp` handles public video/audio sources. `gallery-dl` handles accessible
 Instagram post/profile/story media, TikTok Stories, and Pinterest images/GIFs.

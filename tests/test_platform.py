@@ -1,5 +1,6 @@
 """Security, route, and real-format contract checks without hitting source sites."""
 
+import csv
 import json
 import os
 import re
@@ -161,15 +162,57 @@ class SiteTests(unittest.TestCase):
         self.assertEqual(missing.status_code, 404)
         self.assertIn('<meta name="robots" content="noindex,follow">', missing.get_data(as_text=True))
 
+    def test_new_guides_use_working_tools_and_are_discoverable(self):
+        new = {"tiktok-photo-posts", "facebook-reels", "pinterest-images",
+               "video-file-size-estimates", "temporary-download-links", "video-with-no-sound"}
+        guide_by_slug = {guide.slug: guide for guide in GUIDES}
+        self.assertTrue(new <= guide_by_slug.keys())
+        directory = self.client.get("/tools").get_data(as_text=True)
+        for slug in new:
+            with self.subTest(slug=slug):
+                guide = guide_by_slug[slug]
+                html = self.client.get(guide.path).get_data(as_text=True)
+                self.assertIn(f'data-tool="{guide.tool_slug}"', html)
+                self.assertIn(f'href="{guide.path}"', directory)
+                for related_slug in guide.related:
+                    self.assertIn(f'href="/guides/{related_slug}"', html)
+        examples = (
+            ("tiktok-photo-posts", "https://www.tiktok.com/@creator/photo/1234567890", "photo"),
+            ("facebook-reels", "https://www.facebook.com/reel/1234567890", "video"),
+            ("pinterest-images", "https://www.pinterest.com/pin/809522101770089198/", "pin"),
+        )
+        tools = {tool.slug: tool for tool in TOOLS}
+        for slug, url, kind in examples:
+            with self.subTest(url=url):
+                detected = detect_url(url)
+                self.assertEqual(detected.content_type, kind)
+                tool = tools[guide_by_slug[slug].tool_slug]
+                self.assertEqual(detected.platform, tool.platform)
+                self.assertIn(kind, tool.content_types)
+
     def test_public_navigation_and_sitemap_resolve(self):
         paths = ["/", "/guides"] + [tool.path for tool in TOOLS] + [guide.path for guide in GUIDES] + [page.path for page in PAGES]
         sitemap = ElementTree.fromstring(self.client.get("/sitemap.xml").data)
         locs = [node.text for node in sitemap.findall(".//{*}loc")]
         self.assertEqual(set(locs), {"https://savefromnet.fun" + path for path in paths})
         self.assertEqual(len(locs), len(paths))
+        inventory = Path(__file__).resolve().parents[1] / "growth" / "savefromnet-url-inventory.csv"
+        with inventory.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        self.assertEqual({row["url"] for row in rows}, set(locs))
+        self.assertTrue(all(row["canonical"] == row["url"] and row["robots"] == "indexable"
+                            for row in rows))
+        titles = set()
+        descriptions = set()
         for path in paths:
             with self.subTest(path=path):
                 html = self.client.get(path).get_data(as_text=True)
+                title = re.search(r"<title>(.*?)</title>", html)
+                description = re.search(r'<meta name="description" content="([^"]+)"', html)
+                self.assertIsNotNone(title)
+                self.assertIsNotNone(description)
+                titles.add(title.group(1))
+                descriptions.add(description.group(1))
                 links = {urlsplit(link).path or "/" for link in re.findall(r'href="(/[^"]*)"', html)}
                 for link in links:
                     response = self.client.get(link)
@@ -177,6 +220,8 @@ class SiteTests(unittest.TestCase):
                         self.assertEqual(response.status_code, 200, f"Broken link {link} on {path}")
                     finally:
                         response.close()
+        self.assertEqual(len(titles), len(paths))
+        self.assertEqual(len(descriptions), len(paths))
 
     def test_directory_and_trust_pages_are_unique_and_indexable(self):
         self.assertEqual(len(PAGES), 7)
