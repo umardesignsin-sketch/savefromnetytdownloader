@@ -119,6 +119,26 @@ class SiteTests(unittest.TestCase):
         self.assertIn("<h1 id=\"download-heading\">Video Downloader <em>&amp; Converter</em></h1>", home)
         self.assertIn('href="/guides"', home)
 
+    def test_priority_youtube_intents_keep_existing_canonicals(self):
+        home = self.client.get("/").get_data(as_text=True)
+        self.assertIn("<title>SaveFromNet | Video Downloader &amp; Converter</title>", home)
+        self.assertIn('href="/youtube-video-downloader">YouTube Video Downloader</a>', home)
+        home_schemas = [json.loads(block.split('</script>')[0]) for block in home.split('<script type="application/ld+json">')[1:]]
+        self.assertEqual(next(schema for schema in home_schemas if schema["@type"] == "WebSite")["url"], "https://savefromnet.fun/")
+        targets = (
+            ("/youtube-downloader", "YouTube Downloader & Converter", "Choose video or audio in the YouTube converter"),
+            ("/youtube-video-downloader", "YouTube Video Downloader", "Download a YouTube video with SaveFromNet"),
+            ("/youtube-to-mp3", "YouTube to MP3 Converter", "Get a YouTube MP3 download from a public link"),
+        )
+        sitemap = self.client.get("/sitemap.xml").get_data(as_text=True)
+        for path, heading, section in targets:
+            with self.subTest(path=path):
+                html = self.client.get(path).get_data(as_text=True)
+                self.assertIn(f'<link rel="canonical" href="https://savefromnet.fun{path}">', html)
+                self.assertIn(f'<h1 id="download-heading">{escape(heading)}</h1>', html)
+                self.assertIn(f'<h2>{escape(section)}</h2>', html)
+                self.assertEqual(sitemap.count(f'<loc>https://savefromnet.fun{path}</loc>'), 1)
+
     def test_editorial_tool_sections_are_distinct_and_link_to_real_pages(self):
         self.assertGreaterEqual(len(TOOL_SECTIONS), 15)
         self.assertEqual(set(TOOL_SECTIONS), set(TOOL_SEO_LINKS))

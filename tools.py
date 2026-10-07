@@ -22,6 +22,7 @@ class Tool:
     @property
     def heading(self):
         return {
+            "youtube-downloader": "YouTube Downloader & Converter",
             "youtube-to-mp3": "YouTube to MP3 Converter",
             "tiktok-to-mp3": "TikTok to MP3 Converter",
             "universal-video-downloader": "Universal Video Downloader & Converter",
@@ -29,11 +30,11 @@ class Tool:
 
     @property
     def seo_title(self):
-        return f"{self.heading} | SaveFromNet"
+        return TOOL_META.get(self.slug, (f"{self.heading} | SaveFromNet", ""))[0]
 
     @property
     def seo_description(self):
-        return (self.description + " Analyze a public URL to see the formats actually available.")[:160]
+        return TOOL_META.get(self.slug, ("", self.description + " Analyze a public URL to see the formats actually available."))[1][:160]
 
     @property
     def faq(self):
@@ -43,6 +44,7 @@ class Tool:
                 ("Can I choose 320 kbps?", "Only choose from the options shown after analysis. A higher MP3 setting cannot add detail that is missing from the source audio, and no fixed 320 kbps result is promised."),
                 ("Why is no MP3 option available?", "The video may be private, deleted, live, region restricted, age restricted, or blocked from anonymous extraction. A video without accessible audio also cannot be converted."),
                 ("Does it work on a phone?", "The URL form works in a modern mobile browser. When processing finishes, save the temporary MP3 through your browser; the exact destination depends on your device."),
+                ("Can I use a youtu.be or Shorts link?", "Yes. This YT to MP3 converter accepts a direct public watch-page, youtu.be, or Shorts URL to one item when its audio is accessible. Playlists and private videos are not supported."),
             )
         return (
             (f"Which links work with {self.name}?", self.url_hint),
@@ -59,22 +61,38 @@ class Tool:
         return TOOL_SEO_LINKS.get(self.slug, ())
 
 
+TOOL_META = {
+    "youtube-downloader": (
+        "YouTube Downloader & Converter | SaveFromNet",
+        "Analyze a public YouTube video or Short, then choose an available video or audio file. SaveFromNet shows real formats before you download.",
+    ),
+    "youtube-video-downloader": (
+        "YouTube Video Downloader | SaveFromNet",
+        "Download a YouTube video with SaveFromNet. Paste a public watch or youtu.be link, compare available resolutions, and prepare the file.",
+    ),
+    "youtube-to-mp3": (
+        "YouTube to MP3 Converter | SaveFromNet",
+        "Convert a public YouTube video or Short to MP3. Check accessible audio, choose a real option, and prepare a temporary MP3 download.",
+    ),
+}
+
+
 TOOL_SECTIONS = {
     "youtube-downloader": (
-        ("One link can offer video and audio", (
-            "Paste a public YouTube watch-page or Shorts URL to inspect that single upload. This general tool can show finished video choices alongside original audio and an MP3 conversion when the source provides a usable sound stream. The dedicated pages narrow the list when you already know the format you need.",
+        ("Choose video or audio in the YouTube converter", (
+            "Paste a direct public YouTube watch-page or Shorts URL to inspect one upload. SaveFromNet can show finished video choices alongside source audio and an MP3 conversion when a usable sound stream is available. Choose the general tool when you want to compare both kinds of files before deciding which one to save.",
         )),
-        ("Why options vary between uploads", (
-            "YouTube can expose different containers, heights and audio tracks for different videos. SaveFromNet checks the actual source streams and the 512 MB processing limit before displaying choices. Playlists, rentals, private videos and live streams are outside this single-item public workflow.",
+        ("Why converter options vary between uploads", (
+            "YouTube can expose different containers, heights and audio tracks for different videos. SaveFromNet checks the actual source streams and the 512 MB processing limit before displaying choices. An MP4 choice may require compatible picture and sound streams to be merged, while an MP3 must be converted from accessible audio. Playlists, rentals, private videos and live streams are outside this single-item public workflow.",
         )),
     ),
     "youtube-video-downloader": (
-        ("Choose a complete video file", (
-            "Paste a link to one public watch-page video. The analyzer checks its actual video streams and looks for compatible audio before showing a finished download. Some higher resolutions require the server to merge separate picture and sound streams.",
+        ("Download a YouTube video with SaveFromNet", (
+            "Copy the link to one public YouTube watch-page video that you own or have permission to save. Paste it above and let SaveFromNet inspect the available streams. The result shows complete video choices only when the service can also obtain compatible audio; some higher resolutions require the server to merge picture and sound.",
             "Compare the returned container, height and estimated size for this upload. A missing 1080p or 4K option means it was not available as a file this service can prepare within its 512 MB limit; the player label alone is not a download promise.",
         )),
-        ("Use the right YouTube link", (
-            "A youtube.com/watch?v= link or youtu.be short link identifies one video. Use the Shorts tool for a /shorts/ link and the audio tool when you only need sound. Playlists, purchases, private uploads and live streams are not available here.",
+        ("Find the right YouTube video URL", (
+            "A youtube.com/watch?v= link or youtu.be short link identifies one standard video. Use the dedicated Shorts tool for a /shorts/ link and the MP3 converter when you only need sound. This page focuses on actual video file options rather than a fixed menu of promised resolutions. Playlists, purchases, private uploads and live streams are not available here.",
         )),
     ),
     "youtube-shorts-downloader": (
@@ -86,7 +104,7 @@ TOOL_SECTIONS = {
         )),
     ),
     "youtube-to-mp3": (
-        ("Convert a public YouTube video to MP3", (
+        ("Get a YouTube MP3 download from a public link", (
             "Open a public video or Short that you own or may download, copy its complete URL, and paste it into the converter above. Analysis checks whether the source exposes an audio stream and returns only the choices available for that upload.",
             "Select an MP3 option to start the background job. The server extracts audio, converts it with ffmpeg, then provides a temporary download link. Keep this page open while processing; longer videos can take more time.",
         )),
@@ -95,7 +113,7 @@ TOOL_SECTIONS = {
             "Changing the output bitrate cannot restore detail lost in the source. Compare the returned choices for the particular link instead of assuming every upload provides the same quality.",
         )),
         ("Fix common conversion problems", (
-            "If the URL is rejected, use a complete youtube.com/watch, youtube.com/shorts or youtu.be link to one item. Playlists and arbitrary sites are not accepted on this page.",
+            "If the URL is rejected, use a complete youtube.com/watch, youtube.com/shorts or youtu.be link to one item. People searching for YT to MP3 can use any of those direct link forms; playlists and arbitrary sites are not accepted on this page.",
             "If analysis fails, the post may have been removed, made private, restricted to a region or age group, or blocked for server access. If processing starts but times out, try a shorter public upload or another available audio option. The service does not bypass sign-in or access controls.",
         )),
         ("Use the converter on your device", (
@@ -203,10 +221,10 @@ TOOL_SECTIONS = {
 
 
 TOOL_SEO_LINKS = {
-    "youtube-downloader": (("/youtube-video-downloader", "Video-only choices"), ("/youtube-to-mp3", "Convert accessible audio")),
-    "youtube-video-downloader": (("/guides/youtube-video-formats", "Understand YouTube formats"), ("/guides/video-file-size-estimates", "How file sizes are estimated"), ("/youtube-to-mp4", "MP4-only choices")),
+    "youtube-downloader": (("/youtube-video-downloader", "YouTube Video Downloader"), ("/youtube-to-mp3", "YouTube to MP3 Converter"), ("/youtube-to-mp4", "YouTube to MP4")),
+    "youtube-video-downloader": (("/guides/youtube-video-formats", "Understand YouTube formats"), ("/guides/video-file-size-estimates", "How file sizes are estimated"), ("/youtube-to-mp4", "MP4-only choices"), ("/youtube-to-mp3", "Convert YouTube audio to MP3")),
     "youtube-shorts-downloader": (("/youtube-video-downloader", "Standard YouTube videos"), ("/youtube-to-mp3", "Shorts audio to MP3")),
-    "youtube-to-mp3": (("/youtube-audio-downloader", "YouTube audio formats"), ("/guides/mp3-vs-m4a", "MP3 versus M4A")),
+    "youtube-to-mp3": (("/youtube-audio-downloader", "YouTube audio formats"), ("/youtube-video-downloader", "Download the video instead"), ("/guides/mp3-vs-m4a", "MP3 versus M4A")),
     "youtube-to-mp4": (("/youtube-video-downloader", "All YouTube video formats"), ("/guides/video-with-no-sound", "When a video has no sound")),
     "instagram-downloader": (("/instagram-reels-downloader", "Reels video"), ("/instagram-carousel-downloader", "Carousel items")),
     "instagram-reels-downloader": (("/instagram-video-downloader", "Other Instagram videos"), ("/guides/instagram-public-media", "Instagram link guide")),
@@ -223,10 +241,10 @@ TOOL_SEO_LINKS = {
 
 
 TOOLS = [
-    Tool("youtube-downloader", "youtube", "YouTube Downloader", "Analyze a public YouTube video or Short and save an available video or audio format.", ("video", "short"), "Video choices may include MP4 or WebM and extracted audio when the source provides it.", "Paste a youtube.com/watch, youtube.com/shorts, or youtu.be link to one item.", "YouTube may ask this server to sign in or block an unavailable video."),
-    Tool("youtube-video-downloader", "youtube", "YouTube Video Downloader", "Choose a real video resolution from a public YouTube watch page.", ("video",), "The result lists only video heights and containers found for this upload.", "Use a youtube.com/watch?v= video link or youtu.be short link.", "A requested resolution may not exist for every upload."),
+    Tool("youtube-downloader", "youtube", "YouTube Downloader", "Inspect a public YouTube video or Short and choose an available video or audio format.", ("video", "short"), "Video choices may include MP4 or WebM and extracted audio when the source provides it.", "Paste a youtube.com/watch, youtube.com/shorts, or youtu.be link to one item.", "YouTube may ask this server to sign in or block an unavailable video."),
+    Tool("youtube-video-downloader", "youtube", "YouTube Video Downloader", "Download a public YouTube watch-page video in an available resolution.", ("video",), "The result lists only video heights and containers found for this upload.", "Use a youtube.com/watch?v= video link or youtu.be short link.", "A requested resolution may not exist for every upload."),
     Tool("youtube-shorts-downloader", "youtube", "YouTube Shorts Downloader", "Save a public vertical Short in a format the source actually offers.", ("short",), "Shorts formats vary; available video and audio options appear after analysis.", "Use a youtube.com/shorts/ link.", "A Short can be removed, made private, or blocked by the source."),
-    Tool("youtube-to-mp3", "youtube", "YouTube to MP3", "Convert the audio of a public YouTube video into an MP3 file.", ("video", "short"), "MP3 is created from a source audio stream with ffmpeg; no fixed bitrate is promised.", "Use a public YouTube video or Short URL.", "A source without accessible audio cannot be converted."),
+    Tool("youtube-to-mp3", "youtube", "YouTube to MP3", "Convert a public YouTube video or Short to MP3 when audio is accessible.", ("video", "short"), "MP3 is created from a source audio stream with ffmpeg; no fixed bitrate is promised.", "Use a public YouTube video or Short URL.", "A source without accessible audio cannot be converted."),
     Tool("youtube-audio-downloader", "youtube", "YouTube Audio Downloader", "Find source audio tracks and an MP3 conversion for a public YouTube upload.", ("video", "short"), "Original audio may be M4A or WebM; MP3 conversion appears when audio is present.", "Use a youtube.com/watch, music.youtube.com/watch, or youtu.be URL.", "Some music uploads are region or account restricted."),
     Tool("youtube-song-downloader", "youtube", "YouTube Song Downloader", "Save audio from a public song upload that you own or may download.", ("video", "short"), "Audio formats reflect the accessible upload, with MP3 conversion when possible.", "Paste the URL of one public YouTube song video.", "Official music content may have access, region, or rights restrictions."),
     Tool("youtube-to-mp4", "youtube", "YouTube to MP4", "Find available MP4 resolutions for a public YouTube video.", ("video", "short"), "Only MP4 streams found in the source results are offered; some need server-side audio merging.", "Paste a public YouTube video or Short link.", "Some uploads provide WebM only or lack a particular MP4 height."),

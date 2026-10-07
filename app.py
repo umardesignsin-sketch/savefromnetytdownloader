@@ -178,8 +178,8 @@ def _page(tool=None, guide=None, guide_index=False):
         description = "Practical guides to public video, photo and audio links, available formats and common download problems across eight supported platforms."
         canonical = SITE_URL + "/guides"
     else:
-        title = tool.seo_title if tool else "SaveFromNet — Video Downloader & Converter"
-        description = tool.seo_description if tool else "Download public videos, reels, shorts, photos and audio from your favorite platforms. See real formats before you save."
+        title = tool.seo_title if tool else "SaveFromNet | Video Downloader & Converter"
+        description = tool.seo_description if tool else "Use SaveFromNet to download public videos, Shorts, Reels, photos and audio you may save. Paste a supported link and see real formats before processing."
         canonical = SITE_URL + tool.path if tool else SITE_URL + "/"
     if guide:
         schema = [{"@context": "https://schema.org", "@type": "Article", "headline": guide.title,
@@ -193,6 +193,9 @@ def _page(tool=None, guide=None, guide_index=False):
                    "applicationCategory": "MultimediaApplication", "operatingSystem": "Any",
                    "url": canonical, "description": description,
                    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}]
+    if not tool and not guide and not guide_index:
+        schema.append({"@context": "https://schema.org", "@type": "WebSite",
+                       "name": "SaveFromNet", "alternateName": "SaveFromNet.fun", "url": SITE_URL + "/"})
     if guide:
         schema.append({"@context": "https://schema.org", "@type": "FAQPage",
                        "mainEntity": [{"@type": "Question", "name": q,
