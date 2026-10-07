@@ -520,12 +520,12 @@ def robots():
 
 @app.get("/sitemap.xml")
 def sitemap():
-    pages = [(SITE_URL + "/", "1.0")] + [(SITE_URL + tool.path, "0.7") for tool in TOOLS]
-    pages += [(SITE_URL + tool.path, "0.7") for tool in IMAGE_TOOLS]
-    pages += [(SITE_URL + "/guides", "0.7")]
-    pages += [(SITE_URL + guide.path, "0.6") for guide in GUIDES]
-    pages += [(SITE_URL + page.path, "0.8" if page.slug == "tools" else "0.4") for page in PAGES]
-    body = "".join(f"<url><loc>{url}</loc><changefreq>weekly</changefreq><priority>{priority}</priority></url>" for url, priority in pages)
+    pages = [SITE_URL + "/"] + [SITE_URL + tool.path for tool in TOOLS]
+    pages += [SITE_URL + tool.path for tool in IMAGE_TOOLS]
+    pages += [SITE_URL + "/guides"]
+    pages += [SITE_URL + guide.path for guide in GUIDES]
+    pages += [SITE_URL + page.path for page in PAGES]
+    body = "".join(f"<url><loc>{url}</loc></url>" for url in pages)
     return Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + body + "</urlset>", mimetype="application/xml")
 
 

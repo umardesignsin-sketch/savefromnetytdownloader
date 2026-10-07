@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass
 
+from seo_expansions import TOOL_LINKS as EXTRA_TOOL_LINKS, TOOL_SECTIONS as EXTRA_TOOL_SECTIONS
+
 
 @dataclass(frozen=True)
 class Tool:
@@ -71,11 +73,11 @@ class Tool:
 
     @property
     def seo_sections(self):
-        return TOOL_SECTIONS.get(self.slug, ())
+        return TOOL_SECTIONS.get(self.slug, EXTRA_TOOL_SECTIONS.get(self.slug, ()))
 
     @property
     def seo_links(self):
-        return TOOL_SEO_LINKS.get(self.slug, ())
+        return TOOL_SEO_LINKS.get(self.slug, EXTRA_TOOL_LINKS.get(self.slug, ()))
 
 
 TOOL_META = {
