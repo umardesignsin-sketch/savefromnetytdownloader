@@ -58,6 +58,22 @@ class DetectorTests(unittest.TestCase):
         found = detect_url("https://www.youtube.com/watch?v=aqz-KE-bpKQ&utm_source=test")
         self.assertEqual(found.normalized_url, "https://www.youtube.com/watch?v=aqz-KE-bpKQ")
 
+    def test_reddit_permalinks_and_short_links_route_to_one_post(self):
+        cases = (
+            ("https://www.reddit.com/r/aww/comments/1aoccwo/title/?utm_source=share",
+             "https://www.reddit.com/r/aww/comments/1aoccwo/"),
+            ("https://redd.it/1aoccwo", "https://redd.it/1aoccwo"),
+            ("https://www.reddit.com/user/creator/comments/1aoccwo/title/",
+             "https://www.reddit.com/user/creator/comments/1aoccwo/"),
+        )
+        for url, normalized in cases:
+            with self.subTest(url=url):
+                detected = detect_url(url)
+                self.assertEqual((detected.platform, detected.content_type, detected.normalized_url),
+                                 ("reddit", "post", normalized))
+        with self.assertRaises(DetectError):
+            detect_url("https://www.reddit.com/r/aww/")
+
 
 class FormatTests(unittest.TestCase):
     def test_only_returns_real_heights_and_audio(self):
@@ -138,6 +154,32 @@ class SiteTests(unittest.TestCase):
                 self.assertIn(f'<h1 id="download-heading">{escape(heading)}</h1>', html)
                 self.assertIn(f'<h2>{escape(section)}</h2>', html)
                 self.assertEqual(sitemap.count(f'<loc>https://savefromnet.fun{path}</loc>'), 1)
+
+    def test_reddit_downloader_has_one_canonical_and_a_real_video_api(self):
+        path = "/reddit-video-downloader"
+        page = self.client.get(path).get_data(as_text=True)
+        self.assertIn("<title>Reddit Video Downloader | SaveFromNet</title>", page)
+        self.assertIn('<link rel="canonical" href="https://savefromnet.fun/reddit-video-downloader">', page)
+        self.assertIn('<h1 id="download-heading">Reddit Video Downloader</h1>', page)
+        self.assertIn("Paste a Reddit post URL", page)
+        for heading in ("How to download a Reddit video", "Reddit video download with sound",
+                        "Which Reddit video links work?", "When the Reddit downloader cannot access a post"):
+            self.assertIn(f"<h2>{heading}</h2>", page)
+        self.assertIn('href="/reddit-video-downloader"', self.client.get("/").get_data(as_text=True))
+        self.assertEqual(self.client.get("/sitemap.xml").get_data(as_text=True).count(
+            "<loc>https://savefromnet.fun/reddit-video-downloader</loc>"), 1)
+
+        media = {"platform": "reddit", "type": "post", "title": "Public test post",
+                 "author": "creator", "thumbnail": None, "duration": 12,
+                 "formats": [{"id": "v0", "type": "video", "extension": "mp4", "quality": "640p"},
+                             {"id": "a-source", "type": "audio", "extension": "m4a", "quality": "Original audio"}]}
+        with patch("app.analyze", return_value=media):
+            response = self.client.post("/api/analyze", json={"tool": "reddit-video-downloader",
+                "url": "https://www.reddit.com/r/aww/comments/1aoccwo/"})
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertEqual(data["platform"], "reddit")
+        self.assertEqual([item["type"] for item in data["formats"]], ["video"])
 
     def test_editorial_tool_sections_are_distinct_and_link_to_real_pages(self):
         self.assertGreaterEqual(len(TOOL_SECTIONS), 15)

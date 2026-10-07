@@ -85,8 +85,8 @@
       <div class="container narrow">
         <div class="download-panel">
           <form id="download-form" novalidate>
-            <label for="url" class="sr-only">Public media URL</label>
-            <div class="input-row"><input id="url" type="url" inputmode="url" placeholder="Paste your public video link here" autocomplete="url" required><button id="paste-btn" class="paste-btn" type="button">Paste</button><button id="submit-btn" class="submit-btn" type="submit">Download</button></div>
+            <label for="url" class="sr-only">{{ 'Public Reddit post URL' if tool and tool.slug == 'reddit-video-downloader' else 'Public media URL' }}</label>
+            <div class="input-row"><input id="url" type="url" inputmode="url" placeholder="{{ 'Paste a Reddit post URL' if tool and tool.slug == 'reddit-video-downloader' else 'Paste your public video link here' }}" autocomplete="url" required><button id="paste-btn" class="paste-btn" type="button">Paste</button><button id="submit-btn" class="submit-btn" type="submit">Download</button></div>
             <p class="form-error" id="url-error" role="alert" hidden></p>
           </form>
           <p class="download-note">Use this service only for public media you own or have permission to download.</p>

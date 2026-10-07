@@ -13,7 +13,13 @@ This map uses the existing canonical URLs. The owner supplied Search Console que
 | youtube to mp3 converter | `/youtube-to-mp3` | MP3 conversion from accessible source audio |
 | youtube mp3 download | `/youtube-to-mp3` | Same conversion and temporary file |
 | yt to mp3 | `/youtube-to-mp3` | Common shorthand for the same conversion |
+| reddit video downloader | `/reddit-video-downloader` | Primary public Reddit video tool |
+| reddit video download | `/reddit-video-downloader` | Same single-post video task |
+| download reddit video | `/reddit-video-downloader` | Same action phrased as a verb |
+| reddit downloader | `/reddit-video-downloader` | Broader wording for the same supported Reddit post workflow |
 
 No synonym-only pages or redirects were created. The existing paths and self-canonicals remain in the sitemap. Copy describes only supported public links, actual formats, processing limits, and temporary files. The homepage links to the video and converter pages with descriptive anchors, and those pages link to related formats and guides.
 
 After Google recrawls, compare each query's **Pages** report, impressions, clicks, CTR, and position against the same preceding period. Keep the page with established query traffic as the canonical destination; revise this map if the Pages report shows a different landing URL.
+
+The owner-supplied Keyword Planner screenshot shows a broad **10K–100K** search-volume range for each of the four Reddit phrases. That range does not identify ranking pages, actual clicks, or demand specific to this site. All four phrases map to the existing working Reddit page. A live analysis of one public Reddit-hosted video on 2026-10-07 returned six MP4 options; this checks one accessible example, not every Reddit post or an end-to-end file download.

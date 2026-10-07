@@ -46,6 +46,13 @@ class Tool:
                 ("Does it work on a phone?", "The URL form works in a modern mobile browser. When processing finishes, save the temporary MP3 through your browser; the exact destination depends on your device."),
                 ("Can I use a youtu.be or Shorts link?", "Yes. This YT to MP3 converter accepts a direct public watch-page, youtu.be, or Shorts URL to one item when its audio is accessible. Playlists and private videos are not supported."),
             )
+        if self.slug == "reddit-video-downloader":
+            return (
+                ("How do I download a Reddit video?", "Copy the direct link to one public Reddit post, paste it above, and choose a video format returned by the analyzer. The server prepares a temporary file for the option you select. Download only media you own or have permission to save."),
+                ("Will the Reddit video download include sound?", "When the public post exposes compatible video and audio streams, the server merges them into a finished file. A missing sound stream cannot be invented, so available choices depend on that specific post."),
+                ("Which Reddit links does this downloader accept?", "Use an individual reddit.com/r/community/comments/post-id/ or reddit.com/user/name/comments/post-id/ permalink, or a redd.it/post-id short link. A subreddit feed, profile page or comment thread without a post ID is not one video."),
+                ("Why does a Reddit post have no video option?", "The post may be deleted, private, age-gated, quarantined, or unavailable to anonymous access. It may also link to an external host instead of containing Reddit-hosted video."),
+            )
         return (
             (f"Which links work with {self.name}?", self.url_hint),
             ("Which formats and qualities can I choose?", self.format_note + " Only formats returned by the source are displayed."),
@@ -73,6 +80,10 @@ TOOL_META = {
     "youtube-to-mp3": (
         "YouTube to MP3 Converter | SaveFromNet",
         "Convert a public YouTube video or Short to MP3. Check accessible audio, choose a real option, and prepare a temporary MP3 download.",
+    ),
+    "reddit-video-downloader": (
+        "Reddit Video Downloader | SaveFromNet",
+        "Download Reddit video from a public post. Paste a Reddit permalink, see real MP4 choices, and save a file with sound when public audio is available.",
     ),
 }
 
@@ -186,11 +197,19 @@ TOOL_SECTIONS = {
         )),
     ),
     "reddit-video-downloader": (
-        ("Reddit may separate picture and sound", (
-            "Paste a public post permalink under /r/.../comments/... or a redd.it short link. When Reddit exposes video and a compatible audio stream separately, the server can merge them into a finished file. The options shown depend on that post's streams, not a preset resolution list.",
+        ("How to download a Reddit video", (
+            "Open the individual Reddit post containing a video you own or may save, then copy its permalink. Paste the URL into the form above and select Download. SaveFromNet validates the Reddit host and post path before asking the source for media information; a subreddit feed or search page will not be treated as one video.",
+            "After analysis, review the returned MP4 heights and any size information the source actually supplies. Choose one listed format to start a background job, then save the finished file while its browser-bound temporary link is active. The page does not show a fixed resolution menu before inspecting your post.",
         )),
-        ("Check the post's access and host", (
-            "Deleted, quarantined or adult-gated posts may not be available to anonymous extraction. A Reddit post can also point to an external video host rather than contain Reddit-hosted media. Copy the direct media post and choose another supported platform tool if the video lives elsewhere.",
+        ("Reddit video download with sound", (
+            "Reddit-hosted video can arrive as separate picture and audio streams. When both are publicly accessible and compatible, the server downloads those streams and merges them into one finished video. The result card shows only formats it can prepare for that post; an audio bitrate or size cannot stand in for the whole video file.",
+            "If the source exposes no usable audio track, conversion cannot invent speech or music. Check the original post while signed out and use the returned options rather than assuming every Reddit clip has sound. The guide below explains why a video that plays in Reddit may still have separate streams.",
+        )),
+        ("Which Reddit video links work?", (
+            "Use a direct reddit.com/r/community/comments/post-id/ permalink, a supported user-post permalink, or the short redd.it/post-id form. The URL detector removes tracking parameters and normalizes the post URL before analysis. A link to r/community, a user profile, or a discussion without a post identifier does not identify one media item.",
+        )),
+        ("When the Reddit downloader cannot access a post", (
+            "Deleted, private, quarantined, adult-gated, or otherwise restricted posts may be unavailable without a Reddit account. SaveFromNet does not sign in or bypass those controls. A post can also point to YouTube or another external host; use that host's dedicated downloader when the media is not actually served by Reddit.",
         )),
     ),
     "threads-video-downloader": (
@@ -233,7 +252,7 @@ TOOL_SEO_LINKS = {
     "tiktok-to-mp3": (("/tiktok-downloader", "TikTok video and photos"), ("/guides/tiktok-video-and-audio", "TikTok audio guide")),
     "facebook-video-downloader": (("/guides/facebook-reels", "Public Facebook Reels"), ("/guides/facebook-public-videos", "Facebook link guide")),
     "pinterest-video-downloader": (("/guides/pinterest-images", "Save an image from a Pin"), ("/guides/pinterest-pin-media", "Images, GIFs and video")),
-    "reddit-video-downloader": (("/guides/reddit-video-with-audio", "Reddit audio guide"), ("/universal-video-downloader", "Other supported platforms")),
+    "reddit-video-downloader": (("/guides/reddit-video-with-audio", "Why Reddit video and audio may be separate"), ("/guides/video-with-no-sound", "Why a video may have no sound"), ("/universal-video-downloader", "Download from another supported platform")),
     "threads-video-downloader": (("/guides/threads-video-availability", "Threads availability guide"), ("/universal-video-downloader", "Other supported platforms")),
     "dailymotion-video-downloader": (("/guides/dailymotion-video-quality", "Dailymotion quality guide"), ("/universal-video-downloader", "Other supported platforms")),
     "universal-video-downloader": (("/guides/temporary-download-links", "Temporary download links"), ("/guides/video-with-no-sound", "Why a file has no sound")),
@@ -262,7 +281,7 @@ TOOLS = [
     Tool("tiktok-story-downloader", "tiktok", "TikTok Story Downloader", "Inspect publicly accessible TikTok Stories for downloadable media.", ("story",), "The gallery extractor lists only Story items it can access anonymously.", "Use a tiktok.com/@username/stories URL.", "Stories expire and may require sign-in; inaccessible Stories cannot be downloaded."),
     Tool("facebook-video-downloader", "facebook", "Facebook Video Downloader", "Find video formats from a public Facebook video or Reel.", ("video",), "The result shows only source formats returned for that specific public post.", "Use facebook.com/watch?v=, a public /videos/ or /reel/ URL, or fb.watch.", "Friends-only videos, login walls, and removed posts are unavailable."),
     Tool("pinterest-video-downloader", "pinterest", "Pinterest and GIF Downloader", "Inspect one public Pin for its original image, GIF, or video.", ("pin",), "Pins may contain an image, GIF, or video; only the extracted source item is offered.", "Use a pinterest.com/pin/id/ or pin.it short link.", "Some Pins link away to external sites rather than hosting downloadable media."),
-    Tool("reddit-video-downloader", "reddit", "Reddit Video Downloader", "Save a video attached to a public Reddit post.", ("post",), "Reddit may provide video and audio as separate streams, which are merged when needed.", "Use a reddit.com/r/community/comments/id/ or redd.it/id link.", "Deleted, quarantined, or adult-gated posts can be inaccessible."),
+    Tool("reddit-video-downloader", "reddit", "Reddit Video Downloader", "Download a video from one public Reddit post, with sound when a compatible audio stream is available.", ("post",), "The result shows MP4 qualities returned for that post; separate video and audio streams are merged when available.", "Use a reddit.com/r/community/comments/id/, reddit.com/user/name/comments/id/, or redd.it/id link.", "Deleted, private, quarantined, or adult-gated posts can be inaccessible."),
     Tool("threads-video-downloader", "threads", "Threads Video Downloader", "Check a public Threads post for a video exposed in its page metadata.", ("post",), "A source MP4 option appears only when Threads publishes a public video URL.", "Use a threads.com/@username/post/id URL.", "Threads often omits video metadata or requires login; those posts have no available format here."),
     Tool("dailymotion-video-downloader", "dailymotion", "Dailymotion Video Downloader", "Choose a format returned for one public Dailymotion video.", ("video",), "Available MP4 or WebM heights come from that video's extractor result.", "Use dailymotion.com/video/id or dai.ly/id.", "Private, geo-blocked, and removed videos cannot be processed."),
     Tool("universal-video-downloader", "universal", "Universal Video Downloader", "Paste a public link from a supported platform and automatically route it to its extractor.", ("video", "short", "post", "pin", "reel", "photo", "story", "profile"), "The analyzed source decides which real video, audio, or image formats appear.", "Use one public URL from YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, or Dailymotion.", "The source may block, remove, or restrict individual posts."),

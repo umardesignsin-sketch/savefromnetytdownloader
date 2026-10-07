@@ -162,6 +162,12 @@ def _related_guides(guide):
 def _page(tool=None, guide=None, guide_index=False):
     platform_home = next((item for item in TOOLS if tool and item.platform == tool.platform), None)
     primary_tools = [next(item for item in TOOLS if item.platform == platform) for platform in PLATFORMS]
+    featured_tools = [BY_SLUG[slug] for slug in (
+        "youtube-downloader", "youtube-video-downloader", "youtube-shorts-downloader",
+        "youtube-to-mp3", "youtube-to-mp4", "instagram-downloader",
+        "tiktok-downloader", "facebook-video-downloader",
+        "reddit-video-downloader", "universal-video-downloader",
+    )]
     quick_links = []
     if tool and tool.platform != "universal":
         quick_links = [tool] + [item for item in TOOLS if item.platform == tool.platform and item.slug != tool.slug]
@@ -223,7 +229,7 @@ def _page(tool=None, guide=None, guide_index=False):
     platform_guide = GUIDES_BY_SLUG.get(platform_guides.get(tool.platform)) if tool else None
     return render_template("site.html", tool=tool, title=title, description=description,
                            canonical=canonical, tools=TOOLS, platforms=PLATFORMS,
-                           related=related_tools(tool) if tool else TOOLS[:10], schema=schema,
+                           related=related_tools(tool) if tool else featured_tools, schema=schema,
                            guide=guide, guide_index=guide_index, guides=GUIDES,
                            related_guides=_related_guides(guide),
                            platform_guide=platform_guide, platform_home=platform_home,
