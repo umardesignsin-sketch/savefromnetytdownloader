@@ -2,6 +2,13 @@ name: Build Cloudflare container
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-container.yml'
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - '**/*.py'
 
 jobs:
   build-and-push:
