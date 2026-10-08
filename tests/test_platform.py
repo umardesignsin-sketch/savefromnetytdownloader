@@ -268,6 +268,8 @@ class SiteTests(unittest.TestCase):
         self.assertIn('id="size-estimator"', size_html)
         self.assertIn('name="videoKbps"', size_html)
         self.assertIn('name="audioKbps"', size_html)
+        self.assertIn('id="size-share-link"', size_html)
+        self.assertIn('id="size-share-copy"', size_html)
         self.assertIn('src="/static/js/size-estimator.mjs"', size_html)
         self.assertIn('href="/guides/video-file-size-estimates"', self.client.get("/").get_data(as_text=True))
 

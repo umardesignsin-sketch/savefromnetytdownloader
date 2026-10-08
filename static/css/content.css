@@ -53,6 +53,14 @@
 .size-calculator .size-calculator-note{font-size:.82rem;line-height:1.5;margin:11px 0 0}
 .size-calculator-result{display:block;margin:20px 0;padding:18px;border-radius:12px;background:#def0e4;color:#174d3a;font-weight:750;line-height:1.5}
 .size-calculator-result[hidden]{display:none}
+.size-calculator-share[hidden]{display:none}
+.size-calculator-share{margin:0 0 22px}
+.size-calculator-share label{display:block;margin-bottom:8px;font-size:.9rem;font-weight:700;color:var(--ink)}
+.size-calculator-share>div{display:flex;gap:9px}
+.size-calculator-share input{flex:1;min-width:0;padding:11px;border:1px solid #b9cec1;border-radius:9px;background:#fff;color:var(--ink);font:inherit}
+.size-calculator-share button{padding:11px 17px;border:0;border-radius:9px;background:#174d3a;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.size-calculator-share input:focus-visible,.size-calculator-share button:focus-visible{outline:3px solid #6cb58c;outline-offset:2px}
+.size-calculator .size-calculator-share p{margin:6px 0 0;font-size:.84rem}
 .size-calculator a{color:#356309;text-decoration:underline;text-underline-offset:3px}
 @media(max-width:900px){.content-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.content-columns{grid-template-columns:minmax(0,1fr) 230px;gap:30px}}
-@media(max-width:700px){.content-hero{padding:24px 0 46px}.content-body{padding:38px 0 64px}.content-columns,.content-tool-grid,.size-calculator-grid{grid-template-columns:1fr}.content-aside{position:static}.content-section-heading{display:block}.content-section-heading p{margin-top:8px}.category-jump{margin-bottom:38px}.content-tool-card{padding:22px}.size-calculator-section{padding:0 0 50px}.size-calculator{padding:20px}}
+@media(max-width:700px){.content-hero{padding:24px 0 46px}.content-body{padding:38px 0 64px}.content-columns,.content-tool-grid,.size-calculator-grid{grid-template-columns:1fr}.content-aside{position:static}.content-section-heading{display:block}.content-section-heading p{margin-top:8px}.category-jump{margin-bottom:38px}.content-tool-card{padding:22px}.size-calculator-section{padding:0 0 50px}.size-calculator{padding:20px}.size-calculator-share>div{flex-direction:column}}

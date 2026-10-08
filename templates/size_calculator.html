@@ -12,5 +12,10 @@
     <p class="size-calculator-note">The starting values are an example, not a measured file. If the source gives no audio bitrate, enter 0; that estimate will exclude audio.</p>
   </form>
   <output id="size-estimate-result" class="size-calculator-result" role="status" aria-live="polite" hidden></output>
+  <div id="size-calculator-share" class="size-calculator-share" hidden>
+    <label for="size-share-link">Share this estimate</label>
+    <div><input id="size-share-link" type="url" readonly aria-describedby="size-share-status"><button id="size-share-copy" type="button">Copy link</button></div>
+    <p id="size-share-status" role="status" aria-live="polite"></p>
+  </div>
   <p>A source-reported byte count is more useful than this calculation. Variable bitrate, muxing and conversion can change the finished file. Read <a href="/guides/youtube-video-formats">how YouTube streams and formats work</a> before choosing a file.</p>
 </section>

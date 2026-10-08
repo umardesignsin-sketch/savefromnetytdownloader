@@ -225,7 +225,7 @@ GUIDES = (
     Guide(
         "video-file-size-estimates", "Video file size calculator and download estimates",
         "Estimate video file size from runtime and bitrate, then understand source-reported sizes, separate audio streams, and SaveFromNet's 512 MB limit.",
-        "Resolution alone does not determine file size. Use the calculator below when you know the runtime and stream bitrates; the answer is an estimate, not a measured download. SaveFromNet leaves size unknown when the source does not provide enough information for a defensible total.",
+        "Resolution alone does not determine file size. Use the calculator below when you know the runtime and stream bitrates; the answer is an estimate, not a measured download. You can share a link that preserves your calculator inputs. SaveFromNet leaves size unknown when the source does not provide enough information for a defensible total.",
         "youtube-video-downloader",
         (
             ("A reported size is different from an estimate", "Some source formats include an explicit byte count; others offer only an approximate size or bitrate. An estimate based on bitrate also needs a valid duration. The calculator multiplies seconds by the combined video and audio bitrates, then divides by eight to convert bits to bytes. Variable bitrate, container overhead and processing can change the finished size. Unknown is more honest than a misleading tiny 4K file."),

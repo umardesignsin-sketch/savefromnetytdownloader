@@ -1,10 +1,10 @@
 # SaveFromNet directory submissions
 
-Updated 2026-10-06. Canonical product URL: https://savefromnet.fun/
+Updated 2026-10-08. Canonical product URL: https://savefromnet.fun/
 
 The source list is the 43 recorded RankVyze directories, the 14 confirmed Mac Screen Recorder submissions, and the two confirmed FNJ submissions. An accepted form is not a public backlink. SaveFromNet is a free web downloader and converter for supported public media URLs; it does not use AI extraction, provide a Mac app, or bypass access controls. The owner-authorized contact email was supplied only where required and is not repeated in this public tracker.
 
-## Confirmed: 12 distinct directories
+## Confirmed: 14 distinct directories
 
 | Directory | Status | Evidence |
 | --- | --- | --- |
@@ -20,6 +20,8 @@ The source list is the 43 recorded RankVyze directories, the 14 confirmed Mac Sc
 | [Awesome Tools](https://awesome.tools/submit/savefromnet/success) | In review; link verified | Agent submission accepted as a draft. The required visible footer link is live on SaveFromNet; Awesome Tools says “Link verified. SaveFromNet is in review.” |
 | [TryMy.App](https://trymy.app/submit) | In review | Official API returned HTTP 200 and the page said “savefromnet.fun is in the queue.” Paid featured placement was declined. |
 | [Launching Next](https://www.launchingnext.com/thanks/?i=157219) | In queue | The free submission redirected to a unique “SUBMITTED” receipt, ID 157219; the page estimates a four-month wait. The owner confirmed a $0 marketing budget. Paid fast track was declined. |
+| [The Tool Directory](https://thetooldirectory.com/submit-a-tool/?submitted=1) | In review | Free Video & Audio submission displayed “Thanks — your listing was submitted for review.” No paid feature was selected. No public backlink verified yet. |
+| [The Free Tools Directory](https://thefreetoolsdirectory.com/submit) | In review | Submitted the working YouTube Video Downloader URL under Photography & Video. The page displayed “Submission received!” and said editorial review follows. No public backlink verified yet. |
 
 ## Needs owner action
 
