@@ -116,6 +116,7 @@ PAGES = (
             )),
             Section("Limits and aggregate measurement", (
                 "Cloudflare uses the requesting IP address to apply rate limits. SaveFromNet records aggregate events such as platform, tool, format and success or failure. The analytics event payload does not include the submitted URL or a browser identifier.",
+                "For operational visitor counts, a first-party page signal sends a page-view or active-tab heartbeat to Cloudflare. We derive a one-day keyed hash from the request IP address and browser type to estimate unique and live visitors by country. The dashboard does not store the raw IP address or submitted media URLs; visitor records are deleted after about two days. This measurement does not set an analytics cookie, and browsers that block the signal are not counted.",
                 "The site also uses Google Analytics. Its tag measures page visits and browser or device information and may set a first-party _ga cookie to distinguish visits. Google's handling of that measurement data is described in its own privacy information.",
                 "Cloudflare and the source website necessarily process network requests needed to deliver pages or inspect a public link. Their handling of network data is governed by their own policies.",
             ), (("https://support.google.com/analytics/answer/11593727", "Google Analytics data collection"),)),

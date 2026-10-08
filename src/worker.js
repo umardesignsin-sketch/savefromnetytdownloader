@@ -1,5 +1,45 @@
 import { Container } from "@cloudflare/containers";
 import { guardAnalysis } from "./size-guard.mjs";
+import { VisitorAnalytics } from "./visitor-store.mjs";
+import { dashboardHtml } from "./analytics-dashboard.mjs";
+import world from "./analytics-world.json";
+
+export { VisitorAnalytics };
+
+function dashboardAuthorized(request, env) {
+  if (!env.DASHBOARD_PASSWORD) return false;
+  const header = request.headers.get("Authorization") || "";
+  if (!header.startsWith("Basic ") || header.length > 500) return false;
+  try {
+    const decoded = atob(header.slice(6));
+    const expected = `admin:${env.DASHBOARD_PASSWORD}`;
+    if (decoded.length !== expected.length) return false;
+    let diff = 0;
+    for (let i = 0; i < decoded.length; i++) diff |= decoded.charCodeAt(i) ^ expected.charCodeAt(i);
+    return diff === 0;
+  } catch { return false; }
+}
+
+function privateHeaders(extra = {}) {
+  return { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow", ...extra };
+}
+
+function dashboardChallenge() {
+  return new Response("Sign in to view SaveFromNet analytics.", {
+    status: 401,
+    headers: privateHeaders({ "WWW-Authenticate": 'Basic realm="SaveFromNet analytics", charset="UTF-8"' }),
+  });
+}
+
+async function visitorHash(request, secret) {
+  const day = new Date().toISOString().slice(0, 10);
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const agent = (request.headers.get("User-Agent") || "").slice(0, 256);
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const bytes = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${day}|${ip}|${agent}`));
+  return [...new Uint8Array(bytes)].map(byte => byte.toString(16).padStart(2, "0")).join("");
+}
 
 function record(env, event, platform = "unknown", tool = "unknown", format = "", status = 0) {
   const clean = (value, pattern) => typeof value === "string" && pattern.test(value) ? value : "unknown";
@@ -62,6 +102,39 @@ export class DownloaderContainer extends Container {
 export default {
   async fetch(request, env) {
     const pathname = new URL(request.url).pathname;
+    if (pathname === "/analytics" || pathname === "/analytics/") {
+      if (request.method !== "GET") return new Response("Method not allowed", { status: 405 });
+      if (!dashboardAuthorized(request, env)) return dashboardChallenge();
+      return new Response(dashboardHtml, {
+        headers: privateHeaders({ "Content-Type": "text/html; charset=utf-8", "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" }),
+      });
+    }
+    if (pathname === "/api/analytics" || pathname === "/api/analytics/world") {
+      if (request.method !== "GET") return new Response("Method not allowed", { status: 405 });
+      if (!dashboardAuthorized(request, env)) return dashboardChallenge();
+      if (pathname.endsWith("/world")) return Response.json(world, { headers: privateHeaders() });
+      const response = await env.VISITOR_ANALYTICS.getByName("global").fetch("https://analytics.internal/stats");
+      const headers = new Headers(response.headers);
+      for (const [key, value] of Object.entries(privateHeaders())) headers.set(key, value);
+      return new Response(response.body, { status: response.status, headers });
+    }
+    if (pathname === "/api/visit") {
+      if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
+      const origin = request.headers.get("Origin");
+      if (origin && origin !== new URL(request.url).origin) return new Response("Forbidden", { status: 403 });
+      if (!env.VISITOR_HASH_KEY) return new Response("Analytics unavailable", { status: 503 });
+      const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+      const { success } = await env.EVENT_LIMIT.limit({ key: `visit:${ip}` });
+      if (!success) return new Response("Too many visits", { status: 429 });
+      const body = await smallJson(request);
+      if (!['page', 'heartbeat'].includes(body.kind)) return new Response("Invalid visit", { status: 400 });
+      const country = /^[A-Z]{2}$/.test(request.cf?.country || "") ? request.cf.country : "XX";
+      const visitor = await visitorHash(request, env.VISITOR_HASH_KEY);
+      return env.VISITOR_ANALYTICS.getByName("global").fetch("https://analytics.internal/visit", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ visitor, country, kind: body.kind }),
+      });
+    }
     if (request.method === "POST" && pathname === "/api/image/process") {
       if (Number(request.headers.get("content-length") || 0) > 9 * 1024 * 1024) {
         return new Response(JSON.stringify({ error: "Choose an image under 8 MB." }),

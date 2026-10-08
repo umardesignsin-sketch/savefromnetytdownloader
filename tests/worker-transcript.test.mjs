@@ -5,6 +5,7 @@ import test from 'node:test';
 // Run the real fetch handler with the Cloudflare-only imports replaced by stubs.
 const source = readFileSync(new URL('../src/worker.js', import.meta.url), 'utf8')
   .replace(/^import .*;\r?\n/gm, '')
+  .replace(/^export \{ VisitorAnalytics \};\r?\n/gm, '')
   .replace('export class DownloaderContainer', 'class DownloaderContainer')
   .replace('export default {', 'const worker = {');
 const worker = new Function('Container', 'guardAnalysis', `${source}\nreturn worker;`)(class {}, value => value);

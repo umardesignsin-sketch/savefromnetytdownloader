@@ -8,7 +8,7 @@
     "directory": "./dist",
     "html_handling": "drop-trailing-slash",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/api/*", "/healthz"]
+    "run_worker_first": ["/api/*", "/analytics*", "/healthz"]
   },
   "analytics_engine_datasets": [
     { "binding": "EVENTS", "dataset": "savefromnet_events" }
@@ -26,7 +26,8 @@
   ],
   "durable_objects": {
     "bindings": [
-      { "name": "DOWNLOADER", "class_name": "DownloaderContainer" }
+      { "name": "DOWNLOADER", "class_name": "DownloaderContainer" },
+      { "name": "VISITOR_ANALYTICS", "class_name": "VisitorAnalytics" }
     ]
   },
   "ratelimits": [
@@ -52,6 +53,7 @@
     }
   ],
   "exports": {
-    "DownloaderContainer": { "type": "durable-object", "storage": "sqlite" }
+    "DownloaderContainer": { "type": "durable-object", "storage": "sqlite" },
+    "VisitorAnalytics": { "type": "durable-object", "storage": "sqlite" }
   }
 }

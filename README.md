@@ -98,8 +98,20 @@ edge site, run `python generate_static.py`. Run checks with
 - `GET /api/metrics` returns aggregate counters only when
 `ADMIN_METRICS_TOKEN` is configured and supplied as a Bearer token. These
 local counters reset when the Container sleeps; the Cloudflare Analytics
-Engine dataset is the durable event source. No admin account system exists in
-this project.
+Engine dataset is the durable event source.
+
+## Private visitor dashboard
+
+`/analytics` is a private, password-protected dashboard. Sign in with username
+`admin` and the Cloudflare Worker secret `DASHBOARD_PASSWORD`. The dashboard and
+`GET /api/analytics` are never cached or indexed. `VISITOR_HASH_KEY` is a
+separate Worker secret used to derive a rotating daily HMAC from the request IP
+and browser type. Neither the raw IP nor a media URL is stored in visitor
+analytics. A first-party `/api/visit` page signal and visible-tab heartbeat
+provide approximate unique visitors today, page views, live visitors in the
+last five minutes, and country counts. The numbers start at deployment and
+reset at midnight UTC; visitor rows expire after about two days. The dashboard
+includes a draggable globe and updates every 15 seconds.
 
 ## Limits and storage
 
@@ -109,8 +121,8 @@ Flask also applies per-browser limits. One 512 MB job runs at a time, and four
 analyses may run concurrently. Completed files are cleaned up after about an
 hour when the container remains active. The Container sleeps after five minutes
 of inactivity; that can clear files sooner. SQLite history and metrics are
-ephemeral as well. A future persistent history or analytics feature would
-require a separate Cloudflare database; media files are deliberately not stored
+ephemeral as well. Visitor counts use a separate SQLite-backed Durable Object
+and persist across Container sleeps. Media files are deliberately not stored
 permanently.
 
 ## Cloudflare deployment

@@ -40,7 +40,7 @@ def main():
         target = DIST / filename
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(response.data)
-    for name in ("css/site.css", "css/reference.css", "css/content.css", "css/image-tools.css", "css/transcript.css", "js/site.js", "js/transcript.js", "js/image-tools.js", "js/size-estimator.mjs", "favicon.svg"):
+    for name in ("css/site.css", "css/reference.css", "css/content.css", "css/image-tools.css", "css/transcript.css", "js/site.js", "js/visitor.js", "js/transcript.js", "js/image-tools.js", "js/size-estimator.mjs", "favicon.svg"):
         source = BASE / "static" / name
         target = DIST / "static" / name
         target.parent.mkdir(parents=True, exist_ok=True)
