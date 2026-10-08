@@ -29,7 +29,7 @@ Set these on the SaveFromNet Worker through Cloudflare's secret manager. Do not 
 ## Deployed release and verification
 
 - The Worker and container are live on `savefromnet.fun` with Batch Pro enabled. The source image tag is `4a7b3dc85c2911c846d4362029c08bc86e6113c7`.
-- Live checks passed: one-image conversion returned a ZIP, six images were rejected at the free five-image limit, the checkout API created a secure hosted Dodo session and pending pass cookie, and an unsigned webhook request was rejected.
+- Live checks passed: one-image conversion returned a ZIP, six images were rejected at the free five-image limit, the checkout API created a secure hosted Dodo session and pending pass cookie, an unsigned webhook request was rejected, and a signed no-op probe returned 200 using Dodo's current webhook secret.
 - A real paid transaction, automatic pass fulfillment, recovery in another browser, and refund revocation still need an owner-controlled purchase and refund to verify end to end. No charge was made during deployment.
 - For a future image rebuild, generate short-lived Cloudflare registry credentials with Wrangler, store them as encrypted GitHub Actions secrets `CF_REGISTRY_USERNAME` and `CF_REGISTRY_PASSWORD`, run the manual `build-container.yml` workflow, pin its commit tag in `wrangler.jsonc`, then deploy. Remove the temporary GitHub secrets after a successful build.
 
