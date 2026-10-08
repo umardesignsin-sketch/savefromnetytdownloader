@@ -24,7 +24,7 @@ from tools import BY_SLUG, PLATFORMS, TOOLS, related_tools
 from transcripts import get_transcript
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 9 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = 22 * 1024 * 1024
 db.init_db()
 CLIENT_ID = re.compile(r"^[A-Za-z0-9_-]{43}$")
 JOB_ID = re.compile(r"^[0-9a-f]{32}$")
@@ -40,7 +40,7 @@ _last_cleanup = 0
 @app.errorhandler(413)
 def request_too_large(_error):
     if request.path.startswith("/api/"):
-        return _json_error("The request is too large. Use an image under 8 MB or paste one media URL.", "request_too_large", 413)
+        return _json_error("The request is too large. Use an image under 8 MB, a batch under 20 MB, or paste one media URL.", "request_too_large", 413)
     return "Request too large", 413
 
 
@@ -83,8 +83,11 @@ def _cleanup():
 def identify_client():
     if request.path == "/healthz":
         return
-    if request.path.startswith("/api/") and request.path != "/api/image/process" and (request.content_length or 0) > 4096:
-        return _json_error("The request is too large.", "request_too_large", 413)
+    if request.path.startswith("/api/"):
+        max_size = (21 * 1024 * 1024 if request.path == "/api/image/batch" else
+                    9 * 1024 * 1024 if request.path == "/api/image/process" else 4096)
+        if (request.content_length or 0) > max_size:
+            return _json_error("The request is too large.", "request_too_large", 413)
     client_id = request.cookies.get("client_id", "")
     if not CLIENT_ID.fullmatch(client_id):
         client_id = secrets.token_urlsafe(32)
@@ -262,6 +265,27 @@ def service_worker():
     return response
 
 
+@app.get("/batch-image-converter")
+def batch_image_converter():
+    canonical = SITE_URL + "/batch-image-converter"
+    title = "Batch Image Converter & Resizer | SaveFromNet"
+    description = "Convert or resize up to five JPG, PNG, WebP or HEIC images at once. Choose a real output format and download your processed images together in a ZIP."
+    schema = [
+        {"@context": "https://schema.org", "@type": "WebApplication",
+         "name": "Batch Image Converter & Resizer", "description": description,
+         "applicationCategory": "MultimediaApplication", "operatingSystem": "Any",
+         "url": canonical, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}},
+        {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": SITE_URL + "/"},
+            {"@type": "ListItem", "position": 2, "name": "Tools", "item": SITE_URL + "/tools"},
+            {"@type": "ListItem", "position": 3, "name": "Batch Image Converter & Resizer", "item": canonical}]},
+    ]
+    return render_template("site.html", batch_tool=True, title=title,
+                           description=description, canonical=canonical, schema=schema,
+                           tool=None, guide=None, guide_index=False, tools=TOOLS,
+                           platforms=PLATFORMS, guides=GUIDES)
+
+
 def _content_page(page):
     canonical = SITE_URL + page.path
     schema = [
@@ -337,6 +361,32 @@ def api_image_process():
     response.headers["X-SFN-Input-Bytes"] = str(details["input_bytes"])
     response.headers["X-SFN-Output-Bytes"] = str(details["output_bytes"])
     response.headers["X-SFN-Dimensions"] = f'{details["width"]}x{details["height"]}'
+    return response
+
+
+@app.post("/api/image/batch")
+def api_image_batch():
+    if not _rate_limit(g.client_id, "image_batch", 2):
+        return _json_error("Too many batches. Please try again in a minute.", "rate_limited", 429)
+    uploads = request.files.getlist("images")
+    from batch_images import MAX_BATCH_FILES, build_batch
+    from image_processing import ImageProcessError
+    if not 1 <= len(uploads) <= MAX_BATCH_FILES:
+        return _json_error(f"Choose between 1 and {MAX_BATCH_FILES} images.", "invalid_batch")
+    if not _image_slots.acquire(blocking=False):
+        return _json_error("Image processing is busy. Please try again shortly.", "busy", 429)
+    try:
+        archive, details = build_batch(uploads, request.form.get("format", ""),
+                                       request.form.get("quality"), request.form.get("width"))
+    except ImageProcessError as exc:
+        return _json_error(str(exc), "invalid_batch", 422)
+    finally:
+        _image_slots.release()
+    response = send_file(archive, mimetype="application/zip", as_attachment=True,
+                         download_name="savefromnet-images.zip")
+    response.headers["X-SFN-Files"] = str(len(details["files"]))
+    response.headers["X-SFN-Input-Bytes"] = str(details["input_bytes"])
+    response.headers["X-SFN-Output-Bytes"] = str(details["output_bytes"])
     return response
 
 
@@ -522,6 +572,7 @@ def robots():
 def sitemap():
     pages = [SITE_URL + "/"] + [SITE_URL + tool.path for tool in TOOLS]
     pages += [SITE_URL + tool.path for tool in IMAGE_TOOLS]
+    pages.append(SITE_URL + "/batch-image-converter")
     pages += [SITE_URL + "/guides"]
     pages += [SITE_URL + guide.path for guide in GUIDES]
     pages += [SITE_URL + page.path for page in PAGES]

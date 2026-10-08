@@ -135,16 +135,19 @@ export default {
         body: JSON.stringify({ visitor, country, kind: body.kind }),
       });
     }
-    if (request.method === "POST" && pathname === "/api/image/process") {
-      if (Number(request.headers.get("content-length") || 0) > 9 * 1024 * 1024) {
-        return new Response(JSON.stringify({ error: "Choose an image under 8 MB." }),
+    if (request.method === "POST" && (pathname === "/api/image/process" || pathname === "/api/image/batch")) {
+      const batch = pathname === "/api/image/batch";
+      const origin = request.headers.get("Origin");
+      if (origin && origin !== new URL(request.url).origin) return new Response("Forbidden", { status: 403 });
+      if (Number(request.headers.get("content-length") || 0) > (batch ? 21 : 9) * 1024 * 1024) {
+        return new Response(JSON.stringify({ error: batch ? "Choose up to five images totaling 20 MB." : "Choose an image under 8 MB." }),
           { status: 413, headers: { "Content-Type": "application/json" } });
       }
       const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-      const { success } = await env.DOWNLOAD_LIMIT.limit({ key: `image:${ip}` });
+      const { success } = await env.DOWNLOAD_LIMIT.limit({ key: `${batch ? "image-batch" : "image"}:${ip}` });
       if (!success) {
-        record(env, "rate_limited", "unknown", "image", "", 429);
-        return new Response(JSON.stringify({ error: "Too many image requests. Please try again in a minute." }),
+        record(env, "rate_limited", "unknown", batch ? "batch-image-converter" : "image", "", 429);
+        return new Response(JSON.stringify({ error: batch ? "Too many batches. Please try again in a minute." : "Too many image requests. Please try again in a minute." }),
           { status: 429, headers: { "Content-Type": "application/json", "Retry-After": "60" } });
       }
     }
@@ -190,8 +193,9 @@ export default {
     if (pathname === "/api/transcript" && request.method === "POST") {
       record(env, response.ok ? "transcript_successful" : "transcript_failed", "youtube", "youtube-to-transcript", "", response.status);
     }
-    if (pathname === "/api/image/process" && request.method === "POST") {
-      record(env, response.ok ? "image_processed" : "image_failed", "unknown", "image", "", response.status);
+    if ((pathname === "/api/image/process" || pathname === "/api/image/batch") && request.method === "POST") {
+      record(env, response.ok ? (pathname.endsWith("/batch") ? "batch_processed" : "image_processed") : "image_failed",
+        "unknown", pathname.endsWith("/batch") ? "batch-image-converter" : "image", "", response.status);
     }
     if (pathname === "/api/analyze" && request.method === "POST") {
       if (response.ok) {

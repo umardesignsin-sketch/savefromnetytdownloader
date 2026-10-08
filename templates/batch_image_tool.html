@@ -1,0 +1,31 @@
+<header class="batch-hero">
+  <div class="container batch-shell">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">›</span><a href="/tools">Tools</a><span aria-hidden="true">›</span><span aria-current="page">Batch Image Converter &amp; Resizer</span></nav>
+    <span class="section-kicker">BATCH CREATOR KIT</span>
+    <h1>Batch Image Converter &amp; Resizer</h1>
+    <p>Prepare up to five images in one go. Convert JPG, PNG, WebP and HEIC, or resize originals together. Download every finished file in one ZIP.</p>
+    <div class="batch-points"><span>Real conversions</span><span>No account</span><span>Metadata removed</span></div>
+  </div>
+</header>
+<section class="batch-workspace" aria-label="Batch image conversion"><div class="container batch-shell">
+  <form id="batch-form" enctype="multipart/form-data">
+    <div class="batch-heading"><div><span class="section-kicker">01 / ADD FILES</span><h2>Start with your images</h2></div><span class="batch-cap">Free beta · up to 5 images</span></div>
+    <label class="batch-drop" for="batch-files"><span class="batch-drop-icon" aria-hidden="true">↑</span><strong>Choose images</strong><span>JPG, PNG, WebP or HEIC · 8 MB per image · 20 MB per batch</span></label>
+    <input id="batch-files" name="images" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple required>
+    <ul id="batch-file-list" class="batch-file-list" aria-live="polite"></ul>
+    <div class="batch-controls"><div><span class="section-kicker">02 / CHOOSE AN ACTION</span><label for="batch-format">What should we make?</label><select id="batch-format" name="format"><option value="webp">Compress / convert to WebP</option><option value="jpg">Convert to JPG</option><option value="png">Convert to PNG</option><option value="heic">Convert to HEIC</option><option value="resize">Resize in original format</option></select></div>
+      <div id="batch-quality-wrap"><label for="batch-quality">Quality <strong id="batch-quality-value">82</strong></label><input id="batch-quality" name="quality" type="range" min="40" max="95" value="82"><small>Applies to JPG, WebP and HEIC. Lower values usually make smaller files.</small></div>
+      <div id="batch-width-wrap" hidden><label for="batch-width">Output width in pixels</label><input id="batch-width" name="width" type="number" min="1" max="8192" placeholder="e.g. 1200"><small>Each image keeps its proportions. Width cannot exceed any source image.</small></div>
+    </div>
+    <button id="batch-submit" class="submit-btn" type="submit">Create my ZIP <span aria-hidden="true">→</span></button>
+    <p id="batch-status" role="status" aria-live="polite"></p>
+    <p class="batch-privacy">Use images you own or have permission to process. Uploads are converted in memory and are not added to your download history. Your ZIP is returned directly to this browser.</p>
+  </form>
+  <div id="batch-result" class="batch-result" hidden><span class="section-kicker">DOWNLOAD READY</span><h2>Your images are ready</h2><p id="batch-result-detail"></p><a id="batch-download" class="submit-btn" href="#" download="savefromnet-images.zip">Download ZIP <span aria-hidden="true">↓</span></a></div>
+</div></section>
+<section class="batch-content"><div class="container batch-shell">
+  <div class="batch-explain"><span class="section-kicker">HOW IT WORKS</span><h2>One setting, applied to every image.</h2><div class="batch-steps"><article><strong>01</strong><h3>Add up to five files</h3><p>Upload your own still images. Each may be up to 8 MB and 20 megapixels.</p></article><article><strong>02</strong><h3>Choose the output</h3><p>Pick JPG, PNG, WebP or HEIC, or reduce each image's width while keeping its original format.</p></article><article><strong>03</strong><h3>Save one ZIP</h3><p>The server validates each file, processes it, strips source metadata and packages the actual results.</p></article></div></div>
+  <div class="batch-explain"><span class="section-kicker">FORMAT GUIDE</span><h2>Which format should you choose?</h2><p><strong>JPG</strong> is widely compatible for photos but has no transparency. <strong>PNG</strong> keeps transparency and is useful for graphics, often with a larger file. <strong>WebP</strong> is a compact web format that can preserve transparency; its quality control can reduce file size, although a smaller result is not guaranteed. <strong>HEIC</strong> can be efficient for photos but may not open in older apps. Conversion cannot restore detail already lost from a source image.</p><a href="/image-format-guide">Compare the formats in detail →</a></div>
+  <div class="batch-explain"><span class="section-kicker">COMMON QUESTIONS</span><h2>Before you upload</h2><details><summary>Will my images be stored?</summary><p>No. This batch is processed in memory, returned as a ZIP response and not added to media download history.</p></details><details><summary>What if one image is invalid?</summary><p>The whole batch stops with an error identifying which file needs attention. No partial ZIP is offered.</p></details><details><summary>Can I enlarge images?</summary><p>No. Resize only reduces width while keeping each image's aspect ratio.</p></details><details><summary>Does converting to PNG improve image quality?</summary><p>No. A PNG output does not restore detail lost in a JPG or other lossy source.</p></details></div>
+  <div class="batch-explain"><span class="section-kicker">SINGLE FILE TOOLS</span><h2>Working on one image?</h2><div class="batch-links"><a href="/image-compressor">Image Compressor ↗</a><a href="/image-resizer">Image Resizer ↗</a><a href="/heic-to-jpg">HEIC to JPG Converter ↗</a><a href="/png-to-webp">PNG to WebP Converter ↗</a><a href="/tools#image-tools">All image tools ↗</a></div></div>
+</div></section>

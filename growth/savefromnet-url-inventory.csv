@@ -1,6 +1,7 @@
 url,page_type,change,http_status,title,h1,canonical,robots
 https://savefromnet.fun/,home,preserved,200,SaveFromNet | Video Downloader & Converter,Video Downloader & Converter,https://savefromnet.fun/,indexable
 https://savefromnet.fun/guides,guide hub,preserved,200,Media Download Guides | SaveFromNet,Media Download Guides,https://savefromnet.fun/guides,indexable
+https://savefromnet.fun/batch-image-converter,image tool,new,200,Batch Image Converter & Resizer | SaveFromNet,Batch Image Converter & Resizer,https://savefromnet.fun/batch-image-converter,indexable
 https://savefromnet.fun/youtube-downloader,tool,preserved,200,YouTube Downloader & Converter | SaveFromNet,YouTube Downloader & Converter,https://savefromnet.fun/youtube-downloader,indexable
 https://savefromnet.fun/youtube-video-downloader,tool,preserved,200,YouTube Video Downloader | SaveFromNet,YouTube Video Downloader,https://savefromnet.fun/youtube-video-downloader,indexable
 https://savefromnet.fun/youtube-shorts-downloader,tool,preserved,200,YouTube Shorts Downloader | SaveFromNet,YouTube Shorts Downloader,https://savefromnet.fun/youtube-shorts-downloader,indexable

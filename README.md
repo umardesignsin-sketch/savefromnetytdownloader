@@ -3,16 +3,17 @@
 A public media downloader for content the user owns or may download. It detects
 YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and
 Dailymotion links. The 26 media and transcript tool pages share one URL validator, extraction service,
-result UI, and background job runner. Nine working image tools and sixteen
+result UI, and background job runner. Sixteen working single-image tools, a
+batch image converter, and sixteen
 practical media guides have their own pages. A guides hub, tool directory,
 image-format guide and six trust pages bring the public canonical page count
-to 60. Pages never invent formats: an option is
+to 69. Pages never invent formats: an option is
 shown only after a source extractor returns it.
 
 ## Architecture
 
 ```
-Cloudflare static assets: homepage, 26 media and transcript tools, 9 image tools, guides, directory/resource/trust pages, CSS, JS, sitemap
+Cloudflare static assets: homepage, 26 media and transcript tools, 16 single-image tools, batch converter, guides, directory/resource/trust pages, CSS, JS, sitemap
        ↓ POST /api/analyze and /api/download
 Cloudflare Worker: per-IP rate limits
        ↓
@@ -22,6 +23,15 @@ Ephemeral SQLite job history and temporary files
        ↓
 15-minute signed, browser-bound file link
 ```
+
+The batch image tool uses the same Pillow-based conversion path as the
+single-image tools. A batch contains at most five still images, each at most
+8 MB and 20 megapixels, with a 20 MB aggregate input limit. The endpoint
+returns a ZIP of the actual results (maximum 32 MB) directly to the browser;
+neither source images nor the ZIP are stored in job history. The Worker and
+Flask both rate-limit batch requests. This first release is a free beta; no
+paid tier or API entitlement is shown until a merchant product and checkout
+are configured and tested.
 
 `generate_static.py` renders the Flask templates into edge assets for fast
 first loads. The Flask routes remain usable locally. `extractors/detect.py`

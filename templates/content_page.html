@@ -30,7 +30,7 @@
   {% endfor %}
   <section class="tool-category" id="image-tools" aria-labelledby="image-tools-heading">
     <div class="content-section-heading"><h2 id="image-tools-heading">Image tools</h2><p>Upload your own image to compress, convert, or resize it. <a href="/image-format-guide">Compare JPG, PNG, WebP and HEIC</a> before choosing a format.</p></div>
-    <div class="content-tool-grid">{% for item in image_tools %}<a class="content-tool-card" href="{{ item.path }}"><span class="content-tool-platform">Image</span><h3>{{ item.name }}</h3><p>{{ item.description }}</p><span class="content-tool-action">Open tool →</span></a>{% endfor %}</div>
+    <div class="content-tool-grid"><a class="content-tool-card" href="/batch-image-converter"><span class="content-tool-platform">Image · Batch</span><h3>Batch Image Converter &amp; Resizer</h3><p>Convert or resize up to five of your own images at once and download one ZIP.</p><span class="content-tool-action">Open tool →</span></a>{% for item in image_tools %}<a class="content-tool-card" href="{{ item.path }}"><span class="content-tool-platform">Image</span><h3>{{ item.name }}</h3><p>{{ item.description }}</p><span class="content-tool-action">Open tool →</span></a>{% endfor %}</div>
   </section>
   <section class="tool-category" aria-labelledby="specific-guides-heading">
     <div class="content-section-heading"><h2 id="specific-guides-heading">Specific links and download problems</h2><p>Practical help for supported media types, file sizes, and temporary downloads.</p></div>

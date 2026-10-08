@@ -62,7 +62,8 @@ def main():
         from site_pages import PAGES
         from tools import TOOLS
 
-        routes = [("/", "home"), ("/guides", "guide hub")]
+        routes = [("/", "home"), ("/guides", "guide hub"),
+                  ("/batch-image-converter", "image tool")]
         routes += [(tool.path, "tool") for tool in TOOLS]
         routes += [(tool.path, "image tool") for tool in IMAGE_TOOLS]
         routes += [(guide.path, "guide") for guide in GUIDES]

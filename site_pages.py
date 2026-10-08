@@ -111,8 +111,8 @@ PAGES = (
                 "The processing container keeps job metadata, including the submitted URL and file details, in temporary local storage. Finished files are normally removed after about an hour and may disappear sooner if the container restarts. You can delete an entry and its file from the recent downloads section.",
             )),
             Section("Image conversions", (
-                "If you use an image tool, the uploaded still image is decoded and converted in memory. The image bytes are returned in the response and are not added to download history or saved as a temporary media file.",
-                "Image tools limit upload size and pixel dimensions. Processing may include stripping embedded metadata such as location information from the output file. Your browser keeps the result until you download it or leave the page.",
+                "If you use an image tool, the uploaded still image is decoded and converted in memory. The image bytes are returned in the response and are not added to download history or saved as a temporary media file. The batch image converter returns up to five processed files together in a ZIP response.",
+                "Image tools limit upload size and pixel dimensions. The batch tool limits the total upload to 20 MB and the ZIP output to 32 MB. Processing strips embedded source metadata such as location information from output files. Your browser keeps the result until you download it or leave the page.",
             )),
             Section("Limits and aggregate measurement", (
                 "Cloudflare uses the requesting IP address to apply rate limits. SaveFromNet records aggregate events such as platform, tool, format and success or failure. The analytics event payload does not include the submitted URL or a browser identifier.",

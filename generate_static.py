@@ -25,7 +25,7 @@ def main():
         shutil.rmtree(resolved)
     DIST.mkdir()
     client = app.test_client()
-    pages = [("/", "index.html"), ("/robots.txt", "robots.txt"),
+    pages = [("/", "index.html"), ("/batch-image-converter", "batch-image-converter.html"), ("/robots.txt", "robots.txt"),
              ("/sitemap.xml", "sitemap.xml"), ("/missing-page", "404.html")]
     pages += [(tool.path, f"{tool.slug}.html") for tool in TOOLS]
     pages += [(tool.path, f"{tool.slug}.html") for tool in IMAGE_TOOLS]
@@ -40,7 +40,7 @@ def main():
         target = DIST / filename
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(response.data)
-    for name in ("css/site.css", "css/reference.css", "css/content.css", "css/image-tools.css", "css/transcript.css", "js/site.js", "js/visitor.js", "js/transcript.js", "js/image-tools.js", "js/size-estimator.mjs", "favicon.svg"):
+    for name in ("css/site.css", "css/reference.css", "css/content.css", "css/image-tools.css", "css/batch-images.css", "css/transcript.css", "js/site.js", "js/visitor.js", "js/transcript.js", "js/image-tools.js", "js/batch-images.js", "js/size-estimator.mjs", "favicon.svg"):
         source = BASE / "static" / name
         target = DIST / "static" / name
         target.parent.mkdir(parents=True, exist_ok=True)
