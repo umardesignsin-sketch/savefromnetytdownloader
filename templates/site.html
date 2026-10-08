@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <script src="https://quge5.com/88/tag.min.js" data-zone="291394" async data-cfasync="false"></script>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-L1G52YY7TJ"></script>
   <script>
@@ -151,6 +150,18 @@
   </main>
   <footer class="site-footer"><div class="container footer-grid"><div><a class="brand footer-brand" href="/"><span class="brand-mark" aria-hidden="true">↓</span><span>savefromnet<span class="brand-dot">.</span>fun</span></a><p>Public media, made simple. Download only what you own or may use.</p></div><div><strong>Platforms</strong>{% for platform in platforms %}{% set platform_tool = tools | selectattr('platform', 'equalto', platform) | first %}<a href="{{ platform_tool.path }}">{{ platform | title }}</a>{% endfor %}</div><div><strong>Popular tools</strong>{% for item in tools[:8] %}<a href="{{ item.path }}">{{ item.name }}</a>{% endfor %}<a href="/batch-image-converter">Batch Image Converter</a><a href="/image-compressor">Image Compressor</a><a href="/png-to-heic">PNG to HEIC Converter</a></div><div><strong>Resources</strong><a href="/tools">All tools</a><a href="/guides">All guides</a><a href="/image-format-guide">Image format guide</a><a href="/guides/video-file-size-estimates">Video size calculator</a>{% for item in guides[:4] %}<a href="{{ item.path }}">{{ item.title }}</a>{% endfor %}</div></div><div class="container footer-bottom"><span>© {{ 2026 }} SaveFromNet</span><span>Only download content you have rights to use.</span><a href="https://awesome.tools">Listed on Awesome Tools</a></div><nav class="container content-footer-links" aria-label="Company and policies"><a href="/about">About</a><a href="/contact">Contact</a><a href="mailto:umarisaloneenough@gmail.com?subject=SaveFromNet%20sponsorship">Advertise with us</a><a href="/privacy-policy">Privacy</a><a href="/terms">Terms</a><a href="/dmca">Copyright reports</a><a href="/copyright">Copyright</a></nav></footer>
   <script src="{{ url_for('static', filename='js/visitor.js') }}" defer></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (const registration of registrations) {
+          const workers = [registration.active, registration.waiting, registration.installing];
+          if (workers.some(worker => worker && new URL(worker.scriptURL).pathname === '/sw.js')) {
+            registration.unregister();
+          }
+        }
+      }).catch(() => {});
+    }
+  </script>
   <script src="{{ url_for('static', filename='js/site.js') }}" defer></script>
   {% if tool and tool.slug == 'youtube-to-transcript' %}<script src="{{ url_for('static', filename='js/transcript.js') }}" defer></script>{% endif %}
   {% if guide and guide.slug == 'video-file-size-estimates' %}<script type="module" src="{{ url_for('static', filename='js/size-estimator.mjs') }}"></script>{% endif %}

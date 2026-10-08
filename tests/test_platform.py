@@ -331,14 +331,20 @@ class SiteTests(unittest.TestCase):
         wrong = self.client.post("/api/event", json={"event": "tool_page_view", "platform": "tiktok", "tool": "youtube-to-mp3"})
         self.assertEqual(wrong.status_code, 400)
 
-    def test_root_service_worker_matches_supplied_file(self):
+    def test_former_ad_worker_is_inert_and_pages_have_no_monetag(self):
         response = self.client.get("/sw.js")
         try:
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.mimetype, "application/javascript")
             self.assertEqual(response.data, (Path(__file__).resolve().parents[1] / "sw.js").read_bytes())
+            self.assertIn(b"self.registration.unregister()", response.data)
+            self.assertNotIn(b"importScripts", response.data)
         finally:
             response.close()
+        for path in ("/", "/youtube-to-mp3", "/batch-image-converter"):
+            html = self.client.get(path).get_data(as_text=True)
+            self.assertNotIn("quge5.com", html)
+            self.assertNotIn("data-zone=", html)
 
     def test_invalid_url_and_cross_browser_signed_file_denial(self):
         response = self.client.post("/api/analyze", json={"url": "http://127.0.0.1/"})
