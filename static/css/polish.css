@@ -1,0 +1,55 @@
+/* Final visual layer: shared brand treatment and a distinct sponsorship zone. */
+:root { --brand-green: #70c900; --brand-ink: #23302c; }
+body { color: var(--brand-ink); background: #fbfcf9; }
+.site-header { position: relative; z-index: 20; background: rgba(251,252,249,.97); border-top-color: #70c900; }
+.header-inner { max-width: 1240px; }
+.brand { color: #24302b; }
+.main-nav > a, .nav-dropdown summary { transition: color .18s ease; }
+.main-nav > a:focus-visible, .nav-dropdown summary:focus-visible, .quick-tool:focus-visible,
+.sponsor-layout a:focus-visible { outline: 3px solid #376e00; outline-offset: 4px; border-radius: 4px; }
+.home-hero { background: radial-gradient(ellipse at 50% 0%, #f1f9e9 0%, #fbfcf9 63%); padding-top: 74px; }
+.tool-hero { background: linear-gradient(180deg, #f3f9ed 0%, #fbfcf9 100%); }
+.hero-eyebrow { display: inline-flex; align-items: center; gap: 9px; color: #468000; font-size: .72rem; font-weight: 800; letter-spacing: .16em; }
+.hero-eyebrow::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--brand-green); box-shadow: 0 0 0 4px #dff3c7; }
+.home-hero .hero-centered h1 { margin-top: 17px; }
+.home-hero .guide-lead { max-width: 650px; }
+.download-zone { background: #fbfcf9; }
+.download-zone .narrow { max-width: 780px; }
+.input-row { border-width: 3px; border-radius: 12px; overflow: hidden; box-shadow: 0 14px 45px rgba(36, 67, 31, .09); }
+.input-row:focus-within { box-shadow: 0 0 0 4px rgba(112,201,0,.17), 0 14px 45px rgba(36,67,31,.09); }
+.input-row .submit-btn { background: var(--brand-green); color: #182700; }
+.input-row .submit-btn:hover { background: #60b000; }
+.quick-tools { background: #fbfcf9; padding-bottom: 54px; }
+.quick-tool { background: #fff; border-color: #e2e9df; box-shadow: 0 4px 16px rgba(31,59,23,.035); }
+.quick-tool:hover { background: #f3faed; border-color: #b9dfa6; }
+.quick-tool.is-current { background: #ebf8df; }
+.sponsor-section { padding: 0 0 78px; background: #fbfcf9; }
+.sponsor-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; align-items: stretch; }
+.sponsor-house, .sponsor-opportunity { min-width: 0; border-radius: 19px; padding: 20px 25px 25px; }
+.sponsor-house { background: #edf7e8; border: 1px solid #d9edcf; }
+.sponsor-opportunity { background: #fff; border: 1px solid #dfe7dc; }
+.sponsor-label { color: #528014; font-size: .66rem; font-weight: 800; letter-spacing: .15em; }
+.sponsor-opportunity .sponsor-label { color: #6e7b70; }
+.sponsor-house-body { display: flex; gap: 20px; align-items: flex-start; margin-top: 18px; }
+.sponsor-house-icon, .sponsor-opportunity-icon { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: #d8efc7; color: #3d7800; font-size: 1.5rem; }
+.sponsor-house h2, .sponsor-opportunity h2 { margin: 0 0 9px; color: #24302b; font-size: 1.25rem; line-height: 1.25; letter-spacing: -.025em; }
+.sponsor-house p, .sponsor-opportunity p { margin: 0 0 15px; color: #617068; font-size: .88rem; line-height: 1.55; }
+.sponsor-house a, .sponsor-opportunity a { display: inline-flex; gap: 7px; align-items: center; color: #367100; font-size: .88rem; font-weight: 750; text-decoration: none; }
+.sponsor-house a:hover, .sponsor-opportunity a:hover { text-decoration: underline; }
+.sponsor-opportunity-body { margin-top: 18px; }
+.sponsor-opportunity-icon { float: right; margin: 0 0 8px 12px; background: #f1f5ed; color: #6c8960; }
+.tools-section, .guide-promo { background: #f3f8ef; }
+.tool-card, .guide-card, .directory-group, .detail-card, .steps-grid article { box-shadow: 0 6px 24px rgba(26,57,24,.035); }
+.site-footer { background: #192922; }
+.site-footer .content-footer-links a:focus-visible { outline: 2px solid #9de15a; outline-offset: 4px; }
+@media (max-width: 700px) {
+  .home-hero { padding-top: 51px; }
+  .hero-eyebrow { font-size: .65rem; }
+  .input-row { border-radius: 10px; }
+  .quick-tools { padding-bottom: 38px; }
+  .sponsor-section { padding-bottom: 56px; }
+  .sponsor-layout { grid-template-columns: 1fr; gap: 12px; }
+  .sponsor-house, .sponsor-opportunity { padding: 18px 19px 20px; }
+  .sponsor-house-body { gap: 13px; }
+  .sponsor-house-icon, .sponsor-opportunity-icon { width: 40px; height: 40px; font-size: 1.2rem; }
+}

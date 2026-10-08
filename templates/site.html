@@ -31,6 +31,7 @@
   {% if tool and tool.slug == 'youtube-to-transcript' %}<link rel="stylesheet" href="{{ url_for('static', filename='css/transcript.css') }}">{% endif %}
   {% if image_tool is defined and image_tool %}<link rel="stylesheet" href="{{ url_for('static', filename='css/image-tools.css') }}">{% endif %}
   {% if batch_tool is defined and batch_tool %}<link rel="stylesheet" href="{{ url_for('static', filename='css/batch-images.css') }}">{% endif %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/polish.css') }}">
   {% for item in schema %}<script type="application/ld+json">{{ item | tojson }}</script>{% endfor %}
 </head>
 <body data-tool="{{ tool.slug if tool else 'universal-video-downloader' }}" data-platform="{{ tool.platform if tool and tool.platform != 'universal' else 'unknown' }}" data-page-type="{{ 'batch-tool' if batch_tool is defined and batch_tool else 'image-tool' if image_tool is defined and image_tool else 'content' if content_page else 'guide' if guide or guide_index else 'tool' if tool else 'home' }}">
@@ -66,6 +67,7 @@
     {% include 'image_tool.html' %}
     {% elif content_page %}
     {% include 'content_page.html' %}
+    {% include 'sponsor_section.html' %}
     {% elif tool and tool.slug == 'youtube-to-transcript' %}
     {% include 'transcript_tool.html' %}
     {% else %}
@@ -79,7 +81,7 @@
     </section>
     {% else %}
     <section class="home-hero">
-      <div class="container hero-centered"><h1 id="download-heading">Video Downloader <em>&amp; Converter</em></h1><p class="guide-lead">SaveFromNet helps you download public videos, reels, shorts, photos and audio you own or have permission to save. Paste a supported link to see the formats actually available.</p></div>
+      <div class="container hero-centered"><span class="hero-eyebrow">ONE LINK · EIGHT PLATFORMS</span><h1 id="download-heading">Video Downloader <em>&amp; Converter</em></h1><p class="guide-lead">SaveFromNet helps you download public videos, reels, shorts, photos and audio you own or have permission to save. Paste a supported link to see the formats actually available.</p></div>
     </section>
     {% endif %}
 
@@ -108,6 +110,8 @@
     {% if not guide and not guide_index %}
     <section class="quick-tools" aria-label="Popular downloaders"><div class="container"><div class="quick-tools-grid">{% for item in quick_links %}<a class="quick-tool{% if tool and item.slug == tool.slug %} is-current{% endif %}" href="{{ item.path }}"{% if tool and item.slug == tool.slug %} aria-current="page"{% endif %}><span class="platform-icon {{ item.platform }}" aria-hidden="true">{{ item.platform[0] | upper }}</span><span>{{ item.name }}</span></a>{% endfor %}</div></div></section>
     {% endif %}
+
+    {% include 'sponsor_section.html' %}
 
     {% if guide_index %}
     <section class="guide-article section-space"><div class="container"><div class="guide-prose"><span class="section-kicker">START HERE</span><h2>Find the answer behind the download button.</h2><p>Every platform publishes media differently. These guides explain which individual links the downloader accepts, what file information it can show, and when a public-looking post is unavailable to an anonymous server.</p><p>Choose a topic below, then use the working downloader on that page with media you own or have permission to save. Available options always come from analysis of your actual link.</p></div><div class="guide-grid">{% for item in guides %}<a class="guide-card" href="{{ item.path }}"><span class="section-kicker">GUIDE {{ '%02d' | format(loop.index) }}</span><h3>{{ item.title }}</h3><p>{{ item.description }}</p><span class="guide-card-arrow">Read guide →</span></a>{% endfor %}</div></div></section>
@@ -145,7 +149,7 @@
     <section class="history-section section-space"><div class="container narrow"><details><summary><span><span class="section-kicker">YOUR BROWSER</span><strong>Recent downloads</strong></span><span>View history <span aria-hidden="true">⌄</span></span></summary><div id="history-list" class="history-list"><p>Loading…</p></div></details></div></section>
     {% endif %}
   </main>
-  <footer class="site-footer"><div class="container footer-grid"><div><a class="brand footer-brand" href="/"><span class="brand-mark" aria-hidden="true">↓</span><span>savefromnet<span class="brand-dot">.</span>fun</span></a><p>Public media, made simple. Download only what you own or may use.</p></div><div><strong>Platforms</strong>{% for platform in platforms %}{% set platform_tool = tools | selectattr('platform', 'equalto', platform) | first %}<a href="{{ platform_tool.path }}">{{ platform | title }}</a>{% endfor %}</div><div><strong>Popular tools</strong>{% for item in tools[:8] %}<a href="{{ item.path }}">{{ item.name }}</a>{% endfor %}<a href="/batch-image-converter">Batch Image Converter</a><a href="/image-compressor">Image Compressor</a><a href="/png-to-heic">PNG to HEIC Converter</a></div><div><strong>Resources</strong><a href="/tools">All tools</a><a href="/guides">All guides</a><a href="/image-format-guide">Image format guide</a><a href="/guides/video-file-size-estimates">Video size calculator</a>{% for item in guides[:4] %}<a href="{{ item.path }}">{{ item.title }}</a>{% endfor %}</div></div><div class="container footer-bottom"><span>© {{ 2026 }} SaveFromNet</span><span>Only download content you have rights to use.</span><a href="https://awesome.tools">Listed on Awesome Tools</a></div><nav class="container content-footer-links" aria-label="Company and policies"><a href="/about">About</a><a href="/contact">Contact</a><a href="/privacy-policy">Privacy</a><a href="/terms">Terms</a><a href="/dmca">Copyright reports</a><a href="/copyright">Copyright</a></nav></footer>
+  <footer class="site-footer"><div class="container footer-grid"><div><a class="brand footer-brand" href="/"><span class="brand-mark" aria-hidden="true">↓</span><span>savefromnet<span class="brand-dot">.</span>fun</span></a><p>Public media, made simple. Download only what you own or may use.</p></div><div><strong>Platforms</strong>{% for platform in platforms %}{% set platform_tool = tools | selectattr('platform', 'equalto', platform) | first %}<a href="{{ platform_tool.path }}">{{ platform | title }}</a>{% endfor %}</div><div><strong>Popular tools</strong>{% for item in tools[:8] %}<a href="{{ item.path }}">{{ item.name }}</a>{% endfor %}<a href="/batch-image-converter">Batch Image Converter</a><a href="/image-compressor">Image Compressor</a><a href="/png-to-heic">PNG to HEIC Converter</a></div><div><strong>Resources</strong><a href="/tools">All tools</a><a href="/guides">All guides</a><a href="/image-format-guide">Image format guide</a><a href="/guides/video-file-size-estimates">Video size calculator</a>{% for item in guides[:4] %}<a href="{{ item.path }}">{{ item.title }}</a>{% endfor %}</div></div><div class="container footer-bottom"><span>© {{ 2026 }} SaveFromNet</span><span>Only download content you have rights to use.</span><a href="https://awesome.tools">Listed on Awesome Tools</a></div><nav class="container content-footer-links" aria-label="Company and policies"><a href="/about">About</a><a href="/contact">Contact</a><a href="mailto:umarisaloneenough@gmail.com?subject=SaveFromNet%20sponsorship">Advertise with us</a><a href="/privacy-policy">Privacy</a><a href="/terms">Terms</a><a href="/dmca">Copyright reports</a><a href="/copyright">Copyright</a></nav></footer>
   <script src="{{ url_for('static', filename='js/visitor.js') }}" defer></script>
   <script src="{{ url_for('static', filename='js/site.js') }}" defer></script>
   {% if tool and tool.slug == 'youtube-to-transcript' %}<script src="{{ url_for('static', filename='js/transcript.js') }}" defer></script>{% endif %}
