@@ -8,9 +8,9 @@ The source list is the 43 recorded RankVyze directories, the 14 confirmed Mac Sc
 
 | Directory | Status | Evidence |
 | --- | --- | --- |
-| [CurlShip](https://curlship.com/l/4166) | Live | Official free API returned `ok: true`, listing ID 4166; public page links to SaveFromNet. |
-| [TechTools Launchpad](https://techtools.cz/tools/launchpad/?tool=1315) | Live | Official submission returned HTTP 201; public API reports ID 1315 and the canonical URL. |
-| [Zearches](https://zearches.com/directory.php?slug=software-saas) | Live | Form returned `status=ok`; public Software & SaaS category page contains SaveFromNet and its URL. |
+| [CurlShip](https://curlship.com/l/4166) | Live; nofollow | Official free API returned `ok: true`, listing ID 4166. The public SaveFromNet link has `rel="noopener nofollow"` (checked Oct 8). |
+| [TechTools Launchpad](https://techtools.cz/tools/launchpad/?tool=1315) | API record; public link unverified | Official submission returned HTTP 201; public API previously reported ID 1315 and the canonical URL. On Oct 8, the `?tool=1315` page showed the general Launchpad list, and a public SaveFromNet link could not be verified. |
+| [Zearches](https://zearches.com/directory.php?slug=software-saas&q=savefromnet.fun) | Live; nofollow | Category search returns one SaveFromNet result. Both outbound links have `rel="ugc nofollow noopener noreferrer"` (checked Oct 8). |
 | [LaunchSignal](https://launchsignal.ai/submit) | In review | Official form returned HTTP 303 to `?ok=1` and displayed “You're in the queue.” |
 | [Ignlab Launch](https://launch.ignlab.net/submit.html) | In review | Official form returned HTTP 201 and displayed “Your tool is in the queue.” Private edit token is intentionally omitted. |
 | [Startup Collections](https://startupcollections.com/submit-product/) | In review | Official Google Form displayed “Your response has been recorded.” Paid queue skip was declined. |
@@ -29,7 +29,7 @@ The source list is the 43 recorded RankVyze directories, the 14 confirmed Mac Sc
 
 ## Attempted without a verified submission
 
-- [The Free Tools Directory](https://thefreetoolsdirectory.com/submit) and [Toolevate](https://toolevate.com/submit): a browser batch lost its final output. Neither is counted; check for a pending listing or email before retrying to avoid duplicates.
+- [Toolevate](https://toolevate.com/submit): a browser batch lost its final output. It is not counted; check for a pending listing or email before retrying to avoid duplicates.
 - [LaunchPedia](https://launchpedia.co/submit/): the official embedded form rendered hidden and could not be completed through the normal visible workflow.
 - [Tools.so](https://tools.so/submit): the submission page displayed no usable product fields.
 
@@ -46,3 +46,7 @@ The source list is the 43 recorded RankVyze directories, the 14 confirmed Mac Sc
 - DevPages is for developer tools and ToolsNoCode is for no-code products. SaveFromNet does not fit those categories.
 
 No directory listing fee or upgrade was purchased. Review queues, email confirmation, and live publication are tracked separately.
+
+## DR audit
+
+As of Oct 8, these submissions have produced no **verified new followed referring domain** for SaveFromNet. CurlShip and Zearches are visible mentions, but their outbound links are marked `nofollow`; TechTools' public link is unverified; the remaining listings are pending. Ahrefs DR changes depend on its own backlink crawl and followed referring domains, so no DR increase is claimed from these submissions.
