@@ -2,6 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
 import { TranscriptAccountStore, developerCheckout, developerKey, developerPortal, developerStatus, developerWebhook, paidTranscript } from '../src/transcript-api.mjs';
+import { developerDashboardHtml } from '../src/developer-dashboard.mjs';
+
+test('developer request example has copyable curl lines', () => {
+  assert.match(developerDashboardHtml, /curl -X POST https:\/\/savefromnet\.fun\/api\/v2\/youtube\/transcript/);
+  assert.doesNotMatch(developerDashboardHtml, /\n\+\s+-H/);
+});
 
 function fixture() {
   const instances = new Map();
