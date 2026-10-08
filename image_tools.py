@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass
 
+from image_seo_expansions import IMAGE_EXPANSIONS
+
 
 @dataclass(frozen=True)
 class ImageTool:
@@ -13,6 +15,7 @@ class ImageTool:
     explanation: str
     tip: str
     faq: tuple[tuple[str, str], ...]
+    seo_sections: tuple[tuple[str, tuple[str, ...]], ...] = ()
 
     @property
     def path(self):
@@ -87,6 +90,6 @@ IMAGE_TOOLS = (
               "Enter a width smaller than the source to reduce dimensions; this tool does not enlarge images.",
               (("Will the picture be stretched?", "No. Height changes in proportion to width."),
                ("Can I make a tiny image sharp by enlarging it?", "No. This tool only resizes down because enlarging cannot invent detail."))),
-)
+) + tuple(ImageTool(**item) for item in IMAGE_EXPANSIONS)
 
 BY_SLUG = {tool.slug: tool for tool in IMAGE_TOOLS}

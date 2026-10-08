@@ -14,7 +14,7 @@
       {% if image_tool.output_format not in ('PNG',) and image_tool.slug != 'image-resizer' %}<label for="image-quality">Quality <strong id="quality-value">82</strong><input id="image-quality" name="quality" type="range" min="40" max="95" value="82"></label>{% endif %}
       {% if image_tool.slug == 'image-resizer' %}<label for="image-width">Output width in pixels<input id="image-width" name="width" type="number" min="1" max="8192" placeholder="e.g. 1200" required></label>{% endif %}
     </div>
-    <button id="image-submit" class="submit-btn" type="submit">{{ 'Resize image' if image_tool.slug == 'image-resizer' else 'Compress image' if image_tool.slug == 'image-compressor' else 'Convert image' }} <span aria-hidden="true">→</span></button>
+    <button id="image-submit" class="submit-btn" type="submit">{{ 'Resize image' if image_tool.slug == 'image-resizer' else 'Compress image' if image_tool.slug in ('image-compressor', 'jpg-compressor', 'webp-compressor') else 'Convert image' }} <span aria-hidden="true">→</span></button>
     <p id="image-status" role="status" aria-live="polite"></p>
     <p class="image-privacy">Your upload is processed in memory and is not saved on our server. The finished image downloads to your device.</p>
   </form>
@@ -22,6 +22,7 @@
 </div></section>
 <section class="image-content"><div class="container image-shell">
   <div class="image-article"><span class="section-kicker">ABOUT THIS TOOL</span><h2>What happens to your image?</h2><p>{{ image_tool.explanation }}</p><p>{{ image_tool.tip }}</p></div>
+  {% for heading, paragraphs in image_tool.seo_sections %}<section class="image-article"><span class="section-kicker">FORMAT DETAILS</span><h2>{{ heading }}</h2>{% for paragraph in paragraphs %}<p>{{ paragraph }}</p>{% endfor %}</section>{% endfor %}
   <div class="image-article"><span class="section-kicker">HOW IT WORKS</span><h2>Upload, process, save.</h2><ol><li>Choose a supported still image from your device.</li><li>Set quality or width when the tool offers a control.</li><li>Process the image, compare the actual sizes, and save the result.</li></ol><p>No account is required. Animated, broken and oversized images are rejected.</p></div>
   <div class="image-article"><span class="section-kicker">QUESTIONS</span><h2>Frequently asked questions</h2>{% for question, answer in image_tool.faq %}<details><summary>{{ question }}</summary><p>{{ answer }}</p></details>{% endfor %}</div>
   <div class="image-article"><span class="section-kicker">CHOOSE A FORMAT</span><h2>Which file type fits your next step?</h2><p>Compare JPG, PNG, WebP and HEIC for compatibility, transparency and quality before converting.</p><a href="/image-format-guide">Read the image format guide <span aria-hidden="true">→</span></a></div>

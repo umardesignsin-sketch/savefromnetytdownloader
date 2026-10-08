@@ -58,6 +58,13 @@ class ImageToolTests(unittest.TestCase):
             ("jpg-to-png", "JPEG", "PNG"),
             ("webp-to-png", "WEBP", "PNG"),
             ("image-resizer", "JPEG", "JPEG"),
+            ("png-to-jpg", "PNG", "JPEG"),
+            ("webp-to-jpg", "WEBP", "JPEG"),
+            ("jpg-to-webp", "JPEG", "WEBP"),
+            ("heic-to-webp", "HEIC", "WEBP"),
+            ("webp-to-heic", "WEBP", "HEIF"),
+            ("jpg-compressor", "JPEG", "JPEG"),
+            ("webp-compressor", "WEBP", "WEBP"),
         )
         for slug, source, expected in cases:
             with self.subTest(slug=slug):
