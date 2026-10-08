@@ -41,6 +41,26 @@ PAGES = (
         schema_type="CollectionPage",
     ),
     Page(
+        "youtube-transcript-api", "YouTube Transcript API Documentation | SaveFromNet",
+        "Use SaveFromNet's JSON API to retrieve available public YouTube caption tracks and timed transcript cues.",
+        "YouTube Transcript API",
+        "Get timed captions from a public YouTube video or Short using one JSON request. This API reads available caption tracks; it does not generate speech-to-text when a video has no captions.",
+        (
+            Section("Request a transcript", (
+                "Send a JSON POST to /api/v1/youtube/transcript with a direct public YouTube watch, youtu.be, or Shorts URL. An optional language code must match one of the languages returned for that video. Leave it out to choose an available manual track first, with English preferred when present.",
+                "The endpoint currently needs no API key. It is a rate-limited public preview, not a bulk or paid API. Build retry handling for HTTP 429 and do not assume every public video has accessible captions.",
+            ), (("/youtube-to-transcript", "Try the transcript tool"),)),
+            Section("Understand the response", (
+                "A successful response includes the normalized video URL, title, author, duration when available, selected language, manual or automatic track kind, available caption languages, and segments with start_ms, end_ms, and text. Millisecond timing is from the source caption track.",
+                "The API returns JSON cues. The browser tool can also create TXT, SRT, and VTT exports from the same result. Captions may be inaccurate, especially automatic tracks; verify quotations against the original video before reuse.",
+            ), (("/youtube-to-transcript", "Copy or export captions"),)),
+            Section("Errors and limits", (
+                "Invalid or unsupported URLs return a JSON error. Missing captions, unavailable languages, private or restricted videos, and source failures are reported without inventing transcript text. Requests are capped at 4 KB; caption tracks and segment counts also have safety limits.",
+                "The API accepts one video per request. It does not fetch playlists, bypass sign-in or other access controls, translate captions, or run audio recognition. Use only content you own or have permission to process.",
+            )),
+        ),
+    ),
+    Page(
         "image-format-guide", "JPG vs PNG vs WebP vs HEIC | Image Format Guide",
         "Choose between JPG, PNG, WebP and HEIC for photos, transparent graphics and sharing. See what conversion changes and use working image tools.",
         "JPG vs PNG vs WebP vs HEIC: which image format should you use?",

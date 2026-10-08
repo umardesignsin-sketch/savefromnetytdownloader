@@ -92,6 +92,12 @@ class TranscriptTests(unittest.TestCase):
         self.assertEqual(client.get("/sitemap.xml").get_data(as_text=True).count(
             "<loc>https://savefromnet.fun/youtube-to-transcript</loc>"), 1)
         self.assertIn('href="/youtube-to-transcript"', client.get("/tools").get_data(as_text=True))
+        docs = client.get("/youtube-transcript-api").get_data(as_text=True)
+        self.assertIn("POST https://savefromnet.fun/api/v1/youtube/transcript", docs)
+        self.assertIn("does not generate speech-to-text", docs)
+        self.assertIn('href="/youtube-transcript-api"', page)
+        self.assertEqual(client.get("/sitemap.xml").get_data(as_text=True).count(
+            "<loc>https://savefromnet.fun/youtube-transcript-api</loc>"), 1)
         response = client.post("/api/transcript", json={"url": "https://example.com/video"})
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json["code"], "invalid_url")

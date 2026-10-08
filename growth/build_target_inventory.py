@@ -67,7 +67,7 @@ def main():
         routes += [(tool.path, "tool") for tool in TOOLS]
         routes += [(tool.path, "image tool") for tool in IMAGE_TOOLS]
         routes += [(guide.path, "guide") for guide in GUIDES]
-        routes += [(page.path, "directory" if page.slug == "tools" else "resource" if page.slug == "image-format-guide" else "trust") for page in PAGES]
+        routes += [(page.path, "directory" if page.slug == "tools" else "resource" if page.slug in ("image-format-guide", "youtube-transcript-api") else "trust") for page in PAGES]
         client = app.test_client()
         rows = []
         for path, page_type in routes:

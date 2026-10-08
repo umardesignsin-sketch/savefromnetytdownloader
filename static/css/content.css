@@ -8,6 +8,7 @@
 .content-article section:last-child{border:0}
 .content-article h2,.content-section-heading h2{font-size:clamp(1.75rem,3vw,2.45rem);margin:0 0 18px}
 .content-article p{color:#455357;line-height:1.82;font-size:1.02rem;margin:0 0 17px}
+.content-article .api-example{max-width:100%;overflow-x:auto;padding:20px;border:1px solid var(--line);border-radius:16px;background:#132025;color:#f4faf8;font:0.9rem/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}
 .content-links{display:flex;flex-wrap:wrap;gap:12px 20px;margin-top:21px}
 .content-links a,.content-callout a{color:#356309;font-weight:750;text-decoration:underline;text-underline-offset:3px}
 .content-aside{position:sticky;top:24px;border:1px solid var(--line);border-radius:17px;padding:24px;background:var(--paper)}

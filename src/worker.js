@@ -119,6 +119,26 @@ export class DownloaderContainer extends Container {
 export default {
   async fetch(request, env) {
     const pathname = new URL(request.url).pathname;
+    const transcriptApi = pathname === "/api/v1/youtube/transcript";
+    if (transcriptApi) {
+      const headers = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" };
+      if (request.method !== "POST") return Response.json({ code: "method_not_allowed", error: "Use POST to request a YouTube transcript." },
+        { status: 405, headers: { ...headers, Allow: "POST" } });
+      if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get("Content-Type") || "")) {
+        return Response.json({ code: "unsupported_media_type", error: "Send a JSON request body." },
+          { status: 415, headers });
+      }
+      if (Number(request.headers.get("Content-Length") || 0) > 4096) {
+        return Response.json({ code: "request_too_large", error: "The request is too large." },
+          { status: 413, headers });
+      }
+      const input = await smallJson(request);
+      if (typeof input.url !== "string" || !input.url.trim() || input.url.length > 2048 ||
+          (input.language !== undefined && (typeof input.language !== "string" || !/^[A-Za-z0-9-]{2,20}$/.test(input.language)))) {
+        return Response.json({ code: "invalid_request", error: "Send a YouTube video URL and an optional caption language code." },
+          { status: 400, headers });
+      }
+    }
     if (pathname === "/api/batch-pass/status") {
       if (request.method !== "GET") return new Response("Method not allowed", { status: 405 });
       return passStatus(request, env);
@@ -189,10 +209,10 @@ export default {
       }
     }
     const body = request.method === "POST" && (pathname === "/api/analyze" || pathname === "/api/download" || pathname === "/api/event") ? await smallJson(request) : {};
-    if (request.method === "POST" && (pathname === "/api/download" || pathname === "/api/analyze" || pathname === "/api/transcript" || pathname === "/api/event")) {
+    if (request.method === "POST" && (pathname === "/api/download" || pathname === "/api/analyze" || pathname === "/api/transcript" || transcriptApi || pathname === "/api/event")) {
       const ip = request.headers.get("CF-Connecting-IP") || "unknown";
       const limiter = pathname === "/api/download" ? env.DOWNLOAD_LIMIT :
-        pathname === "/api/analyze" || pathname === "/api/transcript" ? env.ANALYZE_LIMIT : env.EVENT_LIMIT;
+        pathname === "/api/analyze" || pathname === "/api/transcript" || transcriptApi ? env.ANALYZE_LIMIT : env.EVENT_LIMIT;
       const { success } = await limiter.limit({ key: ip });
       if (!success) {
         record(env, "rate_limited", "unknown", "unknown", "", 429);
@@ -227,6 +247,7 @@ export default {
         { status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
     }
     let upstream = request;
+    if (transcriptApi) upstream = new Request(new URL("/api/transcript", request.url), request);
     if (pathname === "/api/image/batch" && request.method === "POST") {
       // The container accepts this header only from the Worker. Remove a
       // caller-supplied value before adding the verified entitlement.
@@ -247,7 +268,7 @@ export default {
       upstream = new Request(request, { headers });
     }
     const response = await env.DOWNLOADER.getByName("multi-primary").fetch(upstream);
-    if (pathname === "/api/transcript" && request.method === "POST") {
+    if ((pathname === "/api/transcript" || transcriptApi) && request.method === "POST") {
       record(env, response.ok ? "transcript_successful" : "transcript_failed", "youtube", "youtube-to-transcript", "", response.status);
     }
     if ((pathname === "/api/image/process" || pathname === "/api/image/batch") && request.method === "POST") {

@@ -4,10 +4,10 @@ A public media downloader for content the user owns or may download. It detects
 YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and
 Dailymotion links. The 26 media and transcript tool pages share one URL validator, extraction service,
 result UI, and background job runner. Sixteen working single-image tools, a
-batch image converter, and sixteen
+batch image converter, and eighteen
 practical media guides have their own pages. A guides hub, tool directory,
-image-format guide and six trust pages bring the public canonical page count
-to 69. Pages never invent formats: an option is
+image-format guide, transcript API documentation and six trust pages bring the
+public canonical page count to 72. Pages never invent formats: an option is
 shown only after a source extractor returns it.
 
 ## Architecture
@@ -96,6 +96,10 @@ edge site, run `python generate_static.py`. Run checks with
 - `POST /api/transcript` with a direct public YouTube `url` and optional returned
   `language` code returns actual caption cues, track languages and video metadata.
   The request is rate limited and does not store a transcript download file.
+- `POST /api/v1/youtube/transcript` is the versioned public developer route for
+  the same caption extractor. See the [API documentation](https://savefromnet.fun/youtube-transcript-api)
+  for a request example, response fields, and limitations. It currently has no
+  API key or paid entitlement and is intended for low-volume use.
 - `POST /api/download` with `analysis_id`, a returned `format_id`, and the
   tool slug starts a background job. The server rechecks ownership and the
   selected format.
