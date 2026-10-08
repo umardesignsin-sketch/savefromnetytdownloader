@@ -8,6 +8,7 @@ from image_processing import ImageProcessError, process_image
 
 
 MAX_BATCH_FILES = 5
+MAX_PAID_BATCH_FILES = 10
 MAX_BATCH_INPUT = 20 * 1024 * 1024
 MAX_BATCH_OUTPUT = 32 * 1024 * 1024
 
@@ -28,12 +29,12 @@ FORMATS = {
 }
 
 
-def build_batch(uploads, output_format, quality, width):
+def build_batch(uploads, output_format, quality, width, max_files=MAX_BATCH_FILES):
     """Return a ZIP and actual per-file metadata; fail the whole batch cleanly."""
     if output_format not in FORMATS:
         raise ImageProcessError("Choose JPG, PNG, WebP, HEIC or resize.")
-    if not 1 <= len(uploads) <= MAX_BATCH_FILES:
-        raise ImageProcessError(f"Choose between 1 and {MAX_BATCH_FILES} images.")
+    if not 1 <= len(uploads) <= max_files:
+        raise ImageProcessError(f"Choose between 1 and {max_files} images.")
     if output_format == "resize" and not width:
         raise ImageProcessError("Enter an output width for resizing.")
 

@@ -1,14 +1,17 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import * as batch from '../src/batch-pass.mjs';
 
 // Run the real fetch handler with the Cloudflare-only imports replaced by stubs.
 const source = readFileSync(new URL('../src/worker.js', import.meta.url), 'utf8')
   .replace(/^import .*;\r?\n/gm, '')
   .replace(/^export \{ VisitorAnalytics \};\r?\n/gm, '')
+  .replace('export class BatchPassStore', 'class BatchPassStore')
   .replace('export class DownloaderContainer', 'class DownloaderContainer')
   .replace('export default {', 'const worker = {');
-const worker = new Function('Container', 'guardAnalysis', `${source}\nreturn worker;`)(class {}, value => value);
+const worker = new Function('Container', 'DurableObject', 'batch', 'guardAnalysis',
+  `const { BatchPassStore: BatchPassHandler, activeBatchOrder, batchRecoveryCode, batchWebhook, passStatus, redeemBatchPass, signedBatchTier, startBatchCheckout } = batch;\n${source}\nreturn worker;`)(class {}, class {}, batch, value => value);
 
 test('transcript requests reach the container and record their completed result', async () => {
   const events = [];

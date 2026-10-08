@@ -9,7 +9,7 @@
 </header>
 <section class="batch-workspace" aria-label="Batch image conversion"><div class="container batch-shell">
   <form id="batch-form" enctype="multipart/form-data">
-    <div class="batch-heading"><div><span class="section-kicker">01 / ADD FILES</span><h2>Start with your images</h2></div><span class="batch-cap">Free beta · up to 5 images</span></div>
+    <div class="batch-heading"><div><span class="section-kicker">01 / ADD FILES</span><h2>Start with your images</h2></div><span id="batch-cap" class="batch-cap">Free · up to 5 images</span></div>
     <label class="batch-drop" for="batch-files"><span class="batch-drop-icon" aria-hidden="true">↑</span><strong>Choose images</strong><span>JPG, PNG, WebP or HEIC · 8 MB per image · 20 MB per batch</span></label>
     <input id="batch-files" name="images" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple required>
     <ul id="batch-file-list" class="batch-file-list" aria-live="polite"></ul>
@@ -21,6 +21,13 @@
     <p id="batch-status" role="status" aria-live="polite"></p>
     <p class="batch-privacy">Use images you own or have permission to process. Uploads are converted in memory and are not added to your download history. Your ZIP is returned directly to this browser.</p>
   </form>
+  <aside id="batch-pro" class="batch-pro" hidden aria-label="Batch Pro pass">
+    <div><span class="section-kicker">OPTIONAL UPGRADE</span><h2>Need a bigger batch?</h2><p>Keep five images free, or unlock up to ten per batch for 30 days with a one-time $2.99 USD Batch Pro pass. The 20 MB batch limit and two batches per minute still apply. Dodo shows any applicable tax and final total before payment.</p><p id="batch-pro-status" role="status" aria-live="polite"></p>
+      <button id="batch-show-code" class="batch-text-button" type="button" hidden>Show my recovery code</button><code id="batch-recovery-code" class="batch-recovery-code" hidden></code>
+      <details id="batch-restore"><summary>Already purchased? Restore your pass</summary><form id="batch-restore-form"><label for="batch-restore-input">Recovery code</label><input id="batch-restore-input" type="text" autocomplete="off" spellcheck="false" required><button type="submit">Restore pass</button><span id="batch-restore-status" role="status" aria-live="polite"></span></form></details>
+    </div>
+    <button id="batch-buy" class="submit-btn" type="button">Get Batch Pro · $2.99 <span aria-hidden="true">↗</span></button>
+  </aside>
   <div id="batch-result" class="batch-result" hidden><span class="section-kicker">DOWNLOAD READY</span><h2>Your images are ready</h2><p id="batch-result-detail"></p><a id="batch-download" class="submit-btn" href="#" download="savefromnet-images.zip">Download ZIP <span aria-hidden="true">↓</span></a></div>
 </div></section>
 {% include 'sponsor_section.html' %}

@@ -104,16 +104,20 @@ PAGES = (
         "privacy-policy", "Privacy Policy | SaveFromNet",
         "Learn what SaveFromNet processes when you analyze a public URL, download a file, or use the site.",
         "Privacy policy",
-        "This policy describes the current public downloader. Last updated October 8, 2026.",
+        "This policy describes the current public downloader and image tools. Last updated October 8, 2026.",
         (
             Section("Information used for a download", (
                 "When you submit a URL, the server processes that URL, the selected tool and format, and job status to complete your request. A browser identifier cookie associates an analysis and temporary download with the browser that requested it. The cookie lasts up to 30 days unless you clear it.",
                 "The processing container keeps job metadata, including the submitted URL and file details, in temporary local storage. Finished files are normally removed after about an hour and may disappear sooner if the container restarts. You can delete an entry and its file from the recent downloads section.",
             )),
             Section("Image conversions", (
-                "If you use an image tool, the uploaded still image is decoded and converted in memory. The image bytes are returned in the response and are not added to download history or saved as a temporary media file. The batch image converter returns up to five processed files together in a ZIP response.",
+                "If you use an image tool, the uploaded still image is decoded and converted in memory. The image bytes are returned in the response and are not added to download history or saved as a temporary media file. The batch image converter returns up to five processed files together in a ZIP response, or ten with an active Batch Pro pass.",
                 "Image tools limit upload size and pixel dimensions. The batch tool limits the total upload to 20 MB and the ZIP output to 32 MB. Processing strips embedded source metadata such as location information from output files. Your browser keeps the result until you download it or leave the page.",
             )),
+            Section("Optional Batch Pro purchases", (
+                "If you choose to buy a Batch Pro pass, Dodo Payments handles checkout, billing details, payment methods, taxes, and receipts. SaveFromNet sends an internal order reference to Dodo and receives a payment status and payment reference through a signed webhook. SaveFromNet does not receive your card details.",
+                "An essential first-party pass cookie identifies the purchase in your browser. A Cloudflare Durable Object stores a hash of its recovery token, the checkout reference, payment reference, pass status, and expiry for up to about 45 days. You may display and save a recovery code to restore the pass in another browser; anyone with that code can use the pass, so keep it private. Clearing the cookie without saving the code can make the pass inaccessible.",
+            ), (("https://dodopayments.com/privacy-policy", "Dodo Payments privacy policy"),)),
             Section("Limits and aggregate measurement", (
                 "Cloudflare uses the requesting IP address to apply rate limits. SaveFromNet records aggregate events such as platform, tool, format and success or failure. The analytics event payload does not include the submitted URL or a browser identifier.",
                 "For operational visitor counts, a first-party page signal sends a page-view or active-tab heartbeat to Cloudflare. We derive a one-day keyed hash from the request IP address and browser type to estimate unique and live visitors by country. The dashboard does not store the raw IP address or submitted media URLs; visitor records are deleted after about two days. This measurement does not set an analytics cookie, and browsers that block the signal are not counted.",
@@ -121,7 +125,7 @@ PAGES = (
                 "Cloudflare and the source website necessarily process network requests needed to deliver pages or inspect a public link. Their handling of network data is governed by their own policies.",
             ), (("https://support.google.com/analytics/answer/11593727", "Google Analytics data collection"),)),
             Section("Advertising and external links", (
-                "The site loads third-party advertising scripts served from bellnewyork.org. The advertising provider may collect device or usage information or use its own identifiers under its policy. Links to source platforms and other websites take you to services outside SaveFromNet.",
+                "The site loads third-party advertising scripts served from bellnewyork.org. The advertising provider may collect device or usage information or use its own identifiers under its policy. Links to source platforms, sponsors, Dodo Payments and other websites take you to services outside SaveFromNet.",
                 "Do not submit private, sensitive, or account-only URLs. The downloader only accepts supported public media links.",
             )),
             Section("Your choices and contact", (
@@ -134,7 +138,7 @@ PAGES = (
         "terms", "Terms of Use | SaveFromNet",
         "Rules for using SaveFromNet's public media downloader and temporary file processing service.",
         "Terms of use",
-        "These terms describe the public SaveFromNet service. Last updated October 7, 2026.",
+        "These terms describe the public SaveFromNet service. Last updated October 8, 2026.",
         (
             Section("Use only authorized content", (
                 "Use the service only for media you own or have permission to download. You are responsible for following applicable copyright law and the source platform's terms. Do not submit private content, account-only links, or material protected by DRM or a paywall.",
@@ -144,6 +148,10 @@ PAGES = (
                 "Available formats and quality depend on what the source exposes for a particular public link. A listed option is not a promise that the source will continue to provide it. Processing may fail because a source changes, blocks requests, or removes the media.",
                 "Prepared files and access links are temporary. Save important authorized files on your own device while they are available.",
             )),
+            Section("Optional Batch Pro pass", (
+                "The free batch converter accepts up to five images. A one-time Batch Pro purchase, when offered, allows up to ten images per batch for 30 days after confirmed payment. The 20 MB total input limit, 32 MB ZIP limit, and rate limits still apply. The checkout shows the current price and billing terms before payment.",
+                "Dodo Payments processes purchases. Access begins only after payment confirmation, and may be withdrawn after a refund or lost dispute. The pass is linked to a browser cookie; save the recovery code shown on the tool page if you may need to use another browser or clear cookies. Keep that code private. Contact us with your payment reference if checkout succeeded but access did not activate.",
+            ), (("/batch-image-converter", "Batch image converter"), ("/contact", "Contact us"))),
             Section("Reports and updates", (
                 "Tell us if a tool fails or if you believe content or a page on this site infringes your rights. We may update these terms as the service changes; the date above identifies this version.",
             ), (("/contact", "Contact us"), ("/dmca", "Copyright removal requests"))),

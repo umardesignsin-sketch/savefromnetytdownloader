@@ -27,7 +27,8 @@
   "durable_objects": {
     "bindings": [
       { "name": "DOWNLOADER", "class_name": "DownloaderContainer" },
-      { "name": "VISITOR_ANALYTICS", "class_name": "VisitorAnalytics" }
+      { "name": "VISITOR_ANALYTICS", "class_name": "VisitorAnalytics" },
+      { "name": "BATCH_PASSES", "class_name": "BatchPassStore" }
     ]
   },
   "ratelimits": [
@@ -54,6 +55,7 @@
   ],
   "exports": {
     "DownloaderContainer": { "type": "durable-object", "storage": "sqlite" },
-    "VisitorAnalytics": { "type": "durable-object", "storage": "sqlite" }
+    "VisitorAnalytics": { "type": "durable-object", "storage": "sqlite" },
+    "BatchPassStore": { "type": "durable-object", "storage": "sqlite" }
   }
 }

@@ -1,7 +1,11 @@
 import io
+import hashlib
+import hmac
 import os
 import tempfile
+import time
 import unittest
+from unittest.mock import patch
 from zipfile import ZipFile
 
 from PIL import Image
@@ -67,6 +71,21 @@ class BatchImageTests(unittest.TestCase):
             decoded = Image.open(io.BytesIO(bundle.read(bundle.namelist()[0])))
             self.assertEqual(decoded.size, (40, 30))
             self.assertEqual(decoded.format, "JPEG")
+
+    def test_paid_limit_requires_valid_worker_signature(self):
+        data = lambda: {"format": "webp", "images": [(image("PNG", "green"), f"{index}.png") for index in range(6)]}
+        forged = self.client.post("/api/image/batch", data=data(), headers={"X-SFN-Batch-Tier": "pro"})
+        self.assertEqual(forged.status_code, 400)
+        timestamp = str(int(time.time()))
+        key = "test-worker-signing-key"
+        signature = hmac.new(key.encode(), f"{timestamp}:pro".encode(), hashlib.sha256).hexdigest()
+        with patch.dict(os.environ, {"BATCH_TIER_SIGNING_KEY": key}):
+            paid = self.client.post("/api/image/batch", data=data(), headers={
+                "X-SFN-Batch-Tier": "pro", "X-SFN-Batch-Time": timestamp,
+                "X-SFN-Batch-Signature": signature,
+            })
+        self.assertEqual(paid.status_code, 200)
+        self.assertEqual(paid.headers["X-SFN-Files"], "6")
 
     def test_page_is_indexable_and_linked(self):
         page = self.client.get("/batch-image-converter")

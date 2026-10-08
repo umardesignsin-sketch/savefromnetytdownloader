@@ -55,6 +55,20 @@ def _json_error(message, code="error", status=400):
     return jsonify({"error": message, "code": code}), status
 
 
+def _verified_batch_tier():
+    """Trust a Pro tier only when the Worker signed it for this request."""
+    key = os.environ.get("BATCH_TIER_SIGNING_KEY", "")
+    timestamp = request.headers.get("X-SFN-Batch-Time", "")
+    signature = request.headers.get("X-SFN-Batch-Signature", "")
+    if (not key or request.headers.get("X-SFN-Batch-Tier") != "pro" or
+            not re.fullmatch(r"\d{10}", timestamp) or
+            not re.fullmatch(r"[0-9a-f]{64}", signature) or
+            abs(time.time() - int(timestamp)) > 30):
+        return False
+    expected = hmac.new(key.encode(), f"{timestamp}:pro".encode(), hashlib.sha256).hexdigest()
+    return hmac.compare_digest(signature, expected)
+
+
 def _rate_limit(owner, action, max_calls, period=60):
     key = (owner, action)
     with _limits_lock:
@@ -369,15 +383,16 @@ def api_image_batch():
     if not _rate_limit(g.client_id, "image_batch", 2):
         return _json_error("Too many batches. Please try again in a minute.", "rate_limited", 429)
     uploads = request.files.getlist("images")
-    from batch_images import MAX_BATCH_FILES, build_batch
+    from batch_images import MAX_BATCH_FILES, MAX_PAID_BATCH_FILES, build_batch
     from image_processing import ImageProcessError
-    if not 1 <= len(uploads) <= MAX_BATCH_FILES:
-        return _json_error(f"Choose between 1 and {MAX_BATCH_FILES} images.", "invalid_batch")
+    max_files = MAX_PAID_BATCH_FILES if _verified_batch_tier() else MAX_BATCH_FILES
+    if not 1 <= len(uploads) <= max_files:
+        return _json_error(f"Choose between 1 and {max_files} images.", "invalid_batch")
     if not _image_slots.acquire(blocking=False):
         return _json_error("Image processing is busy. Please try again shortly.", "busy", 429)
     try:
         archive, details = build_batch(uploads, request.form.get("format", ""),
-                                       request.form.get("quality"), request.form.get("width"))
+                                       request.form.get("quality"), request.form.get("width"), max_files=max_files)
     except ImageProcessError as exc:
         return _json_error(str(exc), "invalid_batch", 422)
     finally:

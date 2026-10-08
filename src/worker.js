@@ -1,10 +1,22 @@
 import { Container } from "@cloudflare/containers";
+import { DurableObject } from "cloudflare:workers";
 import { guardAnalysis } from "./size-guard.mjs";
 import { VisitorAnalytics } from "./visitor-store.mjs";
 import { dashboardHtml } from "./analytics-dashboard.mjs";
 import world from "./analytics-world.json";
+import { BatchPassStore as BatchPassHandler, activeBatchOrder, batchRecoveryCode, batchWebhook, passStatus, redeemBatchPass, signedBatchTier, startBatchCheckout } from "./batch-pass.mjs";
 
 export { VisitorAnalytics };
+
+export class BatchPassStore extends DurableObject {
+  constructor(ctx, env) {
+    super(ctx, env);
+    this.handler = new BatchPassHandler(ctx);
+  }
+
+  fetch(request) { return this.handler.fetch(request); }
+  alarm() { return this.handler.alarm(); }
+}
 
 function dashboardAuthorized(request, env) {
   if (!env.DASHBOARD_PASSWORD) return false;
@@ -85,6 +97,11 @@ export class DownloaderContainer extends Container {
   defaultPort = 8080;
   sleepAfter = "5m";
 
+  constructor(ctx, env) {
+    super(ctx, env);
+    if (env.BATCH_TIER_SIGNING_KEY) this.envVars = { BATCH_TIER_SIGNING_KEY: env.BATCH_TIER_SIGNING_KEY };
+  }
+
   async onActivityExpired() {
     try {
       const response = await this.containerFetch("http://localhost:8080/api/activity");
@@ -102,6 +119,26 @@ export class DownloaderContainer extends Container {
 export default {
   async fetch(request, env) {
     const pathname = new URL(request.url).pathname;
+    if (pathname === "/api/batch-pass/status") {
+      if (request.method !== "GET") return new Response("Method not allowed", { status: 405 });
+      return passStatus(request, env);
+    }
+    if (pathname === "/api/batch-pass/checkout") {
+      if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
+      return startBatchCheckout(request, env);
+    }
+    if (pathname === "/api/batch-pass/recovery") {
+      if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
+      return batchRecoveryCode(request, env);
+    }
+    if (pathname === "/api/batch-pass/redeem") {
+      if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
+      return redeemBatchPass(request, env);
+    }
+    if (pathname === "/api/batch-pass/webhook") {
+      if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
+      return batchWebhook(request, env);
+    }
     if (pathname === "/analytics" || pathname === "/analytics/") {
       if (request.method !== "GET") return new Response("Method not allowed", { status: 405 });
       if (!dashboardAuthorized(request, env)) return dashboardChallenge();
@@ -189,7 +226,27 @@ export default {
       return new Response(JSON.stringify({ ok: true }),
         { status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
     }
-    const response = await env.DOWNLOADER.getByName("multi-primary").fetch(request);
+    let upstream = request;
+    if (pathname === "/api/image/batch" && request.method === "POST") {
+      // The container accepts this header only from the Worker. Remove a
+      // caller-supplied value before adding the verified entitlement.
+      const headers = new Headers(request.headers);
+      headers.delete("X-SFN-Batch-Tier");
+      headers.delete("X-SFN-Batch-Time");
+      headers.delete("X-SFN-Batch-Signature");
+      const paidOrder = await activeBatchOrder(request, env);
+      if (paidOrder) {
+        const { success } = await env.DOWNLOAD_LIMIT.limit({ key: `image-batch-pass:${paidOrder}` });
+        if (!success) return Response.json({ error: "Too many Batch Pro requests. Please try again in a minute." },
+          { status: 429, headers: { "Cache-Control": "no-store", "Retry-After": "60" } });
+        const proof = await signedBatchTier(env);
+        headers.set("X-SFN-Batch-Tier", "pro");
+        headers.set("X-SFN-Batch-Time", proof.timestamp);
+        headers.set("X-SFN-Batch-Signature", proof.signature);
+      }
+      upstream = new Request(request, { headers });
+    }
+    const response = await env.DOWNLOADER.getByName("multi-primary").fetch(upstream);
     if (pathname === "/api/transcript" && request.method === "POST") {
       record(env, response.ok ? "transcript_successful" : "transcript_failed", "youtube", "youtube-to-transcript", "", response.status);
     }
