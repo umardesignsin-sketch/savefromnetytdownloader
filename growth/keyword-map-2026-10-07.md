@@ -9,6 +9,8 @@ This map uses the existing canonical URLs. The owner supplied Search Console que
 | savefrom net | `/` | SaveFromNet brand and site name |
 | download video youtube savefrom | `/youtube-video-downloader` | Direct public YouTube video files |
 | youtube video downloader | `/youtube-video-downloader` | Same video-only result |
+| youtube video downloader iphone / android | `/guides/youtube-video-on-mobile` | Browser workflow and where a phone saves the prepared file |
+| youtube 1080p / 4k download unavailable | `/guides/youtube-hd-4k-downloads` | Missing resolution, separate audio, and processing-size explanation |
 | youtube converter | `/youtube-downloader` | Compare video and audio options for one YouTube link |
 | youtube to mp3 converter | `/youtube-to-mp3` | MP3 conversion from accessible source audio |
 | youtube mp3 download | `/youtube-to-mp3` | Same conversion and temporary file |
@@ -18,7 +20,7 @@ This map uses the existing canonical URLs. The owner supplied Search Console que
 | download reddit video | `/reddit-video-downloader` | Same action phrased as a verb |
 | reddit downloader | `/reddit-video-downloader` | Broader wording for the same supported Reddit post workflow |
 
-No synonym-only pages or redirects were created. The existing paths and self-canonicals remain in the sitemap. Copy describes only supported public links, actual formats, processing limits, and temporary files. The homepage links to the video and converter pages with descriptive anchors, and those pages link to related formats and guides.
+No synonym-only pages or redirects were created. The existing paths and self-canonicals remain in the sitemap. Two task-specific YouTube help pages address mobile saving and high-resolution availability; both link to the working video downloader and are linked from it, the guide hub, and the homepage. Copy describes only supported public links, actual formats, processing limits, and temporary files.
 
 After Google recrawls, compare each query's **Pages** report, impressions, clicks, CTR, and position against the same preceding period. Keep the page with established query traffic as the canonical destination; revise this map if the Pages report shows a different landing URL.
 

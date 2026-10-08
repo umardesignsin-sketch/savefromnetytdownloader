@@ -21,6 +21,36 @@ class Guide:
 
 GUIDES = (
     Guide(
+        "youtube-video-on-mobile", "Download a YouTube video on iPhone or Android",
+        "Use the YouTube video downloader in a phone browser, find the saved file, and troubleshoot mobile download limits.",
+        "You can analyze a public YouTube watch-page video from a phone without installing a SaveFromNet app. The browser handles the final file save, so finding the download is a device step separate from preparing the video.",
+        "youtube-video-downloader",
+        (
+            ("Copy the link to one video", "Open the individual YouTube video that you own or have permission to download and use its Share control to copy the link. A youtube.com/watch?v= address or a youtu.be short link identifies one standard video. A channel, playlist or live page does not identify a supported finished file. Paste the copied URL into the downloader form above and select Analyze link."),
+            ("Choose a format your phone can use", "Wait for the actual video choices before tapping Download. MP4 is usually the simpler choice for broad phone compatibility when it appears; WebM playback depends on the device and app you use. The listed resolution and size come from the analyzed upload, so do not assume every phone or video will have the same 1080p or 4K option. Large files may exceed this service's 512 MB processing limit."),
+            ("Save and find the completed file", "Keep the browser tab open while the file is prepared, then use its temporary download link. On iPhone or iPad, check the browser's downloads list and the Files app location configured for downloads. On Android, check the browser's download list or your device's Downloads location. Browser settings can change those destinations; saving the file does not automatically place it in the Photos gallery."),
+        ),
+        (("Do I need an app?", "No. Use the downloader in a current mobile browser; the browser handles the saved file."),
+         ("Why is the file missing from Photos?", "A browser download is normally saved to its configured files location. Find it in browser downloads or your device's file manager, then import it into another app if needed."),
+         ("Can I download a private video on my phone?", "No. The public extractor cannot use your YouTube sign-in or bypass private, age, region or purchase restrictions.")),
+        ("youtube-hd-4k-downloads", "youtube-video-formats", "temporary-download-links"),
+    ),
+    Guide(
+        "youtube-hd-4k-downloads", "Why a YouTube video may not have a 1080p or 4K download",
+        "Check real HD and 4K video choices, separate audio streams, file size estimates, and the 512 MB processing limit.",
+        "A 1080p or 4K label in YouTube's player is a playback choice, not a guarantee that a public downloader can prepare the same finished file. SaveFromNet inspects each permitted URL and only lists combinations that its processing service can handle.",
+        "youtube-video-downloader",
+        (
+            ("Read the analyzed video rows, not a fixed quality chart", "Paste a direct public watch-page or youtu.be link to one upload you may save. After analysis, compare each returned row's container, height and size information. A row absent from the result cannot be selected. MP4 and WebM are different containers; a source may expose one but not the other at a particular resolution. Use the MP4-only tool only when that container is required."),
+            ("High resolution video can need a separate audio track", "YouTube often serves higher resolution picture and audio as separate streams. SaveFromNet can offer a finished file when a compatible sound stream is accessible and the streams can be merged. It does not list a picture-only stream as a normal video download with sound. If the source has no usable audio partner, the desired HD row may be missing even when the picture appears in the player."),
+            ("Length, bitrate and the 512 MB ceiling matter", "Resolution alone does not determine file size: duration, codec, video bitrate and audio bitrate all affect the finished file. SaveFromNet rejects known or strongly estimated results over 512 MB; a job with unknown size can still stop if it reaches that limit. For example, 25 minutes at a combined 19,000 kbps is roughly 3.6 GB before overhead, so a tiny 4K size estimate would be misleading. Try an available lower resolution for a long upload."),
+        ),
+        (("Can I force 4K if it is missing?", "No. Only an accessible and processable source combination can appear in the result. Changing the label would not create the file."),
+         ("Does 1080p always have sound?", "Not as one source stream. The service needs compatible audio to prepare a finished video with sound."),
+         ("Why does estimated size say unknown?", "The source may not report enough reliable bytes or bitrate data for the complete video and audio combination. Unknown is more accurate than an audio-only or invented total.")),
+        ("youtube-video-formats", "video-file-size-estimates", "youtube-video-on-mobile"),
+    ),
+    Guide(
         "youtube-video-formats", "YouTube video formats: MP4, WebM and audio",
         "Understand why YouTube video qualities and audio formats vary, and how SaveFromNet shows the choices available for a public upload.",
         "A YouTube link does not have one universal download file. The uploader, source and playback format determine which streams can be accessed. Analyze one public video before choosing a file.",

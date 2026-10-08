@@ -49,6 +49,14 @@ class Tool:
                 ("Does it work on a phone?", "The URL form works in a modern mobile browser. When processing finishes, save the temporary MP3 through your browser; the exact destination depends on your device."),
                 ("Can I use a youtu.be or Shorts link?", "Yes. This YT to MP3 converter accepts a direct public watch-page, youtu.be, or Shorts URL to one item when its audio is accessible. Playlists and private videos are not supported."),
             )
+        if self.slug == "youtube-video-downloader":
+            return (
+                ("How do I download a YouTube video?", "Paste a direct public youtube.com/watch?v= or youtu.be link above. SaveFromNet analyzes that single video, shows the video formats it can prepare, then creates a temporary file for the option you choose. Save only videos you own or have permission to download."),
+                ("Can I download a YouTube video in 1080p or 4K?", "Only if that upload exposes a compatible video and audio combination the service can prepare within its 512 MB limit. Analyze the link first; a resolution absent from the result is unavailable here."),
+                ("Will the downloaded video include sound?", "A high resolution picture stream may be separate from its audio. SaveFromNet offers a finished video when compatible sound is available and can merge the streams. A silent or inaccessible source cannot gain sound through conversion."),
+                ("Can I use this YouTube video downloader on my phone?", "Yes. Copy a direct link to one public watch page or youtu.be video, paste it into this page in your browser, and choose a returned format. Your browser controls where the completed file is saved."),
+                ("Why can a public YouTube link still fail?", "The upload may be deleted, private, age or region restricted, live, or blocked from anonymous server access. This tool does not use your account, bypass access controls, or download playlists."),
+            )
         if self.slug == "reddit-video-downloader":
             return (
                 ("How do I download a Reddit video?", "Copy the direct link to one public Reddit post, paste it above, and choose a video format returned by the analyzer. The server prepares a temporary file for the option you select. Download only media you own or have permission to save."),
@@ -87,7 +95,7 @@ TOOL_META = {
     ),
     "youtube-video-downloader": (
         "YouTube Video Downloader | SaveFromNet",
-        "Download a YouTube video with SaveFromNet. Paste a public watch or youtu.be link, compare available resolutions, and prepare the file.",
+        "Download a public YouTube video you may save. Paste a watch or youtu.be link, see available MP4 or WebM qualities, and prepare a temporary file.",
     ),
     "youtube-to-mp3": (
         "YouTube to MP3 Converter | SaveFromNet",
@@ -128,12 +136,20 @@ TOOL_SECTIONS = {
         )),
     ),
     "youtube-video-downloader": (
+        ("How to download a YouTube video", (
+            "Paste the direct youtube.com/watch?v= or youtu.be link for one public video you own or have permission to save. Select Analyze link and wait for the result card. It reports only video files the service can actually prepare for that upload, including the container, resolution and estimated size when the source provides enough information.",
+            "Choose one returned format and start the download job. When preparation finishes, save the temporary file through your browser. A video that is private, deleted, live or restricted to a signed-in viewer cannot be retrieved by this public tool.",
+        )),
         ("Download a YouTube video with SaveFromNet", (
-            "Copy the link to one public YouTube watch-page video that you own or have permission to save. Paste it above and let SaveFromNet inspect the available streams. The result shows complete video choices only when the service can also obtain compatible audio; some higher resolutions require the server to merge picture and sound.",
-            "Compare the returned container, height and estimated size for this upload. A missing 1080p or 4K option means it was not available as a file this service can prepare within its 512 MB limit; the player label alone is not a download promise.",
+            "The result card gives each available video's file type, height and estimated size when that information is reliable. MP4 and WebM can differ in compatibility even at the same resolution. Choose the file your device can play and store rather than treating the highest number as automatically best.",
+            "A size can remain unknown when source metadata cannot account for the complete video and audio. The file size calculator explains what duration and bitrate can tell you; it does not replace the actual result for your upload.",
         )),
         ("Find the right YouTube video URL", (
             "A youtube.com/watch?v= link or youtu.be short link identifies one standard video. Use the dedicated Shorts tool for a /shorts/ link and the MP3 converter when you only need sound. This page focuses on actual video file options rather than a fixed menu of promised resolutions. Playlists, purchases, private uploads and live streams are not available here.",
+        )),
+        ("1080p and 4K depend on the source, audio and file limit", (
+            "A high resolution picture stream may be separate from its sound. SaveFromNet shows a finished video only when it can pair compatible video and audio and prepare the result. It does not claim that a 4K label in the YouTube player means a downloadable 4K file exists here.",
+            "The 512 MB job ceiling can rule out long or high bitrate files. If no 1080p or 4K option appears, choose a lower resolution actually returned for the link or use the file size guide to understand the estimate. The result may show MP4, WebM, or both; changing a file extension does not convert its encoding.",
         )),
     ),
     "youtube-shorts-downloader": (
@@ -272,7 +288,7 @@ TOOL_SECTIONS = {
 TOOL_SEO_LINKS = {
     "youtube-to-transcript": (("/youtube-video-downloader", "Download an accessible YouTube video"), ("/youtube-to-mp3", "Convert accessible YouTube audio to MP3"), ("/youtube-shorts-downloader", "YouTube Shorts downloader"), ("/guides/youtube-video-formats", "Understand YouTube media formats")),
     "youtube-downloader": (("/youtube-video-downloader", "YouTube Video Downloader"), ("/youtube-to-mp3", "YouTube to MP3 Converter"), ("/youtube-to-mp4", "YouTube to MP4"), ("/youtube-to-transcript", "YouTube to Transcript Converter")),
-    "youtube-video-downloader": (("/guides/youtube-video-formats", "Understand YouTube formats"), ("/guides/video-file-size-estimates", "How file sizes are estimated"), ("/youtube-to-mp4", "MP4-only choices"), ("/youtube-to-mp3", "Convert YouTube audio to MP3"), ("/youtube-to-transcript", "Get a YouTube transcript")),
+    "youtube-video-downloader": (("/guides/youtube-video-on-mobile", "Download your own YouTube video on a phone"), ("/guides/youtube-hd-4k-downloads", "Understand 1080p and 4K availability"), ("/guides/youtube-video-formats", "Understand YouTube formats"), ("/guides/video-file-size-estimates", "How file sizes are estimated"), ("/youtube-to-mp4", "MP4-only choices"), ("/youtube-to-mp3", "Convert YouTube audio to MP3"), ("/youtube-to-transcript", "Get a YouTube transcript")),
     "youtube-shorts-downloader": (("/youtube-video-downloader", "Standard YouTube videos"), ("/youtube-to-mp3", "Shorts audio to MP3")),
     "youtube-to-mp3": (("/youtube-audio-downloader", "YouTube audio formats"), ("/youtube-video-downloader", "Download the video instead"), ("/youtube-to-transcript", "Get a YouTube transcript"), ("/guides/mp3-vs-m4a", "MP3 versus M4A")),
     "youtube-to-mp4": (("/youtube-video-downloader", "All YouTube video formats"), ("/guides/video-with-no-sound", "When a video has no sound")),
