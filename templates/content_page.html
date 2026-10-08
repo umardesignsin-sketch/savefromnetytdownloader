@@ -3,6 +3,7 @@
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">›</span><span aria-current="page">{{ content_page.heading }}</span></nav>
     <h1>{{ content_page.heading }}</h1>
     <p>{{ content_page.intro }}</p>
+    {% if content_page.slug == 'youtube-transcript-api' %}<a class="content-hero-action" href="/developers">Get API access · $5/month <span aria-hidden="true">→</span></a>{% endif %}
   </div>
 </header>
 
@@ -11,6 +12,7 @@
   <nav class="category-jump" aria-label="Tool categories">
     {% for name, items in tool_groups %}<a href="#category-{{ loop.index }}">{{ name }}</a>{% endfor %}
     <a href="#image-tools">Image tools</a>
+    <a href="#developer-api">Developer API</a>
   </nav>
   {% for name, items in tool_groups %}
   <section class="tool-category" id="category-{{ loop.index }}" aria-labelledby="category-title-{{ loop.index }}">
@@ -31,6 +33,10 @@
   <section class="tool-category" id="image-tools" aria-labelledby="image-tools-heading">
     <div class="content-section-heading"><h2 id="image-tools-heading">Image tools</h2><p>Upload your own image to compress, convert, or resize it. <a href="/image-format-guide">Compare JPG, PNG, WebP and HEIC</a> before choosing a format.</p></div>
     <div class="content-tool-grid"><a class="content-tool-card" href="/batch-image-converter"><span class="content-tool-platform">Image · Batch</span><h3>Batch Image Converter &amp; Resizer</h3><p>Convert or resize up to five of your own images at once and download one ZIP.</p><span class="content-tool-action">Open tool →</span></a>{% for item in image_tools %}<a class="content-tool-card" href="{{ item.path }}"><span class="content-tool-platform">Image</span><h3>{{ item.name }}</h3><p>{{ item.description }}</p><span class="content-tool-action">Open tool →</span></a>{% endfor %}</div>
+  </section>
+  <section class="tool-category" id="developer-api" aria-labelledby="developer-api-heading">
+    <div class="content-section-heading"><h2 id="developer-api-heading">Developer API</h2><p>Build transcript features with timed JSON from publicly available YouTube captions.</p></div>
+    <div class="content-tool-grid"><a class="content-tool-card" href="/developers"><span class="content-tool-platform">YouTube · API</span><h3>YouTube Transcript API</h3><p>$5 per month includes 1,000 successful transcripts. Failed requests do not use your allowance; videos without accessible captions are unsupported.</p><span class="content-tool-action">View plan and dashboard →</span></a><a class="content-tool-card" href="/youtube-transcript-api"><span class="content-tool-platform">Documentation</span><h3>API reference</h3><p>See request and response examples, supported URLs, limits, and error handling before integrating.</p><span class="content-tool-action">Read API docs →</span></a></div>
   </section>
   <section class="tool-category" aria-labelledby="specific-guides-heading">
     <div class="content-section-heading"><h2 id="specific-guides-heading">Specific links and download problems</h2><p>Practical help for supported media types, file sizes, and temporary downloads.</p></div>
