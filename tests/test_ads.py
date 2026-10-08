@@ -25,6 +25,15 @@ class AdPlacementTests(unittest.TestCase):
         page = self.client.get("/privacy-policy").get_data(as_text=True)
         self.assertIn("advertising scripts served from bellnewyork.org", page)
 
+    def test_supplied_native_unit_is_present_once_below_the_tool(self):
+        script = "https://bellnewyork.org/21/d765f412daaaa7ed73d4fc75d6e176b9"
+        container = 'id="container-d765f412daaaa7ed73d4fc75d6e176b9"'
+        for path in ("/", "/youtube-to-mp3", "/batch-image-converter"):
+            html = self.client.get(path).get_data(as_text=True)
+            self.assertEqual(html.count(script), 1)
+            self.assertEqual(html.count(container), 1)
+            self.assertLess(html.index("</form>"), html.index(container))
+
 
 if __name__ == "__main__":
     unittest.main()

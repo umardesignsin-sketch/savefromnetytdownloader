@@ -31,6 +31,12 @@ body { color: var(--brand-ink); background: #fbfcf9; }
 .sponsor-house, .sponsor-opportunity { min-width: 0; border-radius: 19px; padding: 20px 25px 25px; }
 .sponsor-house { background: #edf7e8; border: 1px solid #d9edcf; }
 .sponsor-opportunity { background: #fff; border: 1px solid #dfe7dc; }
+.sponsor-native { padding-top: 18px; }
+.sponsor-native-inner { max-width: 900px; margin: 0 auto; padding: 20px 25px; border: 1px solid #dfe7dc; border-radius: 19px; background: #fff; }
+#container-d765f412daaaa7ed73d4fc75d6e176b9 { max-width: 100%; margin-top: 14px; }
+.sponsor-native-fallback { margin: 15px 0 0; color: #617068; font-size: .88rem; }
+.sponsor-native-fallback a { color: #367100; font-weight: 750; }
+#container-d765f412daaaa7ed73d4fc75d6e176b9:not(:empty) + .sponsor-native-fallback { display: none; }
 .sponsor-ad-slot { min-height: 250px; margin-top: 15px; }
 .sponsor-ad-slot > div { width: 100%; max-width: 100%; }
 .ad-creative { margin: 0 auto; max-width: 100%; }
@@ -59,6 +65,7 @@ body { color: var(--brand-ink); background: #fbfcf9; }
   .sponsor-section { padding-bottom: 56px; }
   .sponsor-layout { grid-template-columns: 1fr; gap: 12px; }
   .sponsor-house, .sponsor-opportunity { padding: 18px 19px 20px; }
+  .sponsor-native-inner { padding: 18px 19px; }
   .sponsor-house-body { gap: 13px; }
   .sponsor-house-icon, .sponsor-opportunity-icon { width: 40px; height: 40px; font-size: 1.2rem; }
 }
