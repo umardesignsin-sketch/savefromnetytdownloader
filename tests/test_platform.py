@@ -346,13 +346,14 @@ class SiteTests(unittest.TestCase):
             self.assertNotIn("quge5.com", html)
             self.assertNotIn("data-zone=", html)
 
-    def test_adsterra_unit_is_below_the_downloader(self):
-        ad_script = "https://bellnewyork.org/21/d765f412daaaa7ed73d4fc75d6e176b9"
-        ad_container = 'id="container-d765f412daaaa7ed73d4fc75d6e176b9"'
+    def test_ad_units_are_below_the_downloader(self):
+        ad_script = "https://bellnewyork.org/22/8096c015c04997e3612febc8ea789e67"
+        ad_container = 'class="container sponsor-banner"'
         for path in ("/", "/youtube-to-mp3", "/batch-image-converter"):
             html = self.client.get(path).get_data(as_text=True)
             self.assertEqual(html.count(ad_script), 1)
             self.assertEqual(html.count(ad_container), 1)
+            self.assertEqual(html.count("/14/ba51614fef660ec06fedd8ab0bcef557"), 1)
             self.assertLess(html.index("</form>"), html.index(ad_container))
 
     def test_invalid_url_and_cross_browser_signed_file_denial(self):

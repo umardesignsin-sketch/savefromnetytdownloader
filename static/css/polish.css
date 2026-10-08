@@ -24,12 +24,18 @@ body { color: var(--brand-ink); background: #fbfcf9; }
 .quick-tool:hover { background: #f3faed; border-color: #b9dfa6; }
 .quick-tool.is-current { background: #ebf8df; }
 .sponsor-section { padding: 0 0 78px; background: #fbfcf9; }
+.sponsor-banner { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-bottom: 28px; }
+.sponsor-banner[hidden] { display: none; }
+.sponsor-banner-slot { max-width: 100%; margin: 0 auto; text-align: center; }
 .sponsor-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .sponsor-house, .sponsor-opportunity { min-width: 0; border-radius: 19px; padding: 20px 25px 25px; }
 .sponsor-house { background: #edf7e8; border: 1px solid #d9edcf; }
 .sponsor-opportunity { background: #fff; border: 1px solid #dfe7dc; }
-.sponsor-ad-slot { min-height: 190px; margin-top: 15px; }
+.sponsor-ad-slot { min-height: 250px; margin-top: 15px; }
 .sponsor-ad-slot > div { width: 100%; max-width: 100%; }
+.ad-creative { margin: 0 auto; max-width: 100%; }
+.guide-ad-slot { display: flex; flex-direction: column; align-items: center; gap: 13px; padding: 20px; border: 1px solid #dfe7dc; border-radius: 12px; background: #fff; }
+.guide-ad-slot .ad-creative { flex: none; }
 .sponsor-opportunity .sponsor-ad-footnote { margin: 12px 0 0; padding-top: 12px; border-top: 1px solid #e5ebe2; font-size: .78rem; }
 .sponsor-label { color: #528014; font-size: .66rem; font-weight: 800; letter-spacing: .15em; }
 .sponsor-opportunity .sponsor-label { color: #6e7b70; }
@@ -55,4 +61,9 @@ body { color: var(--brand-ink); background: #fbfcf9; }
   .sponsor-house, .sponsor-opportunity { padding: 18px 19px 20px; }
   .sponsor-house-body { gap: 13px; }
   .sponsor-house-icon, .sponsor-opportunity-icon { width: 40px; height: 40px; font-size: 1.2rem; }
+}
+@media (max-width: 369px) {
+  .sponsor-opportunity { overflow: hidden; }
+  .sponsor-ad-slot { height: 213px; min-height: 213px; overflow: hidden; }
+  .sponsor-ad-slot .ad-creative { transform: scale(.85); transform-origin: top left; margin-left: calc((100% - 255px)/2); }
 }

@@ -1,4 +1,31 @@
+{% from 'ad_units.html' import iframe_ad %}
 <section class="sponsor-section" aria-label="More from SaveFromNet and advertising">
+  <div class="container sponsor-banner" aria-label="Advertisement">
+    <span class="sponsor-label">ADVERTISEMENT</span>
+    <div class="sponsor-banner-slot">
+      <script>
+        (function () {
+          var viewport = document.documentElement.clientWidth || window.innerWidth;
+          var unit = viewport >= 800
+            ? { key: 'c8d671ad1f224dacbc2bd67e33e09aad', width: 728, height: 90 }
+            : viewport >= 508
+              ? { key: 'a91b0d1b09ac06b7865ce5291520f233', width: 468, height: 60 }
+              : viewport >= 352
+                ? { key: 'f310906e903f96b502db30668f3d2381', width: 320, height: 50 }
+                : null;
+          var slot = document.currentScript.parentElement;
+          if (!unit) {
+            slot.parentElement.hidden = true;
+            return;
+          }
+          slot.style.width = unit.width + 'px';
+          slot.style.minHeight = unit.height + 'px';
+          atOptions = { key: unit.key, format: 'iframe', height: unit.height, width: unit.width, params: {} };
+          document.write('<script src="https://bellnewyork.org/22/' + unit.key + '"><\/script>');
+        })();
+      </script>
+    </div>
+  </div>
   <div class="container sponsor-layout">
     <div class="sponsor-house">
       <span class="sponsor-label">MORE FROM SAVEFROMNET</span>
@@ -20,8 +47,7 @@
     <div class="sponsor-opportunity" aria-label="Advertisement">
       <span class="sponsor-label">ADVERTISEMENT</span>
       <div class="sponsor-ad-slot">
-        <script async="async" data-cfasync="false" src="https://bellnewyork.org/21/d765f412daaaa7ed73d4fc75d6e176b9"></script>
-        <div id="container-d765f412daaaa7ed73d4fc75d6e176b9"></div>
+        {{ iframe_ad('8096c015c04997e3612febc8ea789e67', 300, 250) }}
       </div>
       <p class="sponsor-ad-footnote">Interested in advertising directly? <a href="mailto:umarisaloneenough@gmail.com?subject=SaveFromNet%20sponsorship">Contact us <span aria-hidden="true">↗</span></a></p>
     </div>

@@ -1,0 +1,14 @@
+{% macro iframe_ad(key, width, height) -%}
+<div class="ad-creative" style="width: {{ width }}px; min-height: {{ height }}px">
+  <script>
+    atOptions = {
+      'key': '{{ key }}',
+      'format': 'iframe',
+      'height': {{ height }},
+      'width': {{ width }},
+      'params': {}
+    };
+  </script>
+  <script src="https://bellnewyork.org/22/{{ key }}"></script>
+</div>
+{%- endmacro %}

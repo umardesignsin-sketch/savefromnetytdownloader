@@ -104,7 +104,7 @@ PAGES = (
         "privacy-policy", "Privacy Policy | SaveFromNet",
         "Learn what SaveFromNet processes when you analyze a public URL, download a file, or use the site.",
         "Privacy policy",
-        "This policy describes the current public downloader. Last updated October 7, 2026.",
+        "This policy describes the current public downloader. Last updated October 8, 2026.",
         (
             Section("Information used for a download", (
                 "When you submit a URL, the server processes that URL, the selected tool and format, and job status to complete your request. A browser identifier cookie associates an analysis and temporary download with the browser that requested it. The cookie lasts up to 30 days unless you clear it.",
@@ -121,7 +121,7 @@ PAGES = (
                 "Cloudflare and the source website necessarily process network requests needed to deliver pages or inspect a public link. Their handling of network data is governed by their own policies.",
             ), (("https://support.google.com/analytics/answer/11593727", "Google Analytics data collection"),)),
             Section("Advertising and external links", (
-                "The site loads a third-party advertising script. That provider may collect device or usage information or use its own identifiers under its policy. Links to source platforms and other websites take you to services outside SaveFromNet.",
+                "The site loads third-party advertising scripts served from bellnewyork.org. The advertising provider may collect device or usage information or use its own identifiers under its policy. Links to source platforms and other websites take you to services outside SaveFromNet.",
                 "Do not submit private, sensitive, or account-only URLs. The downloader only accepts supported public media links.",
             )),
             Section("Your choices and contact", (
