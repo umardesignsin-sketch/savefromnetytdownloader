@@ -6,7 +6,7 @@ The existing batch converter remains free for five images. Batch Pro is an optio
 
 - Live brand: `SaveFromNet` (`brnd_0NpI4ufDWP1ZWaJJfvsJ8`), enabled and verified.
 - Live one-time product: `SaveFromNet Batch Pro - 30 Days` (`pdt_0NpI4zo1fXThFVN3XHyuU`), $2.99 USD before applicable tax.
-- Live webhook: `ep_3KPW9VN7f9r8DRR8vEzJUupiUER` at `https://savefromnet.fun/api/batch-pass/webhook`, subscribed to `payment.succeeded`, `refund.succeeded`, and `dispute.lost`. It is disabled until the new Worker and processing container are deployed and tested.
+- Live webhook: `ep_3KPW9VN7f9r8DRR8vEzJUupiUER` at `https://savefromnet.fun/api/batch-pass/webhook`, subscribed to `payment.succeeded`, `refund.succeeded`, and `dispute.lost`. It is enabled on the live site.
 - A live checkout session was created without payment to verify the product and hosted checkout URL. No paid fulfillment has been tested.
 
 Create separate test-mode credentials and a test product if test transactions are needed. Do not reuse the live key in test mode.
@@ -22,16 +22,16 @@ Set these on the SaveFromNet Worker through Cloudflare's secret manager. Do not 
 | `DODO_WEBHOOK_SECRET` | Signing secret for the configured webhook endpoint |
 | `BATCH_TIER_SIGNING_KEY` | A separate random secret, at least 32 bytes, shared with the processing container through its environment |
 | `DODO_MODE` | `live` for the configured product and key |
-| `BATCH_PASS_ENABLED` | `true` only after the new Worker and container image are deployed and the payment flow is verified |
+| `BATCH_PASS_ENABLED` | `true` on the live Worker after the backend and hosted checkout checks |
 
-`BATCH_TIER_SIGNING_KEY` is passed from the Worker secret to the container by `DownloaderContainer.envVars`. The Worker strips client-supplied tier headers and signs the paid tier. Flask verifies the signature and rejects forged or old headers. This requires a new container image built from this source; the currently pinned image does not contain the ten-image code.
+`BATCH_TIER_SIGNING_KEY` is passed from the Worker secret to the container by `DownloaderContainer.envVars`. The Worker strips client-supplied tier headers and signs the paid tier. Flask verifies the signature and rejects forged or old headers. The live container image is pinned to `4a7b3dc85c2911c846d4362029c08bc86e6113c7` and contains the ten-image code.
 
-## Release and verification
+## Deployed release and verification
 
-1. Build and publish a new Cloudflare Container image from this source, and pin its immutable image reference in `wrangler.jsonc`. The current machine has no Docker installation, so use the repository's GitHub Actions container workflow after the code is committed and pushed.
-2. Build static pages with `python generate_static.py`, then deploy the Worker. Keep `BATCH_PASS_ENABLED` off for the initial deployment.
-3. Verify a free five-image ZIP, rejection of six images before purchase, hosted checkout, signed webhook delivery, ten-image ZIP after purchase, recovery-code redemption in another browser, and loss of paid access after a refund. Use a separate Dodo test-mode product and key for test transactions, or a small live purchase and refund with the owner's involvement.
-4. Enable the webhook and set `BATCH_PASS_ENABLED=true` only after the deployed container and fulfillment path have been verified.
+- The Worker and container are live on `savefromnet.fun` with Batch Pro enabled. The source image tag is `4a7b3dc85c2911c846d4362029c08bc86e6113c7`.
+- Live checks passed: one-image conversion returned a ZIP, six images were rejected at the free five-image limit, the checkout API created a secure hosted Dodo session and pending pass cookie, and an unsigned webhook request was rejected.
+- A real paid transaction, automatic pass fulfillment, recovery in another browser, and refund revocation still need an owner-controlled purchase and refund to verify end to end. No charge was made during deployment.
+- For a future image rebuild, generate short-lived Cloudflare registry credentials with Wrangler, store them as encrypted GitHub Actions secrets `CF_REGISTRY_USERNAME` and `CF_REGISTRY_PASSWORD`, run the manual `build-container.yml` workflow, pin its commit tag in `wrangler.jsonc`, then deploy. Remove the temporary GitHub secrets after a successful build.
 
 The pass is represented by a secure, HttpOnly, first-party cookie. Buyers can reveal and save a recovery code to use the pass in another browser. The code grants access; they should keep it private. Cloudflare Durable Object storage retains the order and pass state for about 45 days and removes it automatically afterward. Payment confirmation comes only from a verified Dodo webhook. A redirect query string cannot grant access.
 
