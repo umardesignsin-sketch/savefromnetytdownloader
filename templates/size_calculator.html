@@ -17,5 +17,20 @@
     <div><input id="size-share-link" type="url" readonly aria-describedby="size-share-status"><button id="size-share-copy" type="button">Copy link</button></div>
     <p id="size-share-status" role="status" aria-live="polite"></p>
   </div>
+  <section class="size-reference" aria-labelledby="size-reference-heading">
+    <h3 id="size-reference-heading">Video file size reference by bitrate</h3>
+    <p>These are decimal GB estimates for a <strong>combined video and audio bitrate</strong>. They are examples, not promised YouTube qualities or measured source files.</p>
+    <table>
+      <caption>Estimated size = duration in seconds × combined kbps ÷ 8,000,000 GB</caption>
+      <thead><tr><th scope="col">Combined bitrate</th><th scope="col">25 minutes</th><th scope="col">60 minutes</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">1 Mbps</th><td>0.19 GB</td><td>0.45 GB</td></tr>
+        <tr><th scope="row">5 Mbps</th><td>0.94 GB</td><td>2.25 GB</td></tr>
+        <tr><th scope="row">10 Mbps</th><td>1.88 GB</td><td>4.50 GB</td></tr>
+        <tr><th scope="row">20 Mbps</th><td>3.75 GB</td><td>9.00 GB</td></tr>
+      </tbody>
+    </table>
+    <p>The 512 MiB preparation limit is roughly 0.54 decimal GB. Actual output can differ because bitrate varies and a finished container has overhead.</p>
+  </section>
   <p>A source-reported byte count is more useful than this calculation. Variable bitrate, muxing and conversion can change the finished file. Read <a href="/guides/youtube-video-formats">how YouTube streams and formats work</a> before choosing a file.</p>
 </section>
