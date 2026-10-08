@@ -5,6 +5,8 @@ import { VisitorAnalytics } from "./visitor-store.mjs";
 import { dashboardHtml } from "./analytics-dashboard.mjs";
 import world from "./analytics-world.json";
 import { BatchPassStore as BatchPassHandler, activeBatchOrder, batchRecoveryCode, batchWebhook, passStatus, redeemBatchPass, signedBatchTier, startBatchCheckout } from "./batch-pass.mjs";
+import { TranscriptAccountStore as TranscriptAccountHandler, developerCheckout, developerKey, developerPortal, developerRecovery, developerRedeem, developerStatus, developerWebhook, paidTranscript } from "./transcript-api.mjs";
+import { developerDashboardHtml } from "./developer-dashboard.mjs";
 
 export { VisitorAnalytics };
 
@@ -12,6 +14,16 @@ export class BatchPassStore extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
     this.handler = new BatchPassHandler(ctx);
+  }
+
+  fetch(request) { return this.handler.fetch(request); }
+  alarm() { return this.handler.alarm(); }
+}
+
+export class TranscriptAccountStore extends DurableObject {
+  constructor(ctx, env) {
+    super(ctx, env);
+    this.handler = new TranscriptAccountHandler(ctx);
   }
 
   fetch(request) { return this.handler.fetch(request); }
@@ -119,6 +131,18 @@ export class DownloaderContainer extends Container {
 export default {
   async fetch(request, env) {
     const pathname = new URL(request.url).pathname;
+    if (pathname === "/developers" || pathname === "/developers/") {
+      if (request.method !== "GET") return new Response("Method not allowed", { status: 405 });
+      return new Response(developerDashboardHtml, { headers: privateHeaders({ "Content-Type": "text/html; charset=utf-8", "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'self'; frame-ancestors 'none'" }) });
+    }
+    if (pathname === "/api/developer/status") return request.method === "GET" ? developerStatus(request, env) : new Response("Method not allowed", { status: 405 });
+    if (pathname === "/api/developer/checkout") return request.method === "POST" ? developerCheckout(request, env) : new Response("Method not allowed", { status: 405 });
+    if (pathname === "/api/developer/recovery") return request.method === "POST" ? developerRecovery(request, env) : new Response("Method not allowed", { status: 405 });
+    if (pathname === "/api/developer/redeem") return request.method === "POST" ? developerRedeem(request, env) : new Response("Method not allowed", { status: 405 });
+    if (pathname === "/api/developer/key") return request.method === "POST" ? developerKey(request, env) : new Response("Method not allowed", { status: 405 });
+    if (pathname === "/api/developer/portal") return request.method === "POST" ? developerPortal(request, env) : new Response("Method not allowed", { status: 405 });
+    if (pathname === "/api/developer/webhook") return request.method === "POST" ? developerWebhook(request, env) : new Response("Method not allowed", { status: 405 });
+    if (pathname === "/api/v2/youtube/transcript") return paidTranscript(request, env);
     const transcriptApi = pathname === "/api/v1/youtube/transcript";
     if (transcriptApi) {
       const headers = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" };

@@ -100,6 +100,12 @@ edge site, run `python generate_static.py`. Run checks with
   the same caption extractor. See the [API documentation](https://savefromnet.fun/youtube-transcript-api)
   for a request example, response fields, and limitations. It currently has no
   API key or paid entitlement and is intended for low-volume use.
+- `POST /api/v2/youtube/transcript` accepts the same JSON with a developer Bearer
+  API key. The subscription plan is $5/month for 1,000 successful transcripts,
+  with four attempts per minute and two concurrent extractions per account.
+  `/developers` provides checkout, key rotation, account recovery, usage and
+  billing management. Checkout requires a separate Dodo subscription product
+  and webhook; see [billing setup](docs/transcript-api-billing.md).
 - `POST /api/download` with `analysis_id`, a returned `format_id`, and the
   tool slug starts a background job. The server rechecks ownership and the
   selected format.

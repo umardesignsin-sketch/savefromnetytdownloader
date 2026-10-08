@@ -300,6 +300,8 @@ class SiteTests(unittest.TestCase):
                 descriptions.add(description.group(1))
                 links = {urlsplit(link).path or "/" for link in re.findall(r'href="(/[^"]*)"', html)}
                 for link in links:
+                    if link == "/developers":  # Served by the Cloudflare Worker, not Flask.
+                        continue
                     response = self.client.get(link)
                     try:
                         self.assertEqual(response.status_code, 200, f"Broken link {link} on {path}")

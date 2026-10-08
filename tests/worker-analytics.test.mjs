@@ -2,15 +2,17 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import * as batch from '../src/batch-pass.mjs';
+import * as transcript from '../src/transcript-api.mjs';
 
 const source = readFileSync(new URL('../src/worker.js', import.meta.url), 'utf8')
   .replace(/^import .*;\r?\n/gm, '')
   .replace(/^export \{ VisitorAnalytics \};\r?\n/gm, '')
   .replace('export class BatchPassStore', 'class BatchPassStore')
+  .replace('export class TranscriptAccountStore', 'class TranscriptAccountStore')
   .replace('export class DownloaderContainer', 'class DownloaderContainer')
   .replace('export default {', 'const worker = {');
-const worker = new Function('Container', 'DurableObject', 'batch', 'guardAnalysis', 'dashboardHtml', 'world',
-  `const { BatchPassStore: BatchPassHandler, activeBatchOrder, batchRecoveryCode, batchWebhook, passStatus, redeemBatchPass, signedBatchTier, startBatchCheckout } = batch;\n${source}\nreturn worker;`)(class {}, class {}, batch, value => value, '<h1>Analytics</h1>', []);
+const worker = new Function('Container', 'DurableObject', 'batch', 'transcript', 'guardAnalysis', 'dashboardHtml', 'developerDashboardHtml', 'world',
+  `const { BatchPassStore: BatchPassHandler, activeBatchOrder, batchRecoveryCode, batchWebhook, passStatus, redeemBatchPass, signedBatchTier, startBatchCheckout } = batch;\nconst { TranscriptAccountStore: TranscriptAccountHandler, developerCheckout, developerKey, developerPortal, developerRecovery, developerRedeem, developerStatus, developerWebhook, paidTranscript } = transcript;\n${source}\nreturn worker;`)(class {}, class {}, batch, transcript, value => value, '<h1>Analytics</h1>', '<h1>Developers</h1>', []);
 
 test('dashboard and country data require the admin password', async () => {
   const env = { DASHBOARD_PASSWORD: 'test-secret', VISITOR_ANALYTICS: {
@@ -27,6 +29,13 @@ test('dashboard and country data require the admin password', async () => {
   const data = await worker.fetch(new Request('https://savefromnet.fun/api/analytics', { headers }), env);
   assert.equal((await data.json()).liveVisitors, 2);
   assert.equal(data.headers.get('Cache-Control'), 'private, no-store');
+});
+
+test('developer dashboard is served by the Worker without exposing account details in the page', async () => {
+  const response = await worker.fetch(new Request('https://savefromnet.fun/developers'), {});
+  assert.equal(response.status, 200);
+  assert.match(await response.text(), /Developers/);
+  assert.equal(response.headers.get('X-Robots-Tag'), 'noindex, nofollow');
 });
 
 test('visit signal hashes the visitor and uses Cloudflare country, not client input', async () => {

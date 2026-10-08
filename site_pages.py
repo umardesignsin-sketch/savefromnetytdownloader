@@ -58,6 +58,10 @@ PAGES = (
                 "Invalid or unsupported URLs return a JSON error. Missing captions, unavailable languages, private or restricted videos, and source failures are reported without inventing transcript text. Requests are capped at 4 KB; caption tracks and segment counts also have safety limits.",
                 "The API accepts one video per request. It does not fetch playlists, bypass sign-in or other access controls, translate captions, or run audio recognition. Use only content you own or have permission to process.",
             )),
+            Section("Developer subscription", (
+                "The authenticated /api/v2/youtube/transcript endpoint is designed for developer use. The plan is $5 per month for 1,000 successful transcripts in each billing period. Failed extraction does not consume the allowance. Requests are limited to four per minute and two active extractions per account.",
+                "Open the developer dashboard to check checkout availability, subscribe, create or rotate your API key, and see usage. Send Authorization: Bearer YOUR_API_KEY with the same JSON body as the public preview. Keep both the API key and the account recovery code private.",
+            ), (("/developers", "Open developer dashboard"),)),
         ),
     ),
     Page(
