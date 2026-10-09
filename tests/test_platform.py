@@ -24,7 +24,7 @@ from extractors.detect import DetectError, detect_url  # noqa: E402
 from extractors.service import _yt_formats  # noqa: E402
 from guides import GUIDES  # noqa: E402
 from image_tools import IMAGE_TOOLS  # noqa: E402
-from site_pages import PAGES, TOOL_GROUPS  # noqa: E402
+from public_pages import PAGES, TOOL_GROUPS  # noqa: E402
 from tools import TOOLS, TOOL_SECTIONS, TOOL_SEO_LINKS  # noqa: E402
 
 
@@ -217,7 +217,7 @@ class SiteTests(unittest.TestCase):
                 self.assertIn('id="download-form"', html)
                 self.assertIn(f'href="{guide.path}"', hub)
                 self.assertIn(f'<loc>https://savefromnet.fun{guide.path}</loc>', sitemap)
-                self.assertEqual(len(guide.sections), 3)
+                self.assertGreaterEqual(len(guide.sections), 3)
                 self.assertTrue(all(len(text.split()) >= 30 for _, text in guide.sections))
                 schemas = [json.loads(block.split('</script>')[0]) for block in html.split('<script type="application/ld+json">')[1:]]
                 self.assertEqual({schema["@type"] for schema in schemas}, {"Article", "FAQPage", "BreadcrumbList"})
@@ -311,7 +311,7 @@ class SiteTests(unittest.TestCase):
         self.assertEqual(len(descriptions), len(paths))
 
     def test_directory_resource_and_trust_pages_are_unique_and_indexable(self):
-        self.assertEqual(len(PAGES), 9)
+        self.assertEqual(len(PAGES), 10)
         self.assertEqual(len({page.title for page in PAGES}), len(PAGES))
         for page in PAGES:
             with self.subTest(page=page.slug):

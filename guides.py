@@ -21,6 +21,38 @@ class Guide:
 
 GUIDES = (
     Guide(
+        "youtube-shorts-on-phone", "How to download YouTube Shorts on iPhone or Android",
+        "Use a direct public Shorts link on your phone, choose a real video format, and find the file your browser saved.",
+        "A YouTube Short is one video, not the whole Shorts feed. If you own the clip or have permission to save it, paste its direct link into the downloader below. The formats depend on that individual Short, and your phone browser handles the final save.",
+        "youtube-shorts-downloader",
+        (
+            ("Copy the individual Short's link", "Open the Short, use its Share control to copy a link containing youtube.com/shorts/ and the video ID, then paste it into the form above. A creator's Shorts tab, playlist or search page does not identify one file. The downloader accepts the public Short only when it can be analyzed without signing in."),
+            ("Choose a video that actually appears", "After analysis, compare the returned video rows. MP4 or WebM and the listed resolution depend on the source; a vertical preview does not guarantee a particular height. Tap Download for an available choice and keep the browser tab open while the temporary file is prepared. A long or high-bitrate result may hit the 512 MB processing limit."),
+            ("Find the saved file on your phone", "Use the finished download link in the same browser. On iPhone or iPad, check that browser's downloads list and its configured Files app location. On Android, check the browser's downloads list or your device's Downloads location. Saving a file through a browser does not necessarily add it to Photos or the gallery; use your device's share or import action if you need it there."),
+            ("When a Short has no download option", "Confirm the link points to the individual Short and opens publicly without signing in. A private, removed, age- or region-restricted Short may be unavailable. If you only need audio, the YouTube to MP3 converter can show an MP3 choice when that Short has accessible sound; it cannot create audio from a silent clip."),
+        ),
+        (("Can I download Shorts without an app?", "Yes. This page works in a current phone browser; no SaveFromNet app is required."),
+         ("Why is the Short not in my photo gallery?", "The browser may save it to its downloads location. Locate the file there, then import or share it into your gallery app if you want."),
+         ("Will every Short have an MP4 download?", "No. The result displays only file formats the source exposes and the service can prepare for that specific Short.")),
+        ("youtube-video-on-mobile", "youtube-video-formats", "temporary-download-links"),
+    ),
+    Guide(
+        "youtube-mp3-on-phone", "How to convert a YouTube video to MP3 on a phone",
+        "Convert accessible audio from one public YouTube video or Short and save the finished MP3 in your phone browser.",
+        "You can use the YouTube to MP3 converter in a phone browser for a video or Short you own or may download. The converter checks the actual audio track first. The MP3 is a new file made from that source audio, not an original audio format promised for every upload.",
+        "youtube-to-mp3",
+        (
+            ("Paste a direct video or Shorts link", "Copy one public youtube.com/watch?v=, youtu.be, or youtube.com/shorts/ URL and paste it above. A playlist, creator channel, or YouTube Music album is not one eligible video. Select Download to analyze the link; the result shows an MP3 only if the source provides usable audio."),
+            ("Understand the MP3 option", "Choose an MP3 row actually returned for the video. The server converts an accessible source track with ffmpeg and then gives your browser a temporary file link. A larger output bitrate cannot restore detail missing from the original stream. If you prefer a source M4A or WebM audio track when available, use the YouTube Audio Downloader instead."),
+            ("Save the file and locate it", "Keep the tab open while the job prepares the MP3, then use its download link in the same browser. On iPhone or iPad, check the browser's downloads list and its chosen Files app location. On Android, check the browser's downloads list or Downloads location. An MP3 saved as a file does not automatically appear in every music library app."),
+            ("Fix a missing or expired result", "If there is no MP3 choice, the video may be silent, private, removed, live, restricted or blocked from anonymous access. If a finished link expires, return to Recent downloads in the original browser while the temporary file still exists. These links are short lived; save the authorized file to your phone when it is ready."),
+        ),
+        (("Do I need to install a YouTube MP3 app?", "No. The converter runs through the browser and the browser saves the completed file."),
+         ("Can I convert a YouTube Short to MP3?", "Yes, when the direct public Short exposes accessible sound. A silent Short has no audio to convert."),
+         ("Why can I not find the MP3 in my music app?", "A browser download is a file first. Find it in the browser's downloads list or device file manager, then import it into a music app if that app supports imports.")),
+        ("mp3-vs-m4a", "youtube-video-on-mobile", "temporary-download-links"),
+    ),
+    Guide(
         "youtube-video-on-mac", "How to download a YouTube video on Mac",
         "Use the browser-based YouTube video downloader on a Mac, compare available files, and find your completed download.",
         "If you need to download a public YouTube video you own or have permission to save, you can use SaveFromNet in a Mac browser. There is no separate Mac downloader app to install. The source determines which files appear, and your browser chooses where the finished file goes.",

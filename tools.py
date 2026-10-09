@@ -94,7 +94,11 @@ class Tool:
     def seo_links(self):
         links = TOOL_SEO_LINKS.get(self.slug, EXTRA_TOOL_LINKS.get(self.slug, ()))
         if self.slug in ("youtube-downloader", "youtube-video-downloader", "youtube-shorts-downloader"):
-            return links + (("/guides/youtube-video-on-mac", "Download your YouTube video on a Mac"),)
+            links += (("/guides/youtube-video-on-mac", "Download your YouTube video on a Mac"),)
+        if self.slug == "youtube-shorts-downloader":
+            links += (("/guides/youtube-shorts-on-phone", "Save YouTube Shorts on a phone"),)
+        if self.slug in ("youtube-to-mp3", "youtube-audio-downloader"):
+            links += (("/guides/youtube-mp3-on-phone", "Save a YouTube MP3 on a phone"),)
         return links
 
 

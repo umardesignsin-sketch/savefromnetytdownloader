@@ -19,7 +19,7 @@ from extractors import AnalysisError, DetectError, analyze, detect_url
 from extractors.service import resolve
 from guides import BY_SLUG as GUIDES_BY_SLUG, GUIDES
 from image_tools import BY_SLUG as IMAGE_BY_SLUG, IMAGE_TOOLS
-from site_pages import BY_SLUG as PAGES_BY_SLUG, PAGES, TOOL_GROUPS
+from public_pages import BY_SLUG as PAGES_BY_SLUG, PAGES, TOOL_GROUPS
 from tools import BY_SLUG, PLATFORMS, TOOLS, related_tools
 from transcripts import get_transcript
 

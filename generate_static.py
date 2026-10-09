@@ -10,7 +10,7 @@ import shutil
 from app import app
 from guides import GUIDES
 from image_tools import IMAGE_TOOLS
-from site_pages import PAGES
+from public_pages import PAGES
 from tools import TOOLS
 
 BASE = Path(__file__).resolve().parent

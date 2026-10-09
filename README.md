@@ -4,11 +4,16 @@ A public media downloader for content the user owns or may download. It detects
 YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and
 Dailymotion links. The 26 media and transcript tool pages share one URL validator, extraction service,
 result UI, and background job runner. Sixteen working single-image tools, a
-batch image converter, and eighteen
+batch image converter, and 21
 practical media guides have their own pages. A guides hub, tool directory,
-image-format guide, transcript API documentation and six trust pages bring the
-public canonical page count to 72. Pages never invent formats: an option is
+supported-link reference, image-format guide, transcript API documentation and six trust pages bring the
+public canonical page count to 76. Pages never invent formats: an option is
 shown only after a source extractor returns it.
+
+Useful starting points: [supported public URL formats](https://savefromnet.fun/supported-links),
+[YouTube Shorts on a phone](https://savefromnet.fun/guides/youtube-shorts-on-phone),
+[YouTube MP3 on a phone](https://savefromnet.fun/guides/youtube-mp3-on-phone),
+and the [working downloader directory](https://savefromnet.fun/tools).
 
 ## Architecture
 
