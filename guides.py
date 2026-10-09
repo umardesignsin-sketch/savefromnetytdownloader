@@ -21,6 +21,23 @@ class Guide:
 
 GUIDES = (
     Guide(
+        "youtube-video-on-mac", "How to download a YouTube video on Mac",
+        "Use the browser-based YouTube video downloader on a Mac, compare available files, and find your completed download.",
+        "If you need to download a public YouTube video you own or have permission to save, you can use SaveFromNet in a Mac browser. There is no separate Mac downloader app to install. The source determines which files appear, and your browser chooses where the finished file goes.",
+        "youtube-video-downloader",
+        (
+            ("Copy a direct link to one video", "Open the specific public video and copy its youtube.com/watch?v= or youtu.be link. Paste that link into the downloader form above and select Analyze link. A channel, playlist, live stream, rental or private upload is not an eligible finished video. For a vertical /shorts/ link, use the dedicated YouTube Shorts downloader."),
+            ("Choose a file your Mac can use", "Compare the video options returned for that link. MP4 is a practical first choice when available; WebM is another source format and may need a compatible player or editor. Resolution, audio availability and estimated size vary by upload. SaveFromNet does not create a missing 1080p or 4K option, and its processing limit is 512 MB per file."),
+            ("Save and locate the finished video", "Choose a returned format and keep the page open while the temporary download is prepared. When it is ready, use the download link. Check your browser's downloads list or its configured download location if you cannot find the file; the browser may ask you where to save it. A completed file is stored on your Mac after the browser finishes saving it, while the server's temporary copy expires."),
+            ("If the download does not start", "First confirm that the same video opens without signing in. If analysis reports a restriction, SaveFromNet cannot use your account to bypass it. If a large format is absent or processing reaches the file limit, choose a smaller option actually listed. If a temporary link has expired, return to the original browser session and use a fresh link when the file still exists."),
+        ),
+        (("Do I need a YouTube downloader app for Mac?", "No. This workflow runs in your Mac browser and saves the finished file through that browser."),
+         ("Where did the video go on my Mac?", "Check the downloads list in the browser you used and its configured download destination. Your browser settings control the local folder."),
+         ("Can I download a YouTube Short on Mac?", "Yes, use the YouTube Shorts downloader with a direct public /shorts/ link and choose a format returned for that Short."),
+         ("Can I download a private or purchased video?", "No. The public downloader does not bypass sign-in, purchases, DRM, or other access restrictions.")),
+        ("youtube-video-on-mobile", "youtube-video-formats", "youtube-hd-4k-downloads"),
+    ),
+    Guide(
         "youtube-video-on-mobile", "Download a YouTube video on iPhone or Android",
         "Use the YouTube video downloader in a phone browser, find the saved file, and troubleshoot mobile download limits.",
         "You can analyze a public YouTube watch-page video from a phone without installing a SaveFromNet app. The browser handles the final file save, so finding the download is a device step separate from preparing the video.",

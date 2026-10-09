@@ -41,6 +41,13 @@ class Tool:
 
     @property
     def faq(self):
+        if self.slug == "youtube-shorts-downloader":
+            return (
+                ("How do I download a YouTube Short?", "Copy the direct youtube.com/shorts/ link to one public Short, paste it above, and analyze it. Choose a video option returned for that Short, then save the temporary file when it is ready."),
+                ("Can I paste a YouTube Shorts feed or channel?", "No. Use the URL of an individual Short. A feed or channel contains many items and cannot identify the file to prepare."),
+                ("Can I save Shorts as MP3?", "If the Short exposes accessible audio, use the YouTube to MP3 converter linked below. The result shows only options available for that source."),
+                ("Why is a Shorts download unavailable?", "The Short may be private, deleted, live, restricted, or blocked from anonymous access. A format missing from the analysis cannot be created by changing the URL."),
+            )
         if self.slug == "youtube-to-mp3":
             return (
                 ("How does the YouTube to MP3 converter work?", "Paste one public YouTube video or Short URL. After analysis, choose an MP3 option returned for that link. The server extracts available audio and converts it with ffmpeg before offering a temporary file."),
@@ -85,7 +92,10 @@ class Tool:
 
     @property
     def seo_links(self):
-        return TOOL_SEO_LINKS.get(self.slug, EXTRA_TOOL_LINKS.get(self.slug, ()))
+        links = TOOL_SEO_LINKS.get(self.slug, EXTRA_TOOL_LINKS.get(self.slug, ()))
+        if self.slug in ("youtube-downloader", "youtube-video-downloader", "youtube-shorts-downloader"):
+            return links + (("/guides/youtube-video-on-mac", "Download your YouTube video on a Mac"),)
+        return links
 
 
 TOOL_META = {
@@ -98,8 +108,12 @@ TOOL_META = {
         "Download a public YouTube video you may save. Paste a watch or youtu.be link, see available MP4 or WebM qualities, and prepare a temporary file.",
     ),
     "youtube-to-mp3": (
-        "YouTube to MP3 Converter | SaveFromNet",
-        "Convert a public YouTube video or Short to MP3. Check accessible audio, choose a real option, and prepare a temporary MP3 download.",
+        "YouTube MP3 Converter – YouTube to MP3 | SaveFromNet",
+        "Convert a public YouTube video or Short to MP3 when audio is available. Paste a direct link, compare real audio options, and save a temporary MP3 file.",
+    ),
+    "youtube-shorts-downloader": (
+        "YouTube Shorts Download | Shorts Downloader | SaveFromNet",
+        "Download a public YouTube Short you may save. Paste its direct Shorts URL, see the available video formats, and prepare a temporary file.",
     ),
     "youtube-to-transcript": (
         "YouTube to Transcript Converter | SaveFromNet",
@@ -153,8 +167,13 @@ TOOL_SECTIONS = {
         )),
     ),
     "youtube-shorts-downloader": (
-        ("Save one public Short", (
-            "Copy the individual youtube.com/shorts/ URL, not a channel's Shorts tab. The analyzer validates the Short and returns the video or audio choices actually exposed for it. Choose from that result rather than assuming every vertical clip has the same resolution.",
+        ("How to download YouTube Shorts", (
+            "Open the individual public Short you own or have permission to save and copy its youtube.com/shorts/ URL. Paste that link above and select Analyze link. The YouTube short video download options come from that Short's accessible streams; select one returned video format, then save the temporary file when preparation finishes.",
+            "A Shorts feed, creator channel, playlist, or search page cannot identify one file. Use a direct link containing the Short's video ID. If you have a standard watch-page link, use the YouTube Video Downloader instead.",
+        )),
+        ("Choose the actual Shorts format", (
+            "Shorts may expose different MP4 or WebM sizes and resolutions. The result card shows the available container, height and size estimate only when source data supports them. A portrait video is not automatically available in every quality, and a missing option cannot be forced by changing the URL.",
+            "If you need only the sound from a Short, try the YouTube to MP3 converter. It offers MP3 only when that Short has accessible audio; it cannot invent an audio track for a silent clip.",
         )),
         ("If a Short has no usable file", (
             "A removed, private, age-gated or live Short may be unavailable to an anonymous server. A video-only stream without accessible audio is not offered as a normal finished video. For a standard watch-page link, use the YouTube Video Downloader instead.",
