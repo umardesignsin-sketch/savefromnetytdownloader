@@ -42,6 +42,17 @@
 .priority-detail section{padding:0 0 24px;margin:0 0 30px;border-bottom:1px solid var(--line)}
 .priority-detail a{color:#356309;text-decoration:underline;text-underline-offset:3px}
 .priority-related{display:flex;flex-wrap:wrap;gap:13px 22px;padding-top:10px;font-weight:700;font-size:.93rem}
+.youtube-at-a-glance{padding:18px 0 30px;background:#f6f8f4}
+.youtube-glance-card{padding:22px 26px;border:1px solid var(--line);border-radius:18px;background:var(--paper)}
+.youtube-glance-card h2{margin:0 0 16px;font-size:1.18rem}
+.youtube-glance-card dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0}
+.youtube-glance-card dl>div{padding:13px;border-radius:11px;background:#f2f8f2}
+.youtube-glance-card dt{margin-bottom:5px;color:#356309;font-size:.77rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+.youtube-glance-card dd{margin:0;color:#455357;font-size:.87rem;line-height:1.5}
+.youtube-section-nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}
+.youtube-section-nav a{padding:7px 11px;border:1px solid var(--line);border-radius:999px;color:#356309;font-size:.81rem;font-weight:700;text-decoration:none}
+.youtube-section-nav a:hover,.youtube-section-nav a:focus-visible{border-color:var(--green);text-decoration:underline}
+#supported-links,#format-guide{scroll-margin-top:90px}
 .size-calculator-section{background:#fff;padding:30px 0 72px}
 .size-calculator{max-width:850px;margin:0 auto;padding:27px;border:1px solid #c8e0d2;border-radius:18px;background:#f1f9f4}
 .size-calculator h2{font-size:clamp(1.7rem,3vw,2.5rem);margin:0 0 16px}
@@ -72,7 +83,7 @@
 .size-calculator .size-reference p{font-size:.89rem;margin:6px 0}
 .size-calculator a{color:#356309;text-decoration:underline;text-underline-offset:3px}
 @media(max-width:900px){.content-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.content-columns{grid-template-columns:minmax(0,1fr) 230px;gap:30px}}
-@media(max-width:700px){.content-hero{padding:24px 0 46px}.content-body{padding:38px 0 64px}.content-columns,.content-tool-grid,.size-calculator-grid{grid-template-columns:1fr}.content-aside{position:static}.content-section-heading{display:block}.content-section-heading p{margin-top:8px}.category-jump{margin-bottom:38px}.content-tool-card{padding:22px}.size-calculator-section{padding:0 0 50px}.size-calculator{padding:20px}.size-calculator-share>div{flex-direction:column}.size-reference th,.size-reference td{padding:8px 4px;font-size:.8rem}}
+@media(max-width:700px){.content-hero{padding:24px 0 46px}.content-body{padding:38px 0 64px}.content-columns,.content-tool-grid,.size-calculator-grid,.youtube-glance-card dl{grid-template-columns:1fr}.content-aside{position:static}.content-section-heading{display:block}.content-section-heading p{margin-top:8px}.category-jump{margin-bottom:38px}.content-tool-card{padding:22px}.youtube-glance-card{padding:18px}.size-calculator-section{padding:0 0 50px}.size-calculator{padding:20px}.size-calculator-share>div{flex-direction:column}.size-reference th,.size-reference td{padding:8px 4px;font-size:.8rem}}
 .utility-workspace { padding: 2rem 0; background: #f6f8f4; }
 .utility-shell { max-width: 880px; }
 #utility-form, .utility-result { display: grid; gap: 1rem; padding: 1.5rem; border: 1px solid #dce5dc; border-radius: 1.25rem; background: #fff; box-shadow: 0 16px 36px rgba(14, 39, 31, 0.06); }

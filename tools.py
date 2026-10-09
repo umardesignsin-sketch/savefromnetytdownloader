@@ -93,6 +93,8 @@ class Tool:
     @property
     def seo_links(self):
         links = TOOL_SEO_LINKS.get(self.slug, EXTRA_TOOL_LINKS.get(self.slug, ()))
+        if self.slug in ("youtube-downloader", "youtube-video-downloader", "youtube-shorts-downloader", "youtube-to-mp3"):
+            links += (("/guides/how-to-copy-a-youtube-link", "Copy the right YouTube link"),)
         if self.slug in ("youtube-downloader", "youtube-video-downloader", "youtube-shorts-downloader"):
             links += (("/guides/youtube-video-on-mac", "Download your YouTube video on a Mac"),)
         if self.slug == "youtube-shorts-downloader":
@@ -100,6 +102,34 @@ class Tool:
         if self.slug in ("youtube-to-mp3", "youtube-audio-downloader"):
             links += (("/guides/youtube-mp3-on-phone", "Save a YouTube MP3 on a phone"),)
         return links
+
+    @property
+    def quick_facts(self):
+        return YOUTUBE_QUICK_FACTS.get(self.slug, ())
+
+
+YOUTUBE_QUICK_FACTS = {
+    "youtube-downloader": (
+        ("Links", "One public YouTube watch, youtu.be, or Shorts link"),
+        ("Choices", "Video or audio options returned for that upload"),
+        ("Limit", "One item at a time; prepared files up to 512 MB"),
+    ),
+    "youtube-video-downloader": (
+        ("Links", "One public youtube.com/watch?v= or youtu.be video"),
+        ("Choices", "Available MP4 or WebM video files with sound"),
+        ("Limit", "One finished video at a time, up to 512 MB"),
+    ),
+    "youtube-shorts-downloader": (
+        ("Links", "One public youtube.com/shorts/ video, not a Shorts feed"),
+        ("Choices", "Video formats and resolutions returned for that Short"),
+        ("Limit", "One Short at a time; prepared files up to 512 MB"),
+    ),
+    "youtube-to-mp3": (
+        ("Links", "One public YouTube video or Short with accessible audio"),
+        ("Choices", "MP3 options shown after the audio is analyzed"),
+        ("Limit", "One item at a time; prepared files up to 512 MB"),
+    ),
+}
 
 
 TOOL_META = {

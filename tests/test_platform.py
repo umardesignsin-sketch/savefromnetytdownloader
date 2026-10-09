@@ -119,6 +119,20 @@ class SiteTests(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
 
+    def test_youtube_help_navigation_and_guide_are_reachable(self):
+        for slug in ("youtube-downloader", "youtube-video-downloader", "youtube-shorts-downloader", "youtube-to-mp3"):
+            with self.subTest(slug=slug):
+                html = self.client.get("/" + slug).get_data(as_text=True)
+                self.assertIn('aria-label="On this page"', html)
+                for anchor in ("how-it-works", "supported-links", "format-guide", "faq"):
+                    self.assertIn(f'href="#{anchor}"', html)
+                    self.assertIn(f'id="{anchor}"', html)
+                self.assertIn('href="/guides/how-to-copy-a-youtube-link"', html)
+        guide = self.client.get("/guides/how-to-copy-a-youtube-link")
+        self.assertEqual(guide.status_code, 200)
+        self.assertIn('rel="canonical" href="https://savefromnet.fun/guides/how-to-copy-a-youtube-link"', guide.get_data(as_text=True))
+        self.assertIn('/guides/how-to-copy-a-youtube-link', self.client.get('/sitemap.xml').get_data(as_text=True))
+
     def test_all_tool_routes_have_metadata_and_schema(self):
         self.assertEqual(len(TOOLS), 26)
         for tool in TOOLS:

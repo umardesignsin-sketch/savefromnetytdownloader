@@ -21,6 +21,22 @@ class Guide:
 
 GUIDES = (
     Guide(
+        "how-to-copy-a-youtube-link", "How to copy a YouTube video or Shorts link",
+        "Find the direct URL for one public YouTube video or Short, including phone share links, and avoid playlist or channel links.",
+        "A downloader needs a link to one video, not a search result, channel, or feed. The steps below help you copy the right link for a public upload you own or have permission to save, then choose the matching SaveFromNet tool.",
+        "youtube-downloader",
+        (
+            ("Copy a watch-page link on desktop", "Open the individual video and copy its address from the browser. A standard link contains youtube.com/watch?v= followed by the video's ID. You can also use the video's Share control to copy a youtu.be short link. Both forms point to one upload; a bare channel or search URL does not."),
+            ("Use Share on iPhone or Android", "Open the individual video in YouTube or your phone browser, tap Share, then Copy link. Paste it into the downloader form. The copied address may contain extra share or timestamp parameters; SaveFromNet reads the video ID and removes those extras during URL normalization. You do not need to edit the link by hand."),
+            ("Identify a Shorts link", "Open the specific Short and copy its Share link. A direct youtube.com/shorts/ URL includes the Short's ID. Use the YouTube Shorts Downloader for a video file, or the YouTube to MP3 Converter when accessible audio is what you need. A Shorts tab or feed is not an individual clip."),
+            ("Avoid playlist and access problems", "A watch URL can include a playlist parameter, but SaveFromNet processes only the one video identified by its video ID. A playlist page, channel homepage, private upload, age-restricted video, rental, or live stream is not a supported finished file. If a direct link fails, check whether it opens publicly without signing in and whether the video is still available."),
+        ),
+        (("Does a youtu.be link work?", "Yes. A youtu.be link to one public video works when that video is accessible for anonymous analysis."),
+         ("Should I remove the timestamp or share parameters?", "No. The URL detector normalizes supported video links and discards unrelated parameters before analysis."),
+         ("Can I download a whole playlist from one link?", "No. The downloader prepares one eligible video at a time; it does not fetch an entire playlist.")),
+        ("youtube-video-on-mobile", "youtube-shorts-on-phone", "youtube-mp3-on-phone"),
+    ),
+    Guide(
         "youtube-shorts-on-phone", "How to download YouTube Shorts on iPhone or Android",
         "Use a direct public Shorts link on your phone, choose a real video format, and find the file your browser saved.",
         "A YouTube Short is one video, not the whole Shorts feed. If you own the clip or have permission to save it, paste its direct link into the downloader below. The formats depend on that individual Short, and your phone browser handles the final save.",
