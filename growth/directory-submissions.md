@@ -1,10 +1,10 @@
 # SaveFromNet directory submissions
 
-Updated 2026-10-08. Canonical product URL: https://savefromnet.fun/
+Updated 2026-10-09. Canonical product URL: https://savefromnet.fun/
 
 The source list is the 43 recorded RankVyze directories, the 14 confirmed Mac Screen Recorder submissions, and the two confirmed FNJ submissions. An accepted form is not a public backlink. SaveFromNet is a free web downloader and converter for supported public media URLs; it does not use AI extraction, provide a Mac app, or bypass access controls. The owner-authorized contact email was supplied only where required and is not repeated in this public tracker.
 
-## Confirmed: 14 distinct directories
+## Confirmed: 15 distinct directories
 
 | Directory | Status | Evidence |
 | --- | --- | --- |
@@ -22,6 +22,7 @@ The source list is the 43 recorded RankVyze directories, the 14 confirmed Mac Sc
 | [Launching Next](https://www.launchingnext.com/thanks/?i=157219) | In queue | The free submission redirected to a unique “SUBMITTED” receipt, ID 157219; the page estimates a four-month wait. The owner confirmed a $0 marketing budget. Paid fast track was declined. |
 | [The Tool Directory](https://thetooldirectory.com/submit-a-tool/?submitted=1) | In review | Free Video & Audio submission displayed “Thanks — your listing was submitted for review.” No paid feature was selected. No public backlink verified yet. |
 | [The Free Tools Directory](https://thefreetoolsdirectory.com/submit) | In review | Submitted the working YouTube Video Downloader URL under Photography & Video. The page displayed “Submission received!” and said editorial review follows. No public backlink verified yet. |
+| [DevPages](https://devpages.io/submit-a-tool) | In review | Submitted the documented YouTube Transcript API in its APIs category. The form displayed “Submission received” and said each tool is reviewed by hand. No public listing or backlink verified yet. |
 
 ## Needs owner action
 
@@ -43,10 +44,10 @@ The source list is the 43 recorded RankVyze directories, the 14 confirmed Mac Sc
 - MadeWithStack requires a future badge commitment and specifically curates agent-built or agent-native products; no claim or commitment was invented.
 - No-Subscription.com and OwnYourMac curate Mac apps; ToolHunt accepts self-hosted or free Mac apps; the Snipping Tools Directory is for screen capture software. SaveFromNet does not fit those categories.
 - The RankVyze campaign's AISO Tools, CurataHub, Agent Visibility Directory, ListAi.cc, AI Nav, TopTrendy, CitedIndex, AISEO Dex, AISuperHub, AutoVenture, UStack, AI Search Visibility, TrendyInAI, Geodeck, LLM Relevance, Rundown Supertools, ListYourTool, Dynamite AI, Future AI Guide, ThatsMyAI, AI Tools Up, AI Tools Inc, AI Marketing Directory, MarsX AI Startups, and NextGenTools are AI, SEO, AEO, or GEO directories. SaveFromNet does not claim those features.
-- DevPages is for developer tools and ToolsNoCode is for no-code products. SaveFromNet does not fit those categories.
+- ToolsNoCode is for no-code products. SaveFromNet does not fit that category.
 
 No directory listing fee or upgrade was purchased. Review queues, email confirmation, and live publication are tracked separately.
 
 ## DR audit
 
-As of Oct 8, these submissions have produced no **verified new followed referring domain** for SaveFromNet. CurlShip and Zearches are visible mentions, but their outbound links are marked `nofollow`; TechTools' public link is unverified; the remaining listings are pending. Ahrefs DR changes depend on its own backlink crawl and followed referring domains, so no DR increase is claimed from these submissions.
+As of Oct 9, these submissions have produced no **verified new followed referring domain** for SaveFromNet. CurlShip and Zearches are visible mentions, but their outbound links are marked `nofollow`; TechTools' public link is unverified; the remaining listings are pending. Ahrefs DR changes depend on its own backlink crawl and followed referring domains, so no DR increase is claimed from these submissions.
