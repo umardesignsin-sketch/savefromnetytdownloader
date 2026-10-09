@@ -19,7 +19,7 @@
   "containers": [
     {
       "class_name": "DownloaderContainer",
-      "image": "registry.cloudflare.com/e216b35633d32ecc2a61a21369976716/savefromnet-final:4a7b3dc85c2911c846d4362029c08bc86e6113c7",
+      "image": "registry.cloudflare.com/e216b35633d32ecc2a61a21369976716/savefromnet-final:08a60c93df798290c3c1d3fe66618eaf589b43ff",
       "instance_type": "basic",
       "max_instances": 1
     }
