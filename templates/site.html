@@ -15,6 +15,8 @@
   <title>{{ title }}</title>
   <meta name="description" content="{{ description }}">
   <link rel="canonical" href="{{ canonical }}">
+  {% for language, href in alternate_urls|default(()) %}<link rel="alternate" hreflang="{{ language }}" href="{{ href }}">
+  {% endfor %}
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SaveFromNet">
   <meta property="og:title" content="{{ title }}">
@@ -31,6 +33,7 @@
   {% if image_tool is defined and image_tool %}<link rel="stylesheet" href="{{ url_for('static', filename='css/image-tools.css') }}">{% endif %}
   {% if batch_tool is defined and batch_tool %}<link rel="stylesheet" href="{{ url_for('static', filename='css/batch-images.css') }}">{% endif %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/polish.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/localized.css') }}">
   {% for item in schema %}<script type="application/ld+json">{{ item | tojson }}</script>{% endfor %}
 </head>
 <body data-tool="{{ tool.slug if tool else 'universal-video-downloader' }}" data-platform="{{ tool.platform if tool and tool.platform != 'universal' else 'unknown' }}" data-page-type="{{ 'batch-tool' if batch_tool is defined and batch_tool else 'image-tool' if image_tool is defined and image_tool else 'content' if content_page else 'guide' if guide or guide_index else 'tool' if tool else 'home' }}">
@@ -56,6 +59,7 @@
         </details>
         <a href="/#how-it-works">How it works</a>
         <a href="/guides">Guides</a>
+        {% if alternate_urls|default(()) %}<span class="language-links"><a href="{{ alternate_urls[0][1] }}" lang="en" hreflang="en" aria-current="page">EN</a><a href="{{ alternate_urls[1][1] }}" lang="es" hreflang="es">ES</a><a href="{{ alternate_urls[2][1] }}" lang="fr" hreflang="fr">FR</a></span>{% endif %}
       </nav>
     </div>
   </header>

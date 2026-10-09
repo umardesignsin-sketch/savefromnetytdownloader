@@ -59,12 +59,15 @@ def main():
         from app import app  # Imported after temporary paths are configured.
         from guides import GUIDES
         from image_tools import IMAGE_TOOLS
+        from localized_pages import LANGUAGE_UI, PUBLISHED_SLUGS
         from public_pages import PAGES
         from tools import TOOLS
 
         routes = [("/", "home"), ("/guides", "guide hub"),
                   ("/batch-image-converter", "image tool")]
         routes += [(tool.path, "tool") for tool in TOOLS]
+        routes += [(f"/{lang}", "localized home") for lang in LANGUAGE_UI]
+        routes += [(f"/{lang}/{slug}", "localized tool") for lang in LANGUAGE_UI for slug in PUBLISHED_SLUGS]
         routes += [(tool.path, "image tool") for tool in IMAGE_TOOLS]
         routes += [(guide.path, "guide") for guide in GUIDES]
         routes += [(page.path, "directory" if page.slug == "tools" else "resource" if page.slug in ("image-format-guide", "youtube-transcript-api", "supported-links") else "trust") for page in PAGES]

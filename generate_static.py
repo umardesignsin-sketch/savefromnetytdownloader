@@ -10,6 +10,7 @@ import shutil
 from app import app
 from guides import GUIDES
 from image_tools import IMAGE_TOOLS
+from localized_pages import LANGUAGE_UI, PUBLISHED_SLUGS
 from public_pages import PAGES
 from tools import TOOLS
 
@@ -28,6 +29,8 @@ def main():
     pages = [("/", "index.html"), ("/batch-image-converter", "batch-image-converter.html"), ("/robots.txt", "robots.txt"),
              ("/sitemap.xml", "sitemap.xml"), ("/missing-page", "404.html")]
     pages += [(tool.path, f"{tool.slug}.html") for tool in TOOLS]
+    pages += [(f"/{lang}", f"{lang}.html") for lang in LANGUAGE_UI]
+    pages += [(f"/{lang}/{slug}", f"{lang}/{slug}.html") for lang in LANGUAGE_UI for slug in PUBLISHED_SLUGS]
     pages += [(tool.path, f"{tool.slug}.html") for tool in IMAGE_TOOLS]
     pages += [("/guides", "guides.html")]
     pages += [(guide.path, f"guides/{guide.slug}.html") for guide in GUIDES]
@@ -40,14 +43,14 @@ def main():
         target = DIST / filename
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(response.data)
-    for name in ("css/site.css", "css/reference.css", "css/polish.css", "css/content.css", "css/image-tools.css", "css/batch-images.css", "css/transcript.css", "js/site.js", "js/visitor.js", "js/transcript.js", "js/image-tools.js", "js/batch-images.js", "js/size-estimator.mjs", "favicon.svg"):
+    for name in ("css/site.css", "css/reference.css", "css/polish.css", "css/localized.css", "css/content.css", "css/image-tools.css", "css/batch-images.css", "css/transcript.css", "js/site.js", "js/visitor.js", "js/transcript.js", "js/image-tools.js", "js/batch-images.js", "js/size-estimator.mjs", "favicon.svg"):
         source = BASE / "static" / name
         target = DIST / "static" / name
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
     shutil.copy2(BASE / "sw.js", DIST / "sw.js")
     shutil.copy2(BASE / "_headers", DIST / "_headers")
-    print(f"Rendered {len(TOOLS)} media tools, {len(IMAGE_TOOLS)} image tools, {len(GUIDES)} guides, {len(PAGES)} directory and trust pages, homepage, and site assets to {DIST}")
+    print(f"Rendered {len(TOOLS)} media tools, {len(LANGUAGE_UI) * (1 + len(PUBLISHED_SLUGS))} localized pages, {len(IMAGE_TOOLS)} image tools, {len(GUIDES)} guides, {len(PAGES)} directory and trust pages, homepage, and site assets to {DIST}")
 
 
 if __name__ == "__main__":

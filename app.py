@@ -9,6 +9,7 @@ import threading
 import time
 from collections import defaultdict, deque
 from urllib.parse import urlencode
+from xml.sax.saxutils import escape as xml_escape
 
 from flask import Flask, g, jsonify, render_template, request, send_file, Response
 
@@ -19,6 +20,7 @@ from extractors import AnalysisError, DetectError, analyze, detect_url
 from extractors.service import resolve
 from guides import BY_SLUG as GUIDES_BY_SLUG, GUIDES
 from image_tools import BY_SLUG as IMAGE_BY_SLUG, IMAGE_TOOLS
+from localized_pages import LANGUAGE_UI, LOCALIZED_TOOLS, PUBLISHED_SLUGS, alternates
 from public_pages import BY_SLUG as PAGES_BY_SLUG, PAGES, TOOL_GROUPS
 from tools import BY_SLUG, PLATFORMS, TOOLS, related_tools
 from transcripts import get_transcript
@@ -247,6 +249,7 @@ def _page(tool=None, guide=None, guide_index=False):
     platform_guide = GUIDES_BY_SLUG.get(platform_guides.get(tool.platform)) if tool else None
     return render_template("site.html", tool=tool, title=title, description=description,
                            canonical=canonical, tools=TOOLS, platforms=PLATFORMS,
+                           alternate_urls=alternates(SITE_URL, tool.slug if tool else None) if not (guide or guide_index) else (),
                            related=related_tools(tool) if tool else featured_tools, schema=schema,
                            guide=guide, guide_index=guide_index, guides=GUIDES,
                            related_guides=_related_guides(guide),
@@ -257,6 +260,54 @@ def _page(tool=None, guide=None, guide_index=False):
 @app.get("/")
 def index():
     return _page()
+
+
+def _localized_page(lang, slug=None):
+    ui = LANGUAGE_UI[lang]
+    copy = LOCALIZED_TOOLS[lang].get(slug) if slug else None
+    if slug and not copy:
+        return render_template("404.html", tools=TOOLS), 404
+    tool = BY_SLUG[slug] if slug else None
+    path = f"/{lang}" + (f"/{slug}" if slug else "")
+    canonical = SITE_URL + path
+    heading = copy.heading if copy else ui["home_heading"]
+    intro = copy.intro if copy else ui["home_intro"]
+    title = f"{heading} | SaveFromNet" if copy else ui["home_title"]
+    description = f"{intro} {copy.formats}" if copy else intro
+    faq = [(copy.question, copy.answer)] if copy else [(ui["faq_home_question"], ui["faq_home_answer"])]
+    faq.append((ui["faq_availability_question"], ui["faq_availability_answer"]))
+    schema = [
+        {"@context": "https://schema.org", "@type": "WebApplication", "name": heading,
+         "description": description, "url": canonical, "applicationCategory": "MultimediaApplication",
+         "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}},
+        {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": ui["home_heading"], "item": SITE_URL + f"/{lang}"}
+        ] + ([{"@type": "ListItem", "position": 2, "name": heading, "item": canonical}] if tool else [])},
+        {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+            {"@type": "Question", "name": question, "acceptedAnswer": {"@type": "Answer", "text": answer}}
+            for question, answer in faq]},
+    ]
+    related = [item for item in related_tools(tool) if item.slug in PUBLISHED_SLUGS] if tool else []
+    if not related:
+        related = [BY_SLUG[item] for item in PUBLISHED_SLUGS[:8]]
+    return render_template("localized_page.html", lang=lang, ui=ui, copy=copy, tool=tool,
+                           heading=heading, intro=intro, title=title, description=description,
+                           canonical=canonical, schema=schema, faq=faq,
+                           alternate_urls=alternates(SITE_URL, slug),
+                           localized_tools=LOCALIZED_TOOLS[lang], related=related,
+                           all_slugs=PUBLISHED_SLUGS)
+
+
+@app.get("/es")
+@app.get("/fr")
+def localized_home():
+    return _localized_page(request.path[1:])
+
+
+@app.get("/es/<slug>")
+@app.get("/fr/<slug>")
+def localized_tool(slug):
+    return _localized_page(request.path.split("/")[1], slug)
 
 
 @app.get("/guides")
@@ -591,8 +642,18 @@ def sitemap():
     pages += [SITE_URL + "/guides"]
     pages += [SITE_URL + guide.path for guide in GUIDES]
     pages += [SITE_URL + page.path for page in PAGES]
-    body = "".join(f"<url><loc>{url}</loc></url>" for url in pages)
-    return Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + body + "</urlset>", mimetype="application/xml")
+    pages += [SITE_URL + f"/{lang}" for lang in LANGUAGE_UI]
+    pages += [SITE_URL + f"/{lang}/{slug}" for lang in LANGUAGE_UI for slug in PUBLISHED_SLUGS]
+    alternate_map = {}
+    for slug in (None, *PUBLISHED_SLUGS):
+        group = alternates(SITE_URL, slug)
+        for _, url in group:
+            alternate_map[url] = group
+    body = "".join(
+        "<url><loc>" + xml_escape(url) + "</loc>" + "".join(
+            f'<xhtml:link rel="alternate" hreflang="{lang}" href="{xml_escape(href)}" />'
+            for lang, href in alternate_map.get(url, ())) + "</url>" for url in pages)
+    return Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">' + body + "</urlset>", mimetype="application/xml")
 
 
 if __name__ == "__main__":

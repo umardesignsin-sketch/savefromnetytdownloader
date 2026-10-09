@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8f6">
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}">
+  <link rel="canonical" href="{{ canonical }}">
+  {% for language, href in alternate_urls %}<link rel="alternate" hreflang="{{ language }}" href="{{ href }}">
+  {% endfor %}
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SaveFromNet">
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:description" content="{{ description }}">
+  <meta property="og:url" content="{{ canonical }}">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{ title }}">
+  <meta name="twitter:description" content="{{ description }}">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="stylesheet" href="/static/css/site.css">
+  <link rel="stylesheet" href="/static/css/reference.css">
+  <link rel="stylesheet" href="/static/css/polish.css">
+  <link rel="stylesheet" href="/static/css/localized.css">
+  {% for item in schema %}<script type="application/ld+json">{{ item | tojson }}</script>{% endfor %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-L1G52YY7TJ"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-L1G52YY7TJ');</script>
+</head>
+<body data-tool="{{ tool.slug if tool else 'universal-video-downloader' }}" data-platform="{{ tool.platform if tool and tool.platform != 'universal' else 'unknown' }}" data-page-type="{{ 'tool' if tool else 'home' }}" data-lang="{{ lang }}">
+  <a class="skip-link" href="#main">{{ ui.nav_tools }}</a>
+  <header class="site-header"><div class="container header-inner">
+    <a class="brand" href="/{{ lang }}" aria-label="SaveFromNet">savefromnet<span class="brand-dot">.</span>fun</a>
+    <button class="menu-toggle" type="button" aria-controls="main-nav" aria-expanded="false" aria-label="{{ ui.nav_tools }}"><span></span><span></span><span></span></button>
+    <nav id="main-nav" class="main-nav" aria-label="{{ ui.nav_tools }}">
+      <a href="/{{ lang }}/youtube-downloader">YouTube</a>
+      <a href="/{{ lang }}/instagram-downloader">Instagram</a>
+      <a href="/{{ lang }}/tiktok-downloader">TikTok</a>
+      <a href="#tools">{{ ui.nav_tools }}</a>
+      <a href="#how-it-works">{{ ui.nav_how }}</a>
+      <a href="#rights">{{ ui.nav_rights }}</a>
+      <span class="language-links"><a href="{{ alternate_urls[0][1] }}" lang="en" hreflang="en">EN</a><a href="{{ alternate_urls[1][1] }}" lang="es" hreflang="es"{% if lang == 'es' %} aria-current="page"{% endif %}>ES</a><a href="{{ alternate_urls[2][1] }}" lang="fr" hreflang="fr"{% if lang == 'fr' %} aria-current="page"{% endif %}>FR</a></span>
+    </nav>
+  </div></header>
+  <main id="main">
+    <section class="tool-hero"><div class="container hero-centered">
+      {% if tool %}<nav class="breadcrumb" aria-label="Breadcrumb"><a href="/{{ lang }}">{{ ui.home_heading }}</a><span>›</span><span aria-current="page">{{ heading }}</span></nav>{% endif %}
+      <h1 id="download-heading">{{ heading }}</h1><p class="guide-lead">{{ intro }}</p>
+    </div></section>
+    <section class="download-zone" aria-labelledby="download-heading"><div class="container narrow"><div class="download-panel">
+      <form id="download-form" novalidate><label for="url" class="sr-only">{{ ui.url_label }}</label>
+        <div class="input-row"><span class="input-icon" aria-hidden="true">◎</span><input id="url" type="url" inputmode="url" placeholder="{{ ui.url_placeholder }}" autocomplete="url" required><button id="paste-btn" class="paste-btn" type="button">{{ ui.paste }}</button><button id="submit-btn" class="submit-btn" type="submit">{{ ui.download }}</button></div>
+        <p class="form-error" id="url-error" role="alert" hidden></p>
+      </form><p class="download-note">{{ ui.rights }}</p>
+      <div id="analysis-status" class="analysis-status" role="status" aria-live="polite" hidden><span class="spinner"></span><span id="analysis-label"></span></div>
+    </div><div id="result" class="result-panel" aria-live="polite" hidden></div>
+    <div id="progress-card" class="progress-panel" aria-live="polite" hidden><div class="progress-head"><div><h3 id="job-title"></h3><p id="job-stage"></p></div><strong id="job-percent">0%</strong></div><div class="progress-track"><div id="progress-bar"></div></div><p id="job-meta"></p><div id="job-result"></div></div>
+    </div></section>
+    <section id="tools" class="quick-tools" aria-label="{{ ui.platforms_title }}"><div class="container"><h2>{{ ui.platforms_title }}</h2><div class="quick-tools-grid">
+      {% for item in related %}<a class="quick-tool" href="/{{ lang }}/{{ item.slug }}"><span class="platform-icon {{ item.platform }}" aria-hidden="true">{{ item.platform[0] | upper }}</span><span>{{ localized_tools[item.slug].heading }}</span></a>{% endfor %}
+    </div></div></section>
+    <div class="container localized-detail-grid">
+      <section id="how-it-works" class="detail-card"><h2>{{ ui.how_title }}</h2><p>{{ copy.how if copy else ui.how_home }}</p></section>
+      <section class="detail-card"><h2>{{ ui.formats_title }}</h2><p>{{ copy.formats if copy else ui.formats_home }}</p></section>
+      <section class="detail-card"><h2>{{ ui.limits_title }}</h2><p>{{ copy.limits if copy else ui.limits_home }}</p></section>
+      <section id="rights" class="detail-card"><h2>{{ ui.nav_rights }}</h2><p>{{ ui.rights }}</p></section>
+    </div>
+    <section class="container localized-faq" id="faq"><h2>{{ ui.faq_title }}</h2>{% for question, answer in faq %}<details><summary>{{ question }}</summary><p>{{ answer }}</p></details>{% endfor %}</section>
+    <section class="container localized-directory" aria-label="{{ ui.related_title }}"><h2>{{ ui.related_title }}</h2><div class="localized-links">{% for slug in all_slugs %}{% if not tool or slug != tool.slug %}<a href="/{{ lang }}/{{ slug }}">{{ localized_tools[slug].heading }} <span aria-hidden="true">→</span></a>{% endif %}{% endfor %}</div></section>
+    <section class="history-section section-space"><div class="container narrow"><details><summary><span><strong>{{ ui.history_title }}</strong></span><span>{{ ui.history_view }} <span aria-hidden="true">⌄</span></span></summary><div id="history-list" class="history-list"></div></details></div></section>
+  </main>
+  <footer class="site-footer"><div class="container localized-footer"><a class="brand" href="/{{ lang }}">savefromnet<span class="brand-dot">.</span>fun</a><p>{{ ui.footer }}</p><nav aria-label="{{ ui.nav_tools }}"><a href="/privacy-policy">Privacy</a><a href="/terms">Terms</a><a href="/dmca">DMCA</a></nav></div></footer>
+  <script src="/static/js/visitor.js" defer></script><script src="/static/js/site.js" defer></script>
+</body>
+</html>
