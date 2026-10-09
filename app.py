@@ -24,6 +24,7 @@ from localized_pages import LANGUAGE_UI, LOCALIZED_TOOLS, PUBLISHED_SLUGS, alter
 from public_pages import BY_SLUG as PAGES_BY_SLUG, PAGES, TOOL_GROUPS
 from tools import BY_SLUG, PLATFORMS, TOOLS, related_tools
 from transcripts import get_transcript
+from utility_pages import BY_SLUG as UTILITY_BY_SLUG, UTILITY_TOOLS
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 22 * 1024 * 1024
@@ -36,6 +37,7 @@ _limits = defaultdict(deque)
 _limits_lock = threading.Lock()
 _analysis_slots = threading.BoundedSemaphore(4)
 _image_slots = threading.BoundedSemaphore(2)
+_media_slots = threading.BoundedSemaphore(1)
 _last_cleanup = 0
 
 
@@ -101,6 +103,7 @@ def identify_client():
         return
     if request.path.startswith("/api/"):
         max_size = (21 * 1024 * 1024 if request.path == "/api/image/batch" else
+                    17 * 1024 * 1024 if request.path == "/api/media/process" else
                     9 * 1024 * 1024 if request.path == "/api/image/process" else 4096)
         if (request.content_length or 0) > max_size:
             return _json_error("The request is too large.", "request_too_large", 413)
@@ -365,6 +368,7 @@ def _content_page(page):
     groups = [(name, [BY_SLUG[slug] for slug in slugs]) for name, slugs in TOOL_GROUPS]
     return render_template("site.html", content_page=page, tool_groups=groups,
                            image_tools=IMAGE_TOOLS,
+                           utility_tool=UTILITY_BY_SLUG.get(page.slug), utility_tools=UTILITY_TOOLS,
                            title=page.title, description=page.description,
                            canonical=canonical, schema=schema, tool=None,
                            guide=None, guide_index=False, tools=TOOLS,
@@ -417,7 +421,7 @@ def api_image_process():
     if not _image_slots.acquire(blocking=False):
         return _json_error("Image processing is busy. Please try again shortly.", "busy", 429)
     try:
-        output, filename, mime, details = process_image(upload, tool, request.form.get("quality"), request.form.get("width"))
+        output, filename, mime, details = process_image(upload, tool, request.form.get("quality"), request.form.get("width"), request.form)
     except ImageProcessError as exc:
         return _json_error(str(exc), "invalid_image", 422)
     finally:
@@ -427,6 +431,48 @@ def api_image_process():
     response.headers["X-SFN-Output-Bytes"] = str(details["output_bytes"])
     response.headers["X-SFN-Dimensions"] = f'{details["width"]}x{details["height"]}'
     return response
+
+
+@app.post("/api/media/process")
+def api_media_process():
+    if not _rate_limit(g.client_id, "media_process", 2):
+        return _json_error("Too many media requests. Please try again in a minute.", "rate_limited", 429)
+    slug = request.form.get("tool", "")
+    if slug not in UTILITY_BY_SLUG or slug == "youtube-thumbnail-downloader":
+        return _json_error("Choose a valid media tool.", "invalid_tool")
+    upload = request.files.get("media")
+    if not upload:
+        return _json_error("Choose a media file to upload.", "invalid_media")
+    from media_processing import MediaProcessError, process_media
+
+    if not _media_slots.acquire(blocking=False):
+        return _json_error("Media processing is busy. Please try again shortly.", "busy", 429)
+    try:
+        output, filename, mime, details = process_media(upload, slug, request.form.get("start"), request.form.get("end"))
+    except MediaProcessError as exc:
+        return _json_error(str(exc), "invalid_media", 422)
+    finally:
+        _media_slots.release()
+    response = send_file(output, mimetype=mime, as_attachment=True, download_name=filename)
+    response.headers["X-SFN-Input-Bytes"] = str(details["input_bytes"])
+    response.headers["X-SFN-Output-Bytes"] = str(details["output_bytes"])
+    return response
+
+
+@app.post("/api/thumbnail")
+def api_thumbnail():
+    if not _rate_limit(g.client_id, "thumbnail", 4):
+        return _json_error("Too many thumbnail requests. Please try again in a minute.", "rate_limited", 429)
+    body = request.get_json(silent=True) or {}
+    if not isinstance(body, dict) or not isinstance(body.get("url"), str):
+        return _json_error("Paste one YouTube video URL.", "invalid_url")
+    from youtube_thumbnails import ThumbnailError, get_thumbnail
+
+    try:
+        output, filename = get_thumbnail(body["url"])
+    except ThumbnailError as exc:
+        return _json_error(str(exc), "thumbnail_unavailable", 422)
+    return send_file(output, mimetype="image/jpeg", as_attachment=True, download_name=filename)
 
 
 @app.post("/api/image/batch")

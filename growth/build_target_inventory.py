@@ -62,6 +62,7 @@ def main():
         from localized_pages import LANGUAGE_UI, PUBLISHED_SLUGS
         from public_pages import PAGES
         from tools import TOOLS
+        from utility_pages import BY_SLUG as UTILITY_BY_SLUG
 
         routes = [("/", "home"), ("/guides", "guide hub"),
                   ("/batch-image-converter", "image tool")]
@@ -70,7 +71,7 @@ def main():
         routes += [(f"/{lang}/{slug}", "localized tool") for lang in LANGUAGE_UI for slug in PUBLISHED_SLUGS]
         routes += [(tool.path, "image tool") for tool in IMAGE_TOOLS]
         routes += [(guide.path, "guide") for guide in GUIDES]
-        routes += [(page.path, "directory" if page.slug == "tools" else "resource" if page.slug in ("image-format-guide", "youtube-transcript-api", "supported-links") else "trust") for page in PAGES]
+        routes += [(page.path, "directory" if page.slug == "tools" else "media utility" if page.slug in UTILITY_BY_SLUG else "resource" if page.slug in ("image-format-guide", "youtube-transcript-api", "supported-links") else "trust") for page in PAGES]
         client = app.test_client()
         rows = []
         for path, page_type in routes:

@@ -71,6 +71,8 @@ https://savefromnet.fun/png-to-webp,image tool,new,200,PNG to WebP Converter Onl
 https://savefromnet.fun/jpg-to-png,image tool,new,200,JPG to PNG Converter Online | SaveFromNet,JPG to PNG Converter,https://savefromnet.fun/jpg-to-png,indexable
 https://savefromnet.fun/webp-to-png,image tool,new,200,WebP to PNG Converter Online | SaveFromNet,WebP to PNG Converter,https://savefromnet.fun/webp-to-png,indexable
 https://savefromnet.fun/image-resizer,image tool,new,200,Image Resizer Online | SaveFromNet,Image Resizer,https://savefromnet.fun/image-resizer,indexable
+https://savefromnet.fun/image-cropper,image tool,new,200,Image Cropper Online | SaveFromNet,Image Cropper,https://savefromnet.fun/image-cropper,indexable
+https://savefromnet.fun/image-to-avif,image tool,new,200,Image to AVIF Converter Online | SaveFromNet,Image to AVIF Converter,https://savefromnet.fun/image-to-avif,indexable
 https://savefromnet.fun/png-to-jpg,image tool,new,200,PNG to JPG Converter Online | SaveFromNet,PNG to JPG Converter,https://savefromnet.fun/png-to-jpg,indexable
 https://savefromnet.fun/webp-to-jpg,image tool,new,200,WebP to JPG Converter Online | SaveFromNet,WebP to JPG Converter,https://savefromnet.fun/webp-to-jpg,indexable
 https://savefromnet.fun/jpg-to-webp,image tool,new,200,JPG to WebP Converter Online | SaveFromNet,JPG to WebP Converter,https://savefromnet.fun/jpg-to-webp,indexable
@@ -100,6 +102,11 @@ https://savefromnet.fun/guides/video-file-size-estimates,guide,new,200,Video fil
 https://savefromnet.fun/guides/temporary-download-links,guide,new,200,How SaveFromNet temporary download links work | SaveFromNet Guides,How SaveFromNet temporary download links work,https://savefromnet.fun/guides/temporary-download-links,indexable
 https://savefromnet.fun/guides/video-with-no-sound,guide,new,200,Why a downloaded video may have no sound | SaveFromNet Guides,Why a downloaded video may have no sound,https://savefromnet.fun/guides/video-with-no-sound,indexable
 https://savefromnet.fun/supported-links,resource,new,200,Supported Media Links and URL Formats | SaveFromNet,Which media links does SaveFromNet support?,https://savefromnet.fun/supported-links,indexable
+https://savefromnet.fun/youtube-thumbnail-downloader,media utility,new,200,YouTube Thumbnail Downloader | SaveFromNet,YouTube Thumbnail Downloader,https://savefromnet.fun/youtube-thumbnail-downloader,indexable
+https://savefromnet.fun/video-to-gif,media utility,new,200,Video to GIF Converter | SaveFromNet,Video to GIF Converter,https://savefromnet.fun/video-to-gif,indexable
+https://savefromnet.fun/mp4-to-mp3,media utility,new,200,MP4 to MP3 Converter | SaveFromNet,MP4 to MP3 Converter,https://savefromnet.fun/mp4-to-mp3,indexable
+https://savefromnet.fun/video-trimmer,media utility,new,200,Video Trimmer Online | SaveFromNet,Video Trimmer,https://savefromnet.fun/video-trimmer,indexable
+https://savefromnet.fun/audio-cutter,media utility,new,200,Audio Cutter Online | SaveFromNet,Audio Cutter,https://savefromnet.fun/audio-cutter,indexable
 https://savefromnet.fun/tools,directory,new,200,Media and Image Tools | SaveFromNet,Media and image tools,https://savefromnet.fun/tools,indexable
 https://savefromnet.fun/youtube-transcript-api,resource,new,200,YouTube Transcript API Documentation | SaveFromNet,YouTube Transcript API,https://savefromnet.fun/youtube-transcript-api,indexable
 https://savefromnet.fun/image-format-guide,resource,new,200,JPG vs PNG vs WebP vs HEIC | Image Format Guide,JPG vs PNG vs WebP vs HEIC: which image format should you use?,https://savefromnet.fun/image-format-guide,indexable

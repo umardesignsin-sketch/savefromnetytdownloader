@@ -90,6 +90,20 @@ IMAGE_TOOLS = (
               "Enter a width smaller than the source to reduce dimensions; this tool does not enlarge images.",
               (("Will the picture be stretched?", "No. Height changes in proportion to width."),
                ("Can I make a tiny image sharp by enlarging it?", "No. This tool only resizes down because enlarging cannot invent detail."))),
+    ImageTool("image-cropper", "Image Cropper",
+              "Crop a rectangular area from your JPG, PNG, WebP or HEIC photo and save it in the original format.",
+              ("JPEG", "PNG", "WEBP", "HEIC"), "SAME",
+              "Choose the left and top position plus crop width and height in pixels. The crop uses the image's displayed orientation, removes metadata, and retains the original file type.",
+              "Preview the image dimensions before choosing a crop. The rectangle must fit entirely inside the image.",
+              (("Does cropping reduce quality?", "PNG crops remain lossless. JPG, WebP and HEIC are encoded again at the selected quality."),
+               ("Are location details kept?", "No. The output is rebuilt from pixels without the source metadata."))),
+    ImageTool("image-to-avif", "Image to AVIF Converter",
+              "Convert one JPG, PNG or WebP still image into a real AVIF file with adjustable quality.",
+              ("JPEG", "PNG", "WEBP"), "AVIF",
+              "AVIF can create compact images and supports transparency. The server decodes the uploaded still image, encodes AVIF, and reports the actual output size.",
+              "Check AVIF support in the app where you will use the file. Keep your original image until you compare the result.",
+              (("Will AVIF always be smaller?", "No. File size depends on the source and quality setting; compare the measured result."),
+               ("Can AVIF keep transparency?", "Yes, when the source PNG or WebP has an alpha channel."))),
 ) + tuple(ImageTool(**item) for item in IMAGE_EXPANSIONS)
 
 BY_SLUG = {tool.slug: tool for tool in IMAGE_TOOLS}

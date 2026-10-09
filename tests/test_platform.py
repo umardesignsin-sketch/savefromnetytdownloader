@@ -314,7 +314,7 @@ class SiteTests(unittest.TestCase):
         self.assertEqual(len(descriptions), len(paths))
 
     def test_directory_resource_and_trust_pages_are_unique_and_indexable(self):
-        self.assertEqual(len(PAGES), 10)
+        self.assertEqual(len(PAGES), 15)
         self.assertEqual(len({page.title for page in PAGES}), len(PAGES))
         for page in PAGES:
             with self.subTest(page=page.slug):

@@ -11,3 +11,4 @@ history.db
 .wrangler
 dist
 tests
+.tmp

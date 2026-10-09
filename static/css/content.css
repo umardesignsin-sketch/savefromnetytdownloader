@@ -73,3 +73,20 @@
 .size-calculator a{color:#356309;text-decoration:underline;text-underline-offset:3px}
 @media(max-width:900px){.content-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.content-columns{grid-template-columns:minmax(0,1fr) 230px;gap:30px}}
 @media(max-width:700px){.content-hero{padding:24px 0 46px}.content-body{padding:38px 0 64px}.content-columns,.content-tool-grid,.size-calculator-grid{grid-template-columns:1fr}.content-aside{position:static}.content-section-heading{display:block}.content-section-heading p{margin-top:8px}.category-jump{margin-bottom:38px}.content-tool-card{padding:22px}.size-calculator-section{padding:0 0 50px}.size-calculator{padding:20px}.size-calculator-share>div{flex-direction:column}.size-reference th,.size-reference td{padding:8px 4px;font-size:.8rem}}
+.utility-workspace { padding: 2rem 0; background: #f6f8f4; }
+.utility-shell { max-width: 880px; }
+#utility-form, .utility-result { display: grid; gap: 1rem; padding: 1.5rem; border: 1px solid #dce5dc; border-radius: 1.25rem; background: #fff; box-shadow: 0 16px 36px rgba(14, 39, 31, 0.06); }
+#utility-form label { display: grid; gap: 0.4rem; font-weight: 700; }
+#utility-form input { width: 100%; min-width: 0; padding: 0.85rem 1rem; border: 1px solid #bccdc5; border-radius: 0.75rem; font: inherit; }
+#utility-form input:focus-visible { outline: 2px solid #188b65; outline-offset: 2px; }
+.utility-times { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.utility-hint { margin: 0; color: #596a65; }
+#utility-status { min-height: 1.5em; margin: 0; color: #176e55; }
+#utility-status.error { color: #a53030; }
+.utility-result { margin-top: 1rem; }
+.utility-result[hidden] { display: none; }
+.utility-result img { max-width: min(100%, 480px); height: auto; border-radius: 0.75rem; }
+.utility-result img[hidden] { display: none; }
+.utility-result h2, .utility-result p { margin: 0; }
+.utility-result .submit-btn { justify-self: start; }
+@media (max-width: 560px) { .utility-times { grid-template-columns: 1fr; } #utility-form, .utility-result { padding: 1rem; } }

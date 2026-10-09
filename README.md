@@ -3,11 +3,10 @@
 A public media downloader for content the user owns or may download. It detects
 YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and
 Dailymotion links. The 26 media and transcript tool pages share one URL validator, extraction service,
-result UI, and background job runner. Sixteen working single-image tools, a
-batch image converter, and 21
-practical media guides have their own pages. A guides hub, tool directory,
-supported-link reference, image-format guide, transcript API documentation and six trust pages bring the
-public canonical page count to 76. Pages never invent formats: an option is
+result UI, and background job runner. Eighteen working single-image tools, a
+batch image converter, five media utilities, and 21 practical media guides have their own pages. Localized tool pages,
+the guides hub, tool directory, supported-link reference, image-format guide, transcript API documentation and trust pages bring the
+public canonical page count to 117. Pages never invent formats: an option is
 shown only after a source extractor returns it.
 
 Useful starting points: [supported public URL formats](https://savefromnet.fun/supported-links),
@@ -18,7 +17,7 @@ and the [working downloader directory](https://savefromnet.fun/tools).
 ## Architecture
 
 ```
-Cloudflare static assets: homepage, 26 media and transcript tools, 16 single-image tools, batch converter, guides, directory/resource/trust pages, CSS, JS, sitemap
+Cloudflare static assets: homepage, 26 media and transcript tools, 18 single-image tools, five media utilities, batch converter, localized pages, guides, directory/resource/trust pages, CSS, JS, sitemap
        ↓ POST /api/analyze and /api/download
 Cloudflare Worker: per-IP rate limits
        ↓
@@ -37,6 +36,15 @@ neither source images nor the ZIP are stored in job history. The Worker and
 Flask both rate-limit batch requests. This first release is a free beta; no
 paid tier or API entitlement is shown until a merchant product and checkout
 are configured and tested.
+
+The YouTube Thumbnail Downloader accepts only validated YouTube video IDs and
+fetches JPGs from the fixed YouTube thumbnail host. The four upload-based media
+utilities use the existing ffmpeg container for real GIF, MP3, video trim, and
+audio cut output. Uploads are capped at 16 MB; source duration, segment length,
+output size, concurrency and processing time are bounded. Files are kept in a
+temporary directory for each request and deleted after the result is read.
+The image cropper and AVIF converter use the existing Pillow path and 8 MB
+image cap. These utilities are linked from the tools directory and sitemap.
 
 `generate_static.py` renders the Flask templates into edge assets for fast
 first loads. The Flask routes remain usable locally. `extractors/detect.py`

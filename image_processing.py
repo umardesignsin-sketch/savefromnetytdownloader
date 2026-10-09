@@ -13,15 +13,15 @@ Image.MAX_IMAGE_PIXELS = 20_000_000
 MAX_UPLOAD = 8 * 1024 * 1024
 MAX_OUTPUT = 16 * 1024 * 1024
 MAX_DIMENSION = 8192
-MIME = {"JPEG": "image/jpeg", "PNG": "image/png", "WEBP": "image/webp", "HEIC": "image/heic"}
-EXTENSION = {"JPEG": "jpg", "PNG": "png", "WEBP": "webp", "HEIC": "heic"}
+MIME = {"JPEG": "image/jpeg", "PNG": "image/png", "WEBP": "image/webp", "HEIC": "image/heic", "AVIF": "image/avif"}
+EXTENSION = {"JPEG": "jpg", "PNG": "png", "WEBP": "webp", "HEIC": "heic", "AVIF": "avif"}
 
 
 class ImageProcessError(ValueError):
     pass
 
 
-def process_image(upload, tool, quality_value, width_value):
+def process_image(upload, tool, quality_value, width_value, crop=None):
     data = upload.stream.read(MAX_UPLOAD + 1)
     if not data:
         raise ImageProcessError("Choose an image to upload.")
@@ -43,6 +43,15 @@ def process_image(upload, tool, quality_value, width_value):
         # Rebuild pixels so source metadata, including GPS EXIF, is not copied.
         image = image.convert("RGBA" if "A" in image.getbands() else "RGB")
         image = image.copy()
+        if tool.slug == "image-cropper":
+            try:
+                left, top, crop_width, crop_height = (int((crop or {})[key]) for key in ("x", "y", "crop_width", "crop_height"))
+            except (KeyError, TypeError, ValueError):
+                raise ImageProcessError("Enter valid crop coordinates and dimensions in pixels.") from None
+            if (left < 0 or top < 0 or crop_width < 1 or crop_height < 1 or
+                    left + crop_width > image.width or top + crop_height > image.height):
+                raise ImageProcessError(f"The crop must fit inside the {image.width} × {image.height} image.")
+            image = image.crop((left, top, left + crop_width, top + crop_height))
         if tool.slug == "image-resizer":
             width, height = image.size
             try:
@@ -54,7 +63,7 @@ def process_image(upload, tool, quality_value, width_value):
             target_height = max(1, round(height * target_width / width))
             image = image.resize((target_width, target_height), Image.Resampling.LANCZOS)
         output_format = source_format if tool.output_format == "SAME" else tool.output_format
-        if output_format in ("JPEG", "WEBP", "HEIC"):
+        if output_format in ("JPEG", "WEBP", "HEIC", "AVIF"):
             try:
                 quality = int(quality_value or 82)
             except (TypeError, ValueError):
@@ -68,7 +77,9 @@ def process_image(upload, tool, quality_value, width_value):
             background.paste(image, mask=image.getchannel("A"))
             image = background
         output = BytesIO()
-        options = {"optimize": True} if output_format == "PNG" else {"quality": quality}
+        options = ({"optimize": True} if output_format == "PNG" else
+                   {"quality": quality, "speed": 8, "max_threads": 2} if output_format == "AVIF" else
+                   {"quality": quality})
         image.save(output, format="HEIF" if output_format == "HEIC" else output_format, **options)
         if output.tell() > MAX_OUTPUT:
             raise ImageProcessError("The result exceeds 16 MB. Try a smaller image or lower quality.")

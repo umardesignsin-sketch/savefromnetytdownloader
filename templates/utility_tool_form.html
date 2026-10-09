@@ -1,0 +1,20 @@
+<section class="utility-workspace" aria-label="{{ utility_tool.name }} form"><div class="container utility-shell">
+  <form id="utility-form" data-tool="{{ utility_tool.slug }}" data-mode="{{ utility_tool.mode }}" enctype="multipart/form-data">
+    {% if utility_tool.mode == 'thumbnail' %}
+    <label for="utility-url">YouTube video or Shorts URL</label>
+    <input id="utility-url" name="url" type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=..." required>
+    {% else %}
+    <label for="utility-file">Choose your media file</label>
+    <input id="utility-file" name="media" type="file" accept="{{ utility_tool.accept }}" required>
+    <p class="utility-hint">{{ utility_tool.hint }} Maximum file size: 16 MB. Files are processed temporarily and deleted after the response.</p>
+    {% if utility_tool.slug in ('video-to-gif', 'video-trimmer', 'audio-cutter') %}
+    <div class="utility-times"><label for="utility-start">Start time (seconds)<input id="utility-start" name="start" type="number" min="0" step="0.1" value="0" required></label>
+    <label for="utility-end">{{ 'Clip length (seconds)' if utility_tool.slug == 'video-to-gif' else 'End time (seconds)' }}<input id="utility-end" name="end" type="number" min="0.1" step="0.1" value="3" required></label></div>
+    {% endif %}
+    {% endif %}
+    <button id="utility-submit" class="submit-btn" type="submit">{{ utility_tool.action }} <span aria-hidden="true">→</span></button>
+    <p id="utility-status" role="status" aria-live="polite"></p>
+  </form>
+  <div id="utility-result" class="utility-result" hidden><h2>File ready</h2><img id="utility-preview" alt="Processed image preview" hidden><p id="utility-result-detail"></p><a id="utility-download" class="submit-btn" href="#" download>Download file <span aria-hidden="true">↓</span></a></div>
+</div></section>
+<script src="{{ url_for('static', filename='js/utility-tools.js') }}" defer></script>

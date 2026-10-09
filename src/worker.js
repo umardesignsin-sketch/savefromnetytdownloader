@@ -216,19 +216,23 @@ export default {
         body: JSON.stringify({ visitor, country, kind: body.kind }),
       });
     }
-    if (request.method === "POST" && (pathname === "/api/image/process" || pathname === "/api/image/batch")) {
+    if (request.method === "POST" && ["/api/image/process", "/api/image/batch", "/api/media/process", "/api/thumbnail"].includes(pathname)) {
       const batch = pathname === "/api/image/batch";
+      const media = pathname === "/api/media/process";
+      const thumbnail = pathname === "/api/thumbnail";
       const origin = request.headers.get("Origin");
       if (origin && origin !== new URL(request.url).origin) return new Response("Forbidden", { status: 403 });
-      if (Number(request.headers.get("content-length") || 0) > (batch ? 21 : 9) * 1024 * 1024) {
-        return new Response(JSON.stringify({ error: batch ? "Choose up to five images totaling 20 MB." : "Choose an image under 8 MB." }),
+      const maxBytes = thumbnail ? 4096 : (batch ? 21 : media ? 17 : 9) * 1024 * 1024;
+      if (Number(request.headers.get("content-length") || 0) > maxBytes) {
+        return new Response(JSON.stringify({ error: thumbnail ? "Use one short YouTube URL." : media ? "Choose a media file under 16 MB." : batch ? "Choose up to five images totaling 20 MB." : "Choose an image under 8 MB." }),
           { status: 413, headers: { "Content-Type": "application/json" } });
       }
       const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-      const { success } = await env.DOWNLOAD_LIMIT.limit({ key: `${batch ? "image-batch" : "image"}:${ip}` });
+      const toolType = thumbnail ? "thumbnail" : media ? "media" : batch ? "image-batch" : "image";
+      const { success } = await env.DOWNLOAD_LIMIT.limit({ key: `${toolType}:${ip}` });
       if (!success) {
-        record(env, "rate_limited", "unknown", batch ? "batch-image-converter" : "image", "", 429);
-        return new Response(JSON.stringify({ error: batch ? "Too many batches. Please try again in a minute." : "Too many image requests. Please try again in a minute." }),
+        record(env, "rate_limited", "unknown", batch ? "batch-image-converter" : toolType, "", 429);
+        return new Response(JSON.stringify({ error: "Too many processing requests. Please try again in a minute." }),
           { status: 429, headers: { "Content-Type": "application/json", "Retry-After": "60" } });
       }
     }
@@ -295,9 +299,9 @@ export default {
     if ((pathname === "/api/transcript" || transcriptApi) && request.method === "POST") {
       record(env, response.ok ? "transcript_successful" : "transcript_failed", "youtube", "youtube-to-transcript", "", response.status);
     }
-    if ((pathname === "/api/image/process" || pathname === "/api/image/batch") && request.method === "POST") {
-      record(env, response.ok ? (pathname.endsWith("/batch") ? "batch_processed" : "image_processed") : "image_failed",
-        "unknown", pathname.endsWith("/batch") ? "batch-image-converter" : "image", "", response.status);
+    if (["/api/image/process", "/api/image/batch", "/api/media/process", "/api/thumbnail"].includes(pathname) && request.method === "POST") {
+      record(env, response.ok ? (pathname.endsWith("/batch") ? "batch_processed" : pathname === "/api/media/process" ? "media_processed" : pathname === "/api/thumbnail" ? "thumbnail_processed" : "image_processed") : "processing_failed",
+        pathname === "/api/thumbnail" ? "youtube" : "unknown", pathname.endsWith("/batch") ? "batch-image-converter" : pathname === "/api/thumbnail" ? "youtube-thumbnail-downloader" : pathname === "/api/media/process" ? "media-upload" : "image", "", response.status);
     }
     if (pathname === "/api/analyze" && request.method === "POST") {
       if (response.ok) {

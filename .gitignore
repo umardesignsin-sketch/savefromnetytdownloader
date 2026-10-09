@@ -8,3 +8,4 @@ history.db
 node_modules/
 .wrangler/
 dist/
+.tmp/

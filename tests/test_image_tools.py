@@ -65,6 +65,7 @@ class ImageToolTests(unittest.TestCase):
             ("webp-to-heic", "WEBP", "HEIF"),
             ("jpg-compressor", "JPEG", "JPEG"),
             ("webp-compressor", "WEBP", "WEBP"),
+            ("image-to-avif", "PNG", "AVIF"),
         )
         for slug, source, expected in cases:
             with self.subTest(slug=slug):
@@ -76,6 +77,15 @@ class ImageToolTests(unittest.TestCase):
                 self.assertEqual(int(response.headers["X-SFN-Output-Bytes"]), len(response.data))
                 if slug.endswith("to-heic"):
                     self.assertIn(b"ftypheic", response.data[:24])
+
+    def test_cropper_returns_selected_pixels_and_rejects_out_of_bounds(self):
+        response = self.convert("image-cropper", "PNG", x="8", y="5", crop_width="20", crop_height="15")
+        self.assertEqual(response.status_code, 200, response.data[:200])
+        cropped = Image.open(io.BytesIO(response.data))
+        self.assertEqual(cropped.size, (20, 15))
+        invalid = self.convert("image-cropper", "PNG", x="60", y="0", crop_width="20", crop_height="15")
+        self.assertEqual(invalid.status_code, 422)
+        self.assertIn("fit inside", invalid.json["error"])
 
     def test_invalid_and_wrong_images_fail_cleanly(self):
         response = self.client.post("/api/image/process", data={"tool": "png-to-heic", "image": (io.BytesIO(b"not an image"), "bad.png")})

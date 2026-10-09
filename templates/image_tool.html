@@ -13,8 +13,10 @@
     <div class="image-options">
       {% if image_tool.output_format not in ('PNG',) and image_tool.slug != 'image-resizer' %}<label for="image-quality">Quality <strong id="quality-value">82</strong><input id="image-quality" name="quality" type="range" min="40" max="95" value="82"></label>{% endif %}
       {% if image_tool.slug == 'image-resizer' %}<label for="image-width">Output width in pixels<input id="image-width" name="width" type="number" min="1" max="8192" placeholder="e.g. 1200" required></label>{% endif %}
+      {% if image_tool.slug == 'image-cropper' %}<div class="crop-controls"><p id="crop-size-hint">Choose an image to see its dimensions.</p><label for="crop-x">Left (px)<input id="crop-x" name="x" type="number" min="0" value="0" required></label><label for="crop-y">Top (px)<input id="crop-y" name="y" type="number" min="0" value="0" required></label><label for="crop-width">Width (px)<input id="crop-width" name="crop_width" type="number" min="1" required></label><label for="crop-height">Height (px)<input id="crop-height" name="crop_height" type="number" min="1" required></label></div>{% endif %}
     </div>
-    <button id="image-submit" class="submit-btn" type="submit">{{ 'Resize image' if image_tool.slug == 'image-resizer' else 'Compress image' if image_tool.slug in ('image-compressor', 'jpg-compressor', 'webp-compressor') else 'Convert image' }} <span aria-hidden="true">→</span></button>
+    {% if image_tool.slug == 'image-cropper' %}<div id="crop-stage" class="crop-stage" hidden><img id="crop-preview" alt="Your uploaded image; drag across it to choose a crop"><div id="crop-selection" class="crop-selection" aria-hidden="true"></div></div><p class="image-privacy">Drag across the preview or enter exact pixel coordinates above.</p>{% endif %}
+    <button id="image-submit" class="submit-btn" type="submit">{{ 'Crop image' if image_tool.slug == 'image-cropper' else 'Resize image' if image_tool.slug == 'image-resizer' else 'Compress image' if image_tool.slug in ('image-compressor', 'jpg-compressor', 'webp-compressor') else 'Convert image' }} <span aria-hidden="true">→</span></button>
     <p id="image-status" role="status" aria-live="polite"></p>
     <p class="image-privacy">Your upload is processed in memory and is not saved on our server. The finished image downloads to your device.</p>
   </form>
