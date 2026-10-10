@@ -119,6 +119,19 @@ class SiteTests(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
 
+    def test_legacy_search_redirects_point_to_indexable_pages(self):
+        redirects = Path(__file__).resolve().parents[1] / "_redirects"
+        sitemap = self.client.get("/sitemap.xml").get_data(as_text=True)
+        for line in redirects.read_text(encoding="utf-8").splitlines():
+            if not line or line.startswith("#"):
+                continue
+            source, target, status = line.split()
+            with self.subTest(source=source):
+                self.assertEqual(status, "301")
+                self.assertNotIn(f"<loc>https://savefromnet.fun{source}</loc>", sitemap)
+                self.assertEqual(self.client.get(target).status_code, 200)
+                self.assertIn(f"<loc>https://savefromnet.fun{target}</loc>", sitemap)
+
     def test_youtube_help_navigation_and_guide_are_reachable(self):
         for slug in ("youtube-downloader", "youtube-video-downloader", "youtube-shorts-downloader", "youtube-to-mp3"):
             with self.subTest(slug=slug):

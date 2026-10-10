@@ -1,0 +1,8 @@
+# Permanent moves for indexed URLs from the previous SaveFromNet site.
+# The current pages serve the same task without reviving thin legacy pages.
+/clipconverter-alternative /youtube-downloader 301
+/youtube-transcript-for/developers /youtube-transcript-api 301
+/youtube-transcript-for/* /youtube-to-transcript 301
+/youtube-transcript-in/* /youtube-to-transcript 301
+/de /youtube-to-transcript 301
+/pt /youtube-to-transcript 301

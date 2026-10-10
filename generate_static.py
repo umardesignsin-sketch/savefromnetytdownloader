@@ -50,6 +50,7 @@ def main():
         shutil.copy2(source, target)
     shutil.copy2(BASE / "sw.js", DIST / "sw.js")
     shutil.copy2(BASE / "_headers", DIST / "_headers")
+    shutil.copy2(BASE / "_redirects", DIST / "_redirects")
     print(f"Rendered {len(TOOLS)} media tools, {len(LANGUAGE_UI) * (1 + len(PUBLISHED_SLUGS))} localized pages, {len(IMAGE_TOOLS)} image tools, {len(GUIDES)} guides, {len(PAGES)} directory and trust pages, homepage, and site assets to {DIST}")
 
 
