@@ -22,7 +22,6 @@
   </form>
   <div id="image-result" class="image-result" hidden><h2>Image ready</h2><p id="image-result-detail"></p><a id="image-download" class="submit-btn" href="#" download>Download file <span aria-hidden="true">↓</span></a></div>
 </div></section>
-{% include 'sponsor_section.html' %}
 <section class="image-content"><div class="container image-shell">
   <div class="image-article"><span class="section-kicker">ABOUT THIS TOOL</span><h2>What happens to your image?</h2><p>{{ image_tool.explanation }}</p><p>{{ image_tool.tip }}</p></div>
   {% for heading, paragraphs in image_tool.seo_sections %}<section class="image-article"><span class="section-kicker">FORMAT DETAILS</span><h2>{{ heading }}</h2>{% for paragraph in paragraphs %}<p>{{ paragraph }}</p>{% endfor %}</section>{% endfor %}
@@ -31,3 +30,4 @@
   <div class="image-article"><span class="section-kicker">CHOOSE A FORMAT</span><h2>Which file type fits your next step?</h2><p>Compare JPG, PNG, WebP and HEIC for compatibility, transparency and quality before converting.</p><a href="/image-format-guide">Read the image format guide <span aria-hidden="true">→</span></a></div>
   <div class="image-article"><span class="section-kicker">KEEP GOING</span><h2>More image tools</h2><div class="image-related"><a href="/batch-image-converter">Batch Image Converter &amp; Resizer <span aria-hidden="true">↗</span></a>{% for item in image_tools if item.slug != image_tool.slug %}<a href="{{ item.path }}">{{ item.name }} <span aria-hidden="true">↗</span></a>{% endfor %}</div></div>
 </div></section>
+{% include 'sponsor_section.html' %}

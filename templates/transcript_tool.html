@@ -30,7 +30,6 @@
 
 {% include 'transcript_api_promo.html' %}
 
-{% include 'sponsor_section.html' %}
 
 <section class="transcript-answer section-space" id="how-it-works"><div class="container transcript-reading">
   <span class="section-kicker">QUICK ANSWER</span>
@@ -44,5 +43,6 @@
   <section><h2>Which transcript file should you choose?</h2><div class="transcript-format-grid"><div><h3>TXT: plain text</h3><p>Best for reading, searchable notes, and quotations you will verify against the original video. The plain text export leaves out timestamps.</p></div><div><h3>SRT: timed subtitles</h3><p>Numbered cues with start and end times. Use this when your subtitle editor expects a .srt file.</p></div><div><h3>VTT: web captions</h3><p>WebVTT cues retain the same timing in a format used by web video players. All three exports come from the selected track.</p></div></div></section>
   <nav class="priority-related" aria-label="Related YouTube tools">{% for href, label in tool.seo_links %}<a href="{{ href }}">{{ label }}</a>{% endfor %}<a href="/youtube-transcript-api">YouTube Transcript API docs</a><a href="/tools">Browse all tools</a></nav>
 </div></article>
+{% include 'sponsor_section.html' %}
 
 <section class="faq-section section-space" id="faq"><div class="container faq-grid"><div><span class="section-kicker">FAQ</span><h2>YouTube transcript questions</h2><p>Answers based on what this converter actually retrieves.</p></div><div class="faq-list">{% for question, answer in tool.faq %}<details><summary>{{ question }}</summary><p>{{ answer }}</p></details>{% endfor %}</div></div></section>
