@@ -80,6 +80,8 @@ class Tool:
                 ("Why can a public YouTube transcript fail?", "A video may have no captions, or YouTube may block the source request, require sign-in, restrict the region, or remove the upload. This tool does not bypass those limits."),
                 ("Can I use a YouTube Shorts link?", "Yes, direct Shorts links work when the Short has an accessible caption track. Playlists, private videos, live streams and links to an entire channel are not supported."),
             )
+        if self.slug in PLATFORM_FAQS:
+            return PLATFORM_FAQS[self.slug]
         return (
             (f"Which links work with {self.name}?", self.url_hint),
             ("Which formats and qualities can I choose?", self.format_note + " Only formats returned by the source are displayed."),
@@ -101,6 +103,14 @@ class Tool:
             links += (("/guides/youtube-shorts-on-phone", "Save YouTube Shorts on a phone"),)
         if self.slug in ("youtube-to-mp3", "youtube-audio-downloader"):
             links += (("/guides/youtube-mp3-on-phone", "Save a YouTube MP3 on a phone"),)
+        if self.slug in ("youtube-downloader", "youtube-video-downloader", "youtube-shorts-downloader"):
+            links += (("/youtube-thumbnail-downloader", "Save a permitted YouTube thumbnail"),)
+        if self.slug in ("youtube-video-downloader", "tiktok-downloader", "reddit-video-downloader"):
+            links += (("/video-trimmer", "Trim your own video file"),
+                      ("/video-to-gif", "Make a GIF from your own clip"))
+        if self.slug in ("youtube-to-mp3", "youtube-audio-downloader"):
+            links += (("/audio-cutter", "Cut your own audio file"),
+                      ("/mp4-to-mp3", "Convert an MP4 file to MP3"))
         return links
 
     @property
@@ -128,6 +138,35 @@ YOUTUBE_QUICK_FACTS = {
         ("Links", "One public YouTube video or Short with accessible audio"),
         ("Choices", "MP3 options shown after the audio is analyzed"),
         ("Limit", "One item at a time; prepared files up to 512 MB"),
+    ),
+}
+
+
+PLATFORM_FAQS = {
+    "instagram-reels-downloader": (
+        ("Which Instagram Reel link should I paste?", "Use the direct instagram.com/reel/ link to one public Reel. A profile, Story or carousel link is a different task and has its own tool."),
+        ("Why does a Reel play for me but fail here?", "Your Instagram session may have access that an anonymous server does not. Private, deleted and login-gated Reels cannot be fetched with this public tool."),
+        ("Can I choose any Reel resolution?", "No. The result shows only the video option the extractor can reach for that Reel; an absent resolution or unknown size is not invented."),
+    ),
+    "facebook-video-downloader": (
+        ("Do Facebook Reels and fb.watch links work?", "Direct public /reel/ posts and fb.watch video links are accepted alongside watch-page and /videos/ links. A group feed or profile page is not one video."),
+        ("Can I download a friends-only Facebook video?", "No. The server does not use your Facebook account or bypass the publisher's audience settings. Check the post while signed out."),
+        ("Will every Facebook video include HD and sound?", "No. The available height and audio depend on the accessible source streams. The analyzer shows only a finished format it can prepare for that post."),
+    ),
+    "pinterest-video-downloader": (
+        ("Can I paste a Pinterest board?", "No. Paste the direct link to one public Pin or its pin.it short link. A board contains multiple Pins and is not a single media item."),
+        ("Why is a video Pin returning an image?", "The public Pin may expose a still image or preview while hosting the motion elsewhere. This tool labels the actual source item it can access; it does not manufacture a video."),
+        ("Can the tool download an external website linked by a Pin?", "No. It inspects supported Pinterest media for that Pin. It does not follow the Pin's destination to download files from another site."),
+    ),
+    "threads-video-downloader": (
+        ("Which Threads URL identifies one video?", "Use a direct threads.com/@username/post/ link to an individual public post. Supported threads.net post links are normalized; profile and feed URLs are not video links."),
+        ("Why is there only one MP4 choice?", "Threads may publish only one public video file for a post. The tool does not create a resolution ladder from a single source file."),
+        ("Can I use my Threads login for a private post?", "No. This service does not take account credentials or retrieve media that requires sign-in or private access."),
+    ),
+    "dailymotion-video-downloader": (
+        ("Does a dai.ly short link work?", "Yes, a direct dai.ly link to one public video is normalized to that video's Dailymotion URL before analysis."),
+        ("Why is a Dailymotion quality missing?", "The source may not return that height or container to the extractor, or the file may exceed the processing limit. Only returned formats are offered."),
+        ("Why is the file size unknown?", "The source may not provide enough reliable duration or bitrate information for the complete file. Unknown is more accurate than an invented estimate."),
     ),
 }
 
@@ -254,6 +293,10 @@ TOOL_SECTIONS = {
         ("Why a visible Reel may fail", (
             "Instagram can show a clip to a signed-in browser while withholding it from an anonymous server. Try opening the same link while signed out. SaveFromNet does not accept account cookies or bypass private profiles, deleted Reels or login gates.",
         )),
+        ("Read the result before saving a Reel", (
+            "The result card describes the video file the source returned; it is not a promise of every resolution shown in the Instagram app. Check the listed extension and estimated size when available, then start the job for that actual option. A missing size is reported as unknown rather than inferred from the Reel's preview.",
+            "When the temporary file is ready, save it through your browser. This tool does not remove watermarks, recover expired content, or turn an inaccessible Reel into a new file. For a normal photo or mixed post, use the Instagram photo or carousel tool instead of pasting its link into a Reels-only workflow.",
+        )),
     ),
     "instagram-carousel-downloader": (
         ("A carousel contains separate items", (
@@ -286,6 +329,10 @@ TOOL_SECTIONS = {
         ("Public to you may still require login", (
             "A friends-only or group-only video can play in your account but cannot be reached by this anonymous service. Open the link while signed out to check access. SaveFromNet does not ask for Facebook credentials or work around publisher privacy settings.",
         )),
+        ("Choose the video file returned for that post", (
+            "A Facebook watch-page video, Reel and shared video post can expose different source streams. Paste the link to the individual item and wait for analysis before deciding on a format; a visible HD playback setting does not guarantee an HD download here. The result shows only a file the server can prepare from public streams.",
+            "If the source supplies separate picture and sound, the job must be able to assemble a finished file within the service's 512 MB ceiling. Missing audio, an unavailable post or an unknown size is stated in the result rather than replaced with a made-up quality or size. Use the Facebook Reels guide for the link shape of an individual Reel.",
+        )),
     ),
     "pinterest-video-downloader": (
         ("A Pin can be an image, GIF or video", (
@@ -293,6 +340,10 @@ TOOL_SECTIONS = {
         )),
         ("External links are a separate source", (
             "Some Pins primarily link to another website. This tool does not crawl that destination or claim its files as Pinterest downloads. Use a direct public Pin rather than a board or search-results page, then inspect the returned extension before starting a job.",
+        )),
+        ("Tell a still image from an animation", (
+            "A Pin's moving preview may be served as video rather than as a downloadable GIF. After analysis, check whether the returned item is an image, GIF or video and use the file type that actually appears. The tool does not rename an MP4 into a GIF or promise a separate animation when Pinterest exposes only a still image.",
+            "Analyze one Pin at a time; a board, search page or collection is not a batch request. If you already have a permitted short video file and need a GIF, use the separate Video to GIF Converter, which processes your own upload instead of fetching a Pinterest link.",
         )),
     ),
     "reddit-video-downloader": (
@@ -318,6 +369,10 @@ TOOL_SECTIONS = {
         ("Why the result can be empty", (
             "A clip visible after signing in may not appear in the public metadata. Private posts and feed or profile URLs cannot be processed here. The tool does not manufacture 720p and 1080p choices when Threads exposes only one file.",
         )),
+        ("What one Threads result means", (
+            "Threads often publishes a single public video URL for an individual post rather than a menu of encodes. If analysis returns an MP4, that is the source option available to this tool; resolution, duration and size are shown only when the source reports them reliably. A higher-quality label cannot be added by choosing another button.",
+            "Use a direct /@username/post/ link to the post itself. A threads.net link is normalized to the supported Threads post shape, but a profile URL or conversation feed cannot identify one video. Save the temporary file promptly if the result is available; access to source media can change independently of this page.",
+        )),
     ),
     "dailymotion-video-downloader": (
         ("Read the actual quality list", (
@@ -325,6 +380,10 @@ TOOL_SECTIONS = {
         )),
         ("Avoid collection and restricted links", (
             "Channel and playlist pages do not identify a single video for this tool. Private, deleted and region-blocked uploads also cannot be processed. If the link is valid but no format is returned, try the video's direct public URL rather than a collection page.",
+        )),
+        ("Compare the returned file types", (
+            "A Dailymotion upload may yield several heights or containers. Read the MP4 or WebM label and the size estimate when the source provides enough information; choose a format your device or editor accepts. A higher height normally takes more storage, but codec and bitrate also matter, so the number of pixels alone cannot tell you the finished size.",
+            "The short dai.ly link to one video is accepted and normalized before extraction. If a specific quality is absent, this service cannot create it by altering the URL. The temporary file must also fit within the 512 MB processing limit, which can rule out longer, higher-bitrate uploads.",
         )),
     ),
     "universal-video-downloader": (

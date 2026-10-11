@@ -257,7 +257,7 @@ def _page(tool=None, guide=None, guide_index=False):
                            guide=guide, guide_index=guide_index, guides=GUIDES,
                            related_guides=_related_guides(guide),
                            platform_guide=platform_guide, platform_home=platform_home,
-                           quick_links=quick_links)
+                           quick_links=quick_links, utility_tools=UTILITY_TOOLS)
 
 
 @app.get("/")
