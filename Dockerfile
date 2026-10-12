@@ -15,7 +15,9 @@ ENV PATH=/opt/downloader/bin:/usr/local/bin:/usr/bin:/bin \
 
 WORKDIR /app
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt 'yt-dlp[default]'
+# curl-cffi lets yt-dlp fall back to browser-like requests where its extractors
+# support it (Dailymotion's HLS manifests reject plain clients; see yt-dlp#15526).
+RUN pip install --no-cache-dir -r requirements.txt 'yt-dlp[default,curl-cffi]'
 COPY . .
 
 RUN mkdir -p /tmp/savefromnet/downloads \

@@ -103,3 +103,23 @@ class InstagramFallbackTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ExtractorErrorMessageTests(unittest.TestCase):
+    def test_real_yt_dlp_geo_messages_are_region_restricted(self):
+        for stderr in ("ERROR: [dailymotion] x1: This video is not available from your location due to geo restriction",
+                       "ERROR: [x] The uploader has not made this video available in your country.",
+                       "ERROR: [dailymotion] x1: Video geo-restricted by the owner."):
+            with self.subTest(stderr=stderr):
+                self.assertEqual(service.friendly_error(stderr).code, "region_restricted")
+
+    def test_bot_challenge_failure_says_the_source_is_blocking(self):
+        error = service.friendly_error("ERROR: [TikTok] 7239: Unexpected response from webpage request; please report this issue")
+        self.assertEqual(error.code, "source_unavailable")
+        self.assertIn("blocking automated requests", str(error))
+
+    def test_failed_extraction_is_logged_without_urls(self):
+        with self.assertLogs(level="WARNING") as logs:
+            service._log_extractor_error("yt-dlp", "WARNING: x\nERROR: [dailymotion] x1: Unable to download https://cdn.example/a.m3u8?token=secret")
+        self.assertIn("Unable to download <url>", logs.output[0])
+        self.assertNotIn("secret", logs.output[0])

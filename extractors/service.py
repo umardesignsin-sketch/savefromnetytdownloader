@@ -3,6 +3,7 @@
 import html
 import copy
 import json
+import logging
 import re
 import subprocess
 import threading
@@ -36,7 +37,12 @@ def friendly_error(raw):
         ("sign in", "restricted", "This source requires sign-in and is unavailable here."),
         ("age-restricted", "restricted", "Age-restricted media is unavailable here."),
         ("not available in your country", "region_restricted", "This media is unavailable in the server's region."),
-        ("geo restricted", "region_restricted", "This media is unavailable in the server's region."),
+        ("geo restrict", "region_restricted", "This media is unavailable in the server's region."),
+        ("geo-restrict", "region_restricted", "This media is unavailable in the server's region."),
+        ("not available from your location", "region_restricted", "This media is unavailable in the server's region."),
+        ("not made this video available in your country", "region_restricted", "This media is unavailable in the server's region."),
+        ("unexpected response from webpage request", "source_unavailable",
+         "The source is blocking automated requests right now. Please try again later."),
         ("not found", "deleted", "This post was removed or could not be found."),
         ("404", "deleted", "This post was removed or could not be found."),
         ("live", "live", "Live streams cannot be processed while they are running."),
@@ -45,6 +51,13 @@ def friendly_error(raw):
         if needle in low:
             return AnalysisError(message, code)
     return AnalysisError("Couldn't process this media. It may be unavailable, restricted, or unsupported.")
+
+
+def _log_extractor_error(tool, stderr):
+    """Keep the extractor's own reason in the server log, without media URLs."""
+    lines = [line for line in (stderr or "").splitlines() if "ERROR" in line] or (stderr or "").splitlines()[-1:]
+    if lines:
+        logging.warning("%s failed: %s", tool, re.sub(r"https?://\S+", "<url>", lines[-1])[:300])
 
 
 def _run(command, timeout=35):
@@ -56,6 +69,7 @@ def _run(command, timeout=35):
     except OSError as exc:
         raise AnalysisError("The media extractor is unavailable on this server.", "server_error") from exc
     if proc.returncode:
+        _log_extractor_error(command[0], proc.stderr)
         raise friendly_error(proc.stderr)
     if len(proc.stdout) > 4_000_000:
         raise AnalysisError("This post contains too many items to process.", "too_large")
