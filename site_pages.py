@@ -152,8 +152,8 @@ PAGES = (
                 "The site also uses Google Analytics. Its tag measures page visits and browser or device information and may set a first-party _ga cookie to distinguish visits. Google's handling of that measurement data is described in its own privacy information.",
                 "Cloudflare and the source website necessarily process network requests needed to deliver pages or inspect a public link. Their handling of network data is governed by their own policies.",
             ), (("https://support.google.com/analytics/answer/11593727", "Google Analytics data collection"),)),
-            Section("Advertising and external links", (
-                "The site loads third-party advertising scripts served from bellnewyork.org. The advertising provider may collect device or usage information or use its own identifiers under its policy. Links to source platforms, sponsors, Dodo Payments and other websites take you to services outside SaveFromNet.",
+            Section("External links", (
+                "The site does not load third-party advertising scripts. Links to source platforms, sponsors, Dodo Payments and other websites take you to services outside SaveFromNet.",
                 "Do not submit private, sensitive, or account-only URLs. The downloader only accepts supported public media links.",
             )),
             Section("Your choices and contact", (
