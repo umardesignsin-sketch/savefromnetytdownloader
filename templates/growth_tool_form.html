@@ -1,0 +1,42 @@
+<section class="growth-workspace" aria-label="{{ growth_tool.name }} tool"><div class="container growth-shell">
+  {% if growth_tool.kind == 'calculator' %}
+  <div class="growth-card calculator-card" id="calculator-tool">
+    <label for="calculator-expression">Expression</label>
+    <input id="calculator-expression" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" maxlength="120" placeholder="Example: (80 × 25%) + 10" aria-describedby="calculator-help">
+    <p id="calculator-help" class="growth-hint">Use +, −, ×, ÷, parentheses, decimals, percent and √. Press Enter to calculate.</p>
+    <div class="calculator-keys" aria-label="Calculator keypad">
+      {% for label, value in [('C','clear'),('(', '('),(')', ')'),('÷','/'),('7','7'),('8','8'),('9','9'),('×','*'),('4','4'),('5','5'),('6','6'),('−','-'),('1','1'),('2','2'),('3','3'),('+','+'),('0','0'),('.','.'),('%','%'),('√','sqrt(')] %}<button type="button" data-key="{{ value }}">{{ label }}</button>{% endfor %}
+      <button class="calculator-equals" type="button" data-key="equals">=</button>
+    </div>
+    <p id="calculator-result" class="growth-result" role="status" aria-live="polite">Result will appear here.</p>
+  </div>
+  {% elif growth_tool.kind == 'translator' %}
+  <form class="growth-card" id="translator-form" data-preset="{{ 'en-es' if growth_tool.slug == 'english-to-spanish-translator' else 'en-fr' }}">
+    <div class="growth-select-row"><label for="translation-source">From<select id="translation-source" name="source"><option value="en">English</option><option value="es">Spanish</option><option value="fr">French</option></select></label>
+      <button id="translation-swap" type="button" aria-label="Swap languages">⇄</button>
+      <label for="translation-target">To<select id="translation-target" name="target"><option value="es">Spanish</option><option value="en">English</option><option value="fr">French</option></select></label></div>
+    <label for="translation-text">Text to translate</label><textarea id="translation-text" name="text" maxlength="500" rows="5" placeholder="Type or paste a short phrase" required></textarea>
+    <p class="growth-hint">Up to 500 characters. Text is sent to MyMemory when you translate; do not enter sensitive information.</p>
+    <button class="submit-btn" type="submit">Translate <span aria-hidden="true">→</span></button>
+    <p id="translation-status" class="growth-status" role="status" aria-live="polite"></p>
+    <div id="translation-output" class="growth-output" hidden><h2>Translation</h2><p id="translation-result"></p><button id="translation-copy" type="button">Copy translation</button></div>
+  </form>
+  {% elif growth_tool.kind == 'weather' %}
+  <form class="growth-card" id="weather-form">
+    <label for="weather-zip">US ZIP code</label>
+    <div class="growth-input-row"><input id="weather-zip" name="zip" type="text" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="Example: 10001" autocomplete="postal-code" required><button class="submit-btn" type="submit">Get forecast <span aria-hidden="true">→</span></button></div>
+    <p class="growth-hint">Five-digit US ZIP codes only. Forecasts are from the National Weather Service.</p>
+    <p id="weather-status" class="growth-status" role="status" aria-live="polite"></p>
+    <div id="weather-output" class="growth-output" hidden><h2 id="weather-location"></h2><p id="weather-updated"></p><div id="weather-periods" class="weather-periods"></div><a id="weather-source" href="https://www.weather.gov/" target="_blank" rel="noopener noreferrer">View the official forecast ↗</a></div>
+  </form>
+  {% elif growth_tool.kind == 'background' %}
+  <form class="growth-card" id="background-form">
+    <label for="background-file">Choose a portrait photo</label><input id="background-file" name="photo" type="file" accept="image/jpeg,image/png,image/webp" required>
+    <p class="growth-hint">JPG, PNG or WebP, up to 8 MB. The photo stays in your browser. A model download is required on first use.</p>
+    <button class="submit-btn" type="submit">Remove background <span aria-hidden="true">→</span></button>
+    <p id="background-status" class="growth-status" role="status" aria-live="polite"></p>
+    <div id="background-output" class="growth-output" hidden><h2>Preview your cutout</h2><div class="background-preview"><img id="background-preview" alt="Portrait with its background removed"></div><a id="background-download" class="submit-btn" href="#" download="savefromnet-portrait.png">Download transparent PNG <span aria-hidden="true">↓</span></a></div>
+  </form>
+  {% endif %}
+</div></section>
+<script type="module" src="{{ url_for('static', filename='js/growth-tools.mjs') }}"></script>

@@ -236,6 +236,15 @@ export default {
           { status: 429, headers: { "Content-Type": "application/json", "Retry-After": "60" } });
       }
     }
+    if (request.method === "POST" && (pathname === "/api/translate" || pathname === "/api/weather/us")) {
+      const origin = request.headers.get("Origin");
+      if (origin && origin !== new URL(request.url).origin) return new Response("Forbidden", { status: 403 });
+      if (Number(request.headers.get("content-length") || 0) > 4096) return Response.json({ error: "Use a shorter request." }, { status: 413 });
+      const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+      const { success } = await env.ANALYZE_LIMIT.limit({ key: `${pathname}:${ip}` });
+      if (!success) return Response.json({ error: "Too many requests. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": "60" } });
+    }
     const body = request.method === "POST" && (pathname === "/api/analyze" || pathname === "/api/download" || pathname === "/api/event") ? await smallJson(request) : {};
     if (request.method === "POST" && (pathname === "/api/download" || pathname === "/api/analyze" || pathname === "/api/transcript" || transcriptApi || pathname === "/api/event")) {
       const ip = request.headers.get("CF-Connecting-IP") || "unknown";

@@ -23,6 +23,7 @@ from downloader import file_path  # noqa: E402
 from extractors.detect import DetectError, detect_url  # noqa: E402
 from extractors.service import _yt_formats  # noqa: E402
 from guides import GUIDES  # noqa: E402
+from growth_tools import GROWTH_TOOLS  # noqa: E402
 from image_tools import IMAGE_TOOLS  # noqa: E402
 from localized_pages import LANGUAGE_UI, PUBLISHED_SLUGS  # noqa: E402
 from public_pages import PAGES, TOOL_GROUPS  # noqa: E402
@@ -341,7 +342,7 @@ class SiteTests(unittest.TestCase):
         self.assertEqual(len(descriptions), len(paths))
 
     def test_directory_resource_and_trust_pages_are_unique_and_indexable(self):
-        self.assertEqual(len(PAGES), 15)
+        self.assertEqual(len(PAGES), 15 + len(GROWTH_TOOLS))
         self.assertEqual(len({page.title for page in PAGES}), len(PAGES))
         for page in PAGES:
             with self.subTest(page=page.slug):

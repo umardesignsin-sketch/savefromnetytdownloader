@@ -19,6 +19,7 @@ from config import DOWNLOAD_DIR
 from extractors import AnalysisError, DetectError, analyze, detect_url
 from extractors.service import resolve
 from guides import BY_SLUG as GUIDES_BY_SLUG, GUIDES
+from growth_tools import BY_SLUG as GROWTH_BY_SLUG, GROWTH_TOOLS
 from image_tools import BY_SLUG as IMAGE_BY_SLUG, IMAGE_TOOLS
 from localized_pages import LANGUAGE_UI, LOCALIZED_TOOLS, PUBLISHED_SLUGS, alternates
 from public_pages import BY_SLUG as PAGES_BY_SLUG, PAGES, TOOL_GROUPS
@@ -257,7 +258,8 @@ def _page(tool=None, guide=None, guide_index=False):
                            guide=guide, guide_index=guide_index, guides=GUIDES,
                            related_guides=_related_guides(guide),
                            platform_guide=platform_guide, platform_home=platform_home,
-                           quick_links=quick_links, utility_tools=UTILITY_TOOLS)
+                           quick_links=quick_links, utility_tools=UTILITY_TOOLS,
+                           growth_tools=GROWTH_TOOLS)
 
 
 @app.get("/")
@@ -365,10 +367,19 @@ def _content_page(page):
              {"@type": "ListItem", "position": 2, "name": page.heading, "item": canonical},
          ]},
     ]
+    growth_tool = GROWTH_BY_SLUG.get(page.slug)
+    if growth_tool:
+        schema[0]["operatingSystem"] = "Any"
+        schema[0]["offers"] = {"@type": "Offer", "price": "0", "priceCurrency": "USD"}
+        schema.append({"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+            {"@type": "Question", "name": question,
+             "acceptedAnswer": {"@type": "Answer", "text": answer}}
+            for question, answer in growth_tool.faq]})
     groups = [(name, [BY_SLUG[slug] for slug in slugs]) for name, slugs in TOOL_GROUPS]
     return render_template("site.html", content_page=page, tool_groups=groups,
                            image_tools=IMAGE_TOOLS,
                            utility_tool=UTILITY_BY_SLUG.get(page.slug), utility_tools=UTILITY_TOOLS,
+                           growth_tool=growth_tool, growth_tools=GROWTH_TOOLS,
                            title=page.title, description=page.description,
                            canonical=canonical, schema=schema, tool=None,
                            guide=None, guide_index=False, tools=TOOLS,
@@ -405,6 +416,46 @@ def tool_page(slug):
     if page:
         return _content_page(page)
     return render_template("404.html", tools=TOOLS), 404
+
+
+@app.post("/api/translate")
+def api_translate():
+    from growth_services import GrowthServiceError, translate_text
+
+    if not _rate_limit(g.client_id, "translate", 4):
+        return _json_error("Too many translations. Please try again shortly.", "rate_limited", 429)
+    if request.content_length is not None and request.content_length > 4096:
+        return _json_error("Use a shorter request.", "request_too_large", 413)
+    if len(request.get_data(cache=True)) > 4096:
+        return _json_error("Use a shorter request.", "request_too_large", 413)
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return _json_error("Enter text and choose both languages.", "invalid_input", 400)
+    try:
+        result = translate_text(body.get("text"), body.get("source"), body.get("target"))
+    except GrowthServiceError as exc:
+        return _json_error(str(exc), exc.code, exc.status)
+    return jsonify(result)
+
+
+@app.post("/api/weather/us")
+def api_us_weather():
+    from growth_services import GrowthServiceError, us_forecast
+
+    if not _rate_limit(g.client_id, "weather", 4):
+        return _json_error("Too many forecast requests. Please try again shortly.", "rate_limited", 429)
+    if request.content_length is not None and request.content_length > 4096:
+        return _json_error("Use a shorter request.", "request_too_large", 413)
+    if len(request.get_data(cache=True)) > 4096:
+        return _json_error("Use a shorter request.", "request_too_large", 413)
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return _json_error("Enter a five-digit US ZIP code.", "invalid_zip", 400)
+    try:
+        result = us_forecast(body.get("zip"))
+    except GrowthServiceError as exc:
+        return _json_error(str(exc), exc.code, exc.status)
+    return jsonify(result)
 
 
 @app.post("/api/image/process")

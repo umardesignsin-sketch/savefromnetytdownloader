@@ -43,7 +43,7 @@ def main():
         target = DIST / filename
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(response.data)
-    for name in ("css/site.css", "css/reference.css", "css/polish.css", "css/localized.css", "css/content.css", "css/image-tools.css", "css/batch-images.css", "css/transcript.css", "js/site.js", "js/visitor.js", "js/transcript.js", "js/image-tools.js", "js/batch-images.js", "js/utility-tools.js", "js/size-estimator.mjs", "favicon.svg"):
+    for name in ("css/site.css", "css/reference.css", "css/polish.css", "css/localized.css", "css/content.css", "css/image-tools.css", "css/batch-images.css", "css/growth-tools.css", "css/transcript.css", "js/site.js", "js/visitor.js", "js/transcript.js", "js/image-tools.js", "js/batch-images.js", "js/utility-tools.js", "js/growth-tools.mjs", "js/calculator-core.mjs", "js/size-estimator.mjs", "favicon.svg"):
         source = BASE / "static" / name
         target = DIST / "static" / name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -51,7 +51,7 @@ def main():
     shutil.copy2(BASE / "sw.js", DIST / "sw.js")
     shutil.copy2(BASE / "_headers", DIST / "_headers")
     shutil.copy2(BASE / "_redirects", DIST / "_redirects")
-    print(f"Rendered {len(TOOLS)} media tools, {len(LANGUAGE_UI) * (1 + len(PUBLISHED_SLUGS))} localized pages, {len(IMAGE_TOOLS)} image tools, {len(GUIDES)} guides, {len(PAGES)} directory and trust pages, homepage, and site assets to {DIST}")
+    print(f"Rendered {len(TOOLS)} media tools, {len(LANGUAGE_UI) * (1 + len(PUBLISHED_SLUGS))} localized pages, {len(IMAGE_TOOLS)} image tools, {len(GUIDES)} guides, {len(PAGES)} public pages, homepage, and site assets to {DIST}")
 
 
 if __name__ == "__main__":
