@@ -16,6 +16,10 @@ JOB_TIMEOUT = int(os.environ.get("JOB_TIMEOUT", "1800"))
 JOB_TTL = int(os.environ.get("JOB_TTL", "3600"))
 
 MAX_CONCURRENT_JOBS = int(os.environ.get("MAX_CONCURRENT_JOBS", "3"))
+# Jobs that may wait for a free slot instead of being refused as busy.
+MAX_QUEUED_JOBS = int(os.environ.get("MAX_QUEUED_JOBS", "4"))
+# How long a queued job waits for a slot before it fails (seconds).
+QUEUE_WAIT = int(os.environ.get("QUEUE_WAIT", "600"))
 MAX_FILESIZE = os.environ.get("MAX_FILESIZE", "512M")
 
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)

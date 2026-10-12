@@ -150,8 +150,9 @@ includes a draggable globe and updates every 15 seconds.
 
 The Worker allows eight analyses, two download starts, four signed file
 requests, and 30 analytics events per IP per minute.
-Flask also applies per-browser limits. One 512 MB job runs at a time, and four
-analyses may run concurrently. Completed files are cleaned up after about an
+Flask also applies per-browser limits. One 512 MB job runs at a time; up to four
+more downloads wait in a queue for up to ten minutes instead of being refused
+as busy. Four analyses may run concurrently. Completed files are cleaned up after about an
 hour when the container remains active. The Container sleeps after five minutes
 of inactivity; that can clear files sooner. SQLite history and metrics are
 ephemeral as well. Visitor counts use a separate SQLite-backed Durable Object

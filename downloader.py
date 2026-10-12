@@ -18,6 +18,8 @@ from config import (
     JOB_TTL,
     MAX_CONCURRENT_JOBS,
     MAX_FILESIZE,
+    MAX_QUEUED_JOBS,
+    QUEUE_WAIT,
     YTDLP_BIN,
 )
 import db
@@ -114,7 +116,8 @@ def start(url, quality, owner_id, spec=None, platform="", tool_slug=""):
     _reap()
     job_id = uuid.uuid4().hex
     with _lock:
-        if sum(s["status"] in ("queued", "downloading") for s in JOBS.values()) >= MAX_CONCURRENT_JOBS:
+        # Running jobs plus a short queue; queued jobs wait for a slot in _run.
+        if sum(s["status"] in ("queued", "downloading") for s in JOBS.values()) >= MAX_CONCURRENT_JOBS + MAX_QUEUED_JOBS:
             return None
         JOBS[job_id] = {
             "job_id": job_id,
@@ -142,9 +145,9 @@ def _job_dir(job_id):
 
 
 def _run(job_id, url, quality, spec):
-    acquired = _slots.acquire(timeout=JOB_TIMEOUT)
+    acquired = _slots.acquire(timeout=QUEUE_WAIT)
     if not acquired:
-        _fail(job_id, "Server is busy — too many downloads in progress. Try again shortly.")
+        _fail(job_id, "The server stayed busy, so this download did not start. Please try again.")
         return
     try:
         _download(job_id, url, quality, spec)

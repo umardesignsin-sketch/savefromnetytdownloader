@@ -18,6 +18,7 @@
   };
   const t = (key, english) => translations[language]?.[key] || english;
   const stages = {
+    en: {Queued:'Waiting for a free slot…'},
     es: {Queued:'En cola', Starting:'Iniciando', Downloading:'Descargando', Merging:'Combinando vídeo y audio', 'Extracting audio':'Extrayendo audio', Complete:'Completado', Failed:'Error'},
     fr: {Queued:'En attente', Starting:'Démarrage', Downloading:'Téléchargement', Merging:'Fusion vidéo et audio', 'Extracting audio':"Extraction de l'audio", Complete:'Terminé', Failed:'Échec'}
   };
@@ -112,18 +113,26 @@
     }
   });
 
+  // Formats arrive largest first. Preselect the best video up to 1080p so a
+  // casual click does not start a multi-hundred-MB 4K job; every option stays.
+  function preferredIndex(formats) {
+    const index = formats.findIndex(item => item.type === 'video' && Array.isArray(item.resolution) && item.resolution[1] && item.resolution[1] <= 1080);
+    return index >= 0 ? index : 0;
+  }
+
   function renderResult(found) {
     const safeThumb = (() => { try { const url = new URL(found.thumbnail); return url.protocol === 'https:' ? escapeHtml(url.href) : null; } catch { return null; } })();
     const thumb = safeThumb ? `<img class="result-thumb" src="${safeThumb}" alt="${t('thumbnail', 'Media thumbnail')}" loading="lazy" referrerpolicy="no-referrer">` : '<div class="result-thumb-placeholder" aria-hidden="true">▶</div>';
     const meta = [found.author ? `@${found.author.replace(/^@/, '')}` : '', formatDuration(found.duration), found.platform].filter(Boolean).map(escapeHtml).join(' · ');
+    const defaultIndex = preferredIndex(found.formats);
     result.innerHTML = `<div class="result-top">${thumb}<div><span class="section-kicker">${escapeHtml(found.platform.toUpperCase())} · ${escapeHtml(found.type.toUpperCase())}</span><h3>${escapeHtml(found.title || t('untitled', 'Untitled media'))}</h3><p class="result-meta">${meta}</p></div></div><div class="format-heading"><h4>${t('available', 'Available downloads')}</h4><span>${found.formats.length} ${found.formats.length === 1 ? t('option', 'real option') : t('options', 'real options')}</span></div><div class="format-list" role="group" aria-label="${t('formats', 'Available formats')}">${found.formats.map((item,index) => {
       const dimensions = Array.isArray(item.resolution) && item.resolution.every(Boolean) ? `${item.resolution[0]} × ${item.resolution[1]}` : '';
       const detail = [dimensions, item.bitrate ? `~${item.bitrate} kbps` : ''].filter(Boolean).join(' · ');
       const size = formatSize(item.filesize);
       const sizeLabel = size === t('unknownSize', 'Size unknown') ? size : `${item.filesize_estimated ? '≈ ' : ''}${size}`;
-      return `<button type="button" class="format-option" data-format="${escapeHtml(item.id)}" aria-pressed="${index === 0}"><span class="format-icon">${escapeHtml(item.extension)}</span><span class="format-detail"><strong>${escapeHtml(item.quality || item.extension.toUpperCase())}</strong><small>${escapeHtml(detail || `${item.type} · ${t('source', 'source format')}`)}</small></span><span class="format-size">${escapeHtml(sizeLabel)}</span><span class="format-check" aria-hidden="true">${index === 0 ? '✓' : ''}</span></button>`;
+      return `<button type="button" class="format-option" data-format="${escapeHtml(item.id)}" aria-pressed="${index === defaultIndex}"><span class="format-icon">${escapeHtml(item.extension)}</span><span class="format-detail"><strong>${escapeHtml(item.quality || item.extension.toUpperCase())}</strong><small>${escapeHtml(detail || `${item.type} · ${t('source', 'source format')}`)}</small></span><span class="format-size">${escapeHtml(sizeLabel)}</span><span class="format-check" aria-hidden="true">${index === defaultIndex ? '✓' : ''}</span></button>`;
     }).join('')}</div><div class="format-actions"><button type="button" id="start-download" class="submit-btn">${t('prepare', 'Prepare download')} <span aria-hidden="true">↓</span></button></div>`;
-    chosen = found.formats[0];
+    chosen = found.formats[defaultIndex];
     result.querySelectorAll('.format-option').forEach(button => button.addEventListener('click', () => {
       chosen = found.formats.find(item => item.id === button.dataset.format);
       result.querySelectorAll('.format-option').forEach(option => {
@@ -163,10 +172,26 @@
 
   function poll(jobId, extension) {
     clearInterval(pollTimer);
+    let misses = 0;
+    let busy = false;
     const tick = async () => {
+      if (busy) return;
+      busy = true;
       try {
-        const response = await fetch(`/api/progress/${encodeURIComponent(jobId)}`);
-        const data = await response.json();
+        let response;
+        let data;
+        try {
+          response = await fetch(`/api/progress/${encodeURIComponent(jobId)}`);
+          data = await response.json();
+        } catch {
+          response = null;
+        }
+        // A dropped request or a temporary server/limit error should not abandon a running job.
+        if (!response || response.status === 429 || response.status >= 500) {
+          if (++misses < 12) return;
+          throw new Error(data?.error || t('progressFailed', 'Could not check progress.'));
+        }
+        misses = 0;
         if (!response.ok) throw new Error(data.error || t('progressFailed', 'Could not check progress.'));
         const percent = Math.max(0, Math.min(100, Number(data.percent) || 0));
         document.getElementById('job-percent').textContent = `${Math.round(percent)}%`;
@@ -195,6 +220,8 @@
         document.getElementById('start-download').disabled = false;
         document.getElementById('start-download').innerHTML = `${t('prepare', 'Prepare download')} <span aria-hidden="true">↓</span>`;
         loadHistory();
+      } finally {
+        busy = false;
       }
     };
     tick();
