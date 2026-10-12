@@ -52,9 +52,13 @@ class TranscriptTests(unittest.TestCase):
 
         def run(command, timeout=35):
             nonlocal output_file
-            self.assertEqual(command[-2:], ["--", "https://www.youtube.com/watch?v=PRU2ShMzQRg"])
             if "--dump-single-json" in command:
+                self.assertEqual(command[-2:], ["--", "https://www.youtube.com/watch?v=PRU2ShMzQRg"])
                 return json.dumps(metadata)
+            # The caption step reuses the fetched metadata instead of re-extracting the video.
+            info_path = Path(command[command.index("--load-info-json") + 1])
+            self.assertEqual(json.loads(info_path.read_text(encoding="utf-8")), metadata)
+            self.assertNotIn("https://www.youtube.com/watch?v=PRU2ShMzQRg", command)
             self.assertIn("--skip-download", command)
             self.assertEqual(command[command.index("--sub-langs") + 1], "^en$")
             output_file = Path(command[command.index("--output") + 1].replace("%(ext)s", "en.vtt"))

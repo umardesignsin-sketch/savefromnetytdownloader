@@ -24,6 +24,8 @@ _metadata_cache = {}
 _lock = threading.Lock()
 CACHE_TTL = 600
 MAX_BYTES = 512 * 1024 * 1024
+# YouTube extraction solves a JavaScript challenge; on a basic container it can exceed 35 seconds.
+YTDLP_ANALYZE_TIMEOUT = 75
 
 
 def friendly_error(raw):
@@ -98,25 +100,46 @@ def _combined_size(video, audio, duration):
     return size, estimated, rough
 
 
-def _yt_formats(info):
+def _unknown_height_label(f):
+    format_id = str(f.get("format_id") or "").lower()
+    return format_id.upper() if format_id in ("hd", "sd") else "Source video"
+
+
+def _yt_formats(info, allow_silent=False):
+    """Real video/audio choices from yt-dlp metadata.
+
+    Some extractors (Facebook, Instagram) list progressive MP4 files without a
+    height or codecs. A file with both codecs unknown is a muxed video, as in
+    yt-dlp's own format selection. Video without audio is offered only when
+    allow_silent is set and the source exposes no audio stream at all; YouTube
+    never sets it, so a missing audio stream is not hidden behind a silent file.
+    """
     formats = info.get("formats") or []
     audio = [f for f in formats if f.get("acodec") not in (None, "none") and
              f.get("vcodec") in (None, "none") and f.get("format_id")]
     audio.sort(key=lambda f: (f.get("abr") or 0, _estimate(f) or 0), reverse=True)
+    source_has_audio = any(f.get("acodec") not in (None, "none") for f in formats)
     result = []
     seen = set()
-    for f in sorted(formats, key=lambda x: (x.get("height") or 0, x.get("tbr") or 0), reverse=True):
-        if f.get("vcodec") in (None, "none") or f.get("ext") not in ("mp4", "webm") or not f.get("format_id"):
+    # yt-dlp lists formats worst to best, so the original position breaks ties.
+    ordered = sorted(enumerate(formats), key=lambda pair: (pair[1].get("height") or 0, pair[1].get("tbr") or 0, pair[0]), reverse=True)
+    for _, f in ordered:
+        vcodec, acodec = f.get("vcodec"), f.get("acodec")
+        if vcodec == "none" or f.get("ext") not in ("mp4", "webm") or not f.get("format_id"):
             continue
         height = f.get("height")
-        if not height or height > 2160:
+        if vcodec is None and not height and acodec not in (None, "none"):
+            continue  # an audio stream with no video details
+        if height and height > 2160:
             continue
-        key = (f["ext"], height)
+        label = f"{height}p" if height else _unknown_height_label(f)
+        key = (f["ext"], label)
         if key in seen:
             continue
-        has_audio = f.get("acodec") not in (None, "none")
+        has_audio = acodec not in (None, "none") or (acodec is None and vcodec is None)
         partner = None if has_audio else next((a for a in audio if a.get("ext") == ("m4a" if f["ext"] == "mp4" else "webm")), None)
-        if not has_audio and not partner:
+        silent = not has_audio and not partner
+        if silent and (source_has_audio or not allow_silent):
             continue
         size, estimated, rough = _combined_size(f, partner, info.get("duration"))
         if (size and size > MAX_BYTES) or (estimated and rough and rough > MAX_BYTES * 1.25):
@@ -124,7 +147,8 @@ def _yt_formats(info):
         seen.add(key)
         selector = f["format_id"] + ("+" + partner["format_id"] if partner else "")
         result.append({"id": f"v{len(result)}", "type": "video", "extension": f["ext"],
-                       "quality": f"{height}p", "resolution": [f.get("width"), height],
+                       "quality": label + (" · no audio" if silent else ""),
+                       "resolution": [f.get("width"), height] if height else None,
                        "bitrate": int(f["tbr"]) if f.get("tbr") else None,
                        "filesize": size, "filesize_estimated": estimated,
                        "_spec": {"engine": "yt-dlp", "selector": selector, "extension": f["ext"]}})
@@ -153,7 +177,7 @@ def _yt_analyze(detection):
     output = _run(["yt-dlp", "--ignore-config", "--no-playlist", "--skip-download",
                    "--dump-single-json", "--no-warnings", "--no-overwrites",
                    "--use-extractors", "default,-generic", "--js-runtimes", "node",
-                   "--", detection.normalized_url])
+                   "--", detection.normalized_url], timeout=YTDLP_ANALYZE_TIMEOUT)
     try:
         info = json.loads(output)
     except (ValueError, TypeError) as exc:
@@ -162,7 +186,7 @@ def _yt_analyze(detection):
         raise AnalysisError("Live streams cannot be processed while they are running.", "live")
     if info.get("_type") in ("playlist", "multi_video"):
         raise AnalysisError("Use a link to one video or post instead of a playlist.", "unsupported")
-    result = _yt_formats(info)
+    result = _yt_formats(info, allow_silent=detection.platform != "youtube")
     if not result:
         raise AnalysisError("No downloadable public formats were returned for this media.", "no_formats")
     return {"platform": detection.platform, "type": detection.content_type,
@@ -248,9 +272,16 @@ def analyze(raw_url, owner_id):
         if detection.extractor == "gallery-dl":
             try:
                 result = _gallery_analyze(detection)
-            except AnalysisError:
+            except AnalysisError as gallery_error:
                 if detection.platform == "pinterest":
                     result = _yt_analyze(detection)
+                elif detection.platform == "instagram" and detection.content_type == "post":
+                    # gallery-dl is often sent to Instagram's login page; yt-dlp
+                    # can still read a public video post. Photo posts keep the original error.
+                    try:
+                        result = _yt_analyze(detection)
+                    except AnalysisError:
+                        raise gallery_error from None
                 else:
                     raise
         elif detection.extractor == "threads":
@@ -259,6 +290,7 @@ def analyze(raw_url, owner_id):
             result = _yt_analyze(detection)
         with _lock:
             _metadata_cache[detection.normalized_url] = {"result": copy.deepcopy(result), "expires": time.time() + 90}
+    result["type"] = detection.content_type
     token = uuid.uuid4().hex
     specs = {}
     for item in result["formats"]:

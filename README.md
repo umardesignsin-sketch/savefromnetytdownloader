@@ -80,6 +80,8 @@ with the generated sitemap.
 
 `yt-dlp` handles public video/audio sources and the YouTube to Transcript page's public caption tracks. The transcript endpoint downloads only a selected caption track into a temporary directory, returns bounded timed cues, and deletes the temporary file; TXT, SRT and VTT exports are generated in the browser. It does not run speech recognition for videos without accessible captions. `gallery-dl` handles accessible
 Instagram post/profile/story media, TikTok Stories, and Pinterest images/GIFs.
+When Instagram sends gallery-dl to its login page, a post falls back to yt-dlp,
+which can still read a public video post.
 Threads is limited to public posts that expose a video in Open Graph metadata.
 The service does not use account cookies or bypass DRM, paywalls, private posts,
 or other access controls. Source-site changes or data-center blocking can make

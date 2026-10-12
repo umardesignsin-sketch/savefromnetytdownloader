@@ -575,7 +575,8 @@ def api_analyze():
         if not _analysis_slots.acquire(blocking=False):
             return _json_error("Analysis capacity is busy. Please try again shortly.", "busy", 429)
         try:
-            media = _filter_formats(tool, analyze(detection.normalized_url, g.client_id))
+            # Pass the submitted link so a Shorts or Reel link keeps its content type.
+            media = _filter_formats(tool, analyze(data.get("url"), g.client_id))
         finally:
             _analysis_slots.release()
     except DetectError as exc:

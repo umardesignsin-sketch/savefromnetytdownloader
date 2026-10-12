@@ -95,7 +95,7 @@ def get_transcript(raw_url, requested_language=None):
         "yt-dlp", "--ignore-config", "--no-playlist", "--skip-download",
         "--dump-single-json", "--no-warnings", "--use-extractors", "default,-generic",
         "--js-runtimes", "node", "--", url,
-    ], timeout=40)
+    ], timeout=75)
     try:
         info = json.loads(info_text)
     except (TypeError, ValueError) as exc:
@@ -111,12 +111,15 @@ def get_transcript(raw_url, requested_language=None):
 
     with tempfile.TemporaryDirectory(prefix="sfn-transcript-") as directory:
         output = str(Path(directory) / "captions.%(ext)s")
+        # Reuse the metadata just fetched instead of extracting the video a
+        # second time; YouTube extraction is the slow part on the container.
+        info_path = Path(directory) / "info.json"
+        info_path.write_text(info_text, encoding="utf-8")
         _run([
             "yt-dlp", "--ignore-config", "--no-playlist", "--skip-download",
             "--write-subs", "--write-auto-subs", "--sub-langs", f"^{re.escape(language)}$",
             "--sub-format", "vtt", "--no-warnings", "--no-progress",
-            "--use-extractors", "default,-generic", "--js-runtimes", "node",
-            "--output", output, "--", url,
+            "--output", output, "--load-info-json", str(info_path),
         ], timeout=45)
         caption = Path(directory) / f"captions.{language}.vtt"
         if not caption.is_file():

@@ -126,8 +126,10 @@ function bindBackground() {
       const ctx = canvas.getContext('2d', { willReadFrequently: true }); ctx.drawImage(bitmap, 0, 0, width, height);
       status.textContent = 'Removing the background…';
       const segmentation = segmenter.segment(canvas);
-      // The selfie model labels index 0 as background and index 1 as person.
-      const mask = segmentation.confidenceMasks?.[1];
+      // selfie_segmenter returns one mask labelled "selfie" (person confidence).
+      // Multi-class models put background first, so use the last mask there.
+      const masks = segmentation.confidenceMasks || [];
+      const mask = masks[masks.length - 1];
       if (!mask) throw new Error('No person could be isolated from this photo.');
       const confidence = mask.getAsFloat32Array();
       if (!confidence.some(value => value > 0.35)) throw new Error('No person could be isolated from this photo.');
