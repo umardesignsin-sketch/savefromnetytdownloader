@@ -46,6 +46,17 @@ temporary directory for each request and deleted after the result is read.
 The image cropper and AVIF converter use the existing Pillow path and 8 MB
 image cap. These utilities are linked from the tools directory and sitemap.
 
+Seven country tools target US, UK, Australian and EU visitors: US, UK and
+Australian passport photo makers, and UK VAT, EU VAT, Australian GST and US
+sales tax calculators. `regional_data.py` holds the official photo rules and
+published tax rates with their sources; pages render them and the browser
+scripts read the same values. The photo tools run entirely in the browser with
+MediaPipe face and person models. They crop to the official size and head
+height, lay out a 6 × 4 inch print sheet at 300 dpi, and check an original photo
+for online applications without changing it, because the US and UK services
+require unedited uploads. They never alter the face or background. Update the
+tax rates in `regional_data.py` when a country changes them.
+
 `generate_static.py` renders the Flask templates into edge assets for fast
 first loads. The Flask routes remain usable locally. `extractors/detect.py`
 normalizes allowlisted public URL shapes before any network request.

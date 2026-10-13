@@ -45,7 +45,11 @@
   </section>
   <section class="tool-category" id="everyday-tools" aria-labelledby="everyday-tools-heading">
     <div class="content-section-heading"><h2 id="everyday-tools-heading">Everyday tools</h2><p>Working calculators, short-text translation, US forecasts and local portrait editing.</p></div>
-    <div class="content-tool-grid">{% for item in growth_tools %}<a class="content-tool-card" href="{{ item.path }}"><span class="content-tool-platform">Free utility</span><h3>{{ item.name }}</h3><p>{{ {'calculator': 'Solve arithmetic in your browser.', 'translator': 'Translate short text through MyMemory.', 'weather': 'Check a National Weather Service forecast by US ZIP code.', 'background': 'Cut out a person from a photo on your device.'}[item.kind] }}</p><span class="content-tool-action">Open tool →</span></a>{% endfor %}</div>
+    <div class="content-tool-grid">{% for item in growth_tools | rejectattr('region') %}<a class="content-tool-card" href="{{ item.path }}"><span class="content-tool-platform">Free utility</span><h3>{{ item.name }}</h3><p>{{ {'calculator': 'Solve arithmetic in your browser.', 'translator': 'Translate short text through MyMemory.', 'weather': 'Check a National Weather Service forecast by US ZIP code.', 'background': 'Cut out a person from a photo on your device.'}[item.kind] }}</p><span class="content-tool-action">Open tool →</span></a>{% endfor %}</div>
+  </section>
+  <section class="tool-category" id="country-tools" aria-labelledby="country-tools-heading">
+    <div class="content-section-heading"><h2 id="country-tools-heading">US, UK, Australia &amp; EU tools</h2><p>Passport photo tools built on each country's official rules, and VAT, GST and sales tax calculators with published rates.</p></div>
+    <div class="content-tool-grid">{% for item in growth_tools | selectattr('region') %}<a class="content-tool-card" href="{{ item.path }}"><span class="content-tool-platform">{{ item.region }} · {{ 'Passport photo' if item.kind == 'passport' else 'Tax calculator' }}</span><h3>{{ item.name }}</h3><p>{{ item.summary }}.</p><span class="content-tool-action">Open tool →</span></a>{% endfor %}</div>
   </section>
   <section class="tool-category" id="developer-api" aria-labelledby="developer-api-heading">
     <div class="content-section-heading"><h2 id="developer-api-heading">Developer API</h2><p>Build transcript features with timed JSON from publicly available YouTube captions.</p></div>

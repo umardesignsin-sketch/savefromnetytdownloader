@@ -37,6 +37,71 @@
     <p id="background-status" class="growth-status" role="status" aria-live="polite"></p>
     <div id="background-output" class="growth-output" hidden><h2>Preview your cutout</h2><div class="background-preview"><img id="background-preview" alt="Portrait with its background removed"></div><a id="background-download" class="submit-btn" href="#" download="savefromnet-portrait.png">Download transparent PNG <span aria-hidden="true">↓</span></a></div>
   </form>
+  {% elif growth_tool.kind == 'passport' %}
+  {% set spec = growth_tool.passport_spec %}
+  <form class="growth-card passport-card" id="passport-form" data-spec='{{ spec | tojson }}'>
+    <section class="passport-spec" aria-labelledby="passport-spec-heading">
+      <h2 id="passport-spec-heading">{{ spec.document }} photo requirements</h2>
+      <dl>
+        <div><dt>Photo size</dt><dd>{{ spec.photo_label }}</dd></div>
+        <div><dt>Head height</dt><dd>{{ spec.head_label }}</dd></div>
+        <div><dt>Background</dt><dd>{{ spec.background }}</dd></div>
+        {% if spec.online %}<div><dt>{{ spec.online.label }}</dt><dd>{{ spec.online.min_kb }} KB to {{ (spec.online.max_kb / 1024) | int }} MB{% if spec.online.min_px %}, at least {{ spec.online.min_px[0] }} × {{ spec.online.min_px[1] }} pixels{% endif %}{% if spec.online.formats %}, {{ spec.online.formats | join(', ') }}{% endif %}. {{ spec.online.note }}</dd></div>{% endif %}
+        <div><dt>Printing</dt><dd>{{ spec.print_note }}</dd></div>
+      </dl>
+      <p class="growth-hint">Source: <a href="{{ spec.official_url }}" target="_blank" rel="noopener noreferrer">{{ spec.official_label }} ↗</a>. Rules can change, so check the official page before you apply.</p>
+    </section>
+    {% if spec.online %}
+    <fieldset class="growth-choice"><legend>What do you need?</legend>
+      <label><input type="radio" name="passport-mode" value="print" checked> Make printed photos ({{ spec.sheet.label }})</label>
+      <label><input type="radio" name="passport-mode" value="online"> Check a photo for {{ spec.online.label | lower }}</label>
+    </fieldset>
+    {% endif %}
+    <label for="passport-file">Choose a photo of yourself</label><input id="passport-file" name="photo" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" required>
+    <p class="growth-hint">Front-facing, with space above your head and your shoulders in view. The photo stays in your browser; first use downloads the face model (about 4 MB) from Google's model host.</p>
+    <button class="submit-btn" type="submit">Check photo <span aria-hidden="true">→</span></button>
+    <p id="passport-status" class="growth-status" role="status" aria-live="polite"></p>
+    <div id="passport-output" class="growth-output" hidden>
+      <h2>Results</h2>
+      <ul id="passport-checks" class="passport-checks"></ul>
+      <div id="passport-downloads" class="passport-downloads" hidden>
+        <div class="passport-preview"><img id="passport-preview" alt="Cropped passport photo with head-size guide lines" hidden></div>
+        <p class="growth-hint">Green lines mark the allowed range for the top of the head; the red line marks the chin. The lines appear only in this preview, not in the downloads.</p>
+        <a id="passport-sheet-download" class="submit-btn" href="#" download="{{ growth_tool.preset }}-passport-photos-6x4.jpg">Download 6 × 4 print sheet <span aria-hidden="true">↓</span></a>
+        <a id="passport-photo-download" class="growth-secondary" href="#" download="{{ growth_tool.preset }}-passport-photo.jpg">Download a single photo</a>
+      </div>
+    </div>
+  </form>
+  {% elif growth_tool.kind == 'tax' %}
+  {% set cfg = growth_tool.tax_config %}
+  <form class="growth-card tax-card" id="tax-form" data-config='{{ cfg | tojson }}'>
+    <fieldset class="growth-choice"><legend>Calculation</legend>
+      <label><input type="radio" name="tax-direction" value="add" checked> {{ 'Add sales tax to a price' if cfg.tax == 'sales tax' else 'Add ' ~ cfg.tax ~ ' to a net price' }}</label>
+      <label><input type="radio" name="tax-direction" value="remove"> {{ 'Price already includes tax' if cfg.tax == 'sales tax' else 'Remove ' ~ cfg.tax ~ ' from a price that includes it' }}</label>
+    </fieldset>
+    <div class="tax-grid">
+      <div><label for="tax-amount">Amount</label><input id="tax-amount" type="text" inputmode="decimal" autocomplete="off" maxlength="20" placeholder="Example: 100"></div>
+      <div><label for="tax-rate">{{ 'Country' if growth_tool.preset == 'eu' else 'State' if growth_tool.preset == 'us' else 'Rate' }}</label><select id="tax-rate">{% for item in cfg.rates %}<option value="{{ item.rate }}">{{ item.label }}</option>{% endfor %}<option value="custom">Custom rate</option></select></div>
+      {% if cfg.local_rate %}<div><label for="tax-local-rate">Local rate (%)</label><input id="tax-local-rate" type="text" inputmode="decimal" autocomplete="off" maxlength="8" placeholder="City or county, e.g. 2.25"></div>{% endif %}
+      <div id="tax-custom-row" hidden><label for="tax-custom-rate">Custom rate (%)</label><input id="tax-custom-rate" type="text" inputmode="decimal" autocomplete="off" maxlength="8" placeholder="Example: 7"></div>
+    </div>
+    <dl class="tax-results">
+      <div><dt>{{ 'Price before tax' if cfg.tax == 'sales tax' else 'Net, excluding ' ~ cfg.tax }}</dt><dd id="tax-net">—</dd></div>
+      <div><dt>{{ 'Sales tax' if cfg.tax == 'sales tax' else cfg.tax }}</dt><dd id="tax-amount-out">—</dd></div>
+      <div><dt>{{ 'Total with tax' if cfg.tax == 'sales tax' else 'Gross, including ' ~ cfg.tax }}</dt><dd id="tax-gross">—</dd></div>
+    </dl>
+    <p id="tax-status" class="growth-status" role="status" aria-live="polite"></p>
+  </form>
+  {% if growth_tool.preset in ('eu', 'us') %}
+  <section class="growth-card tax-table-card" aria-labelledby="tax-table-heading">
+    <h2 id="tax-table-heading">{{ 'Standard VAT rates in the 27 EU member states' if growth_tool.preset == 'eu' else 'State sales tax rates' }}</h2>
+    <table class="tax-table"><thead><tr><th scope="col">{{ 'Country' if growth_tool.preset == 'eu' else 'State' }}</th><th scope="col">{{ 'Standard VAT rate' if growth_tool.preset == 'eu' else 'State rate' }}</th></tr></thead>
+      <tbody>{% for item in cfg.rates %}<tr><td>{{ item.name }}</td><td>{{ item.rate }}%</td></tr>{% endfor %}</tbody></table>
+    <p class="growth-hint">{{ 'Mainland standard rates as published for 2026. Reduced rates and regional rates differ.' if growth_tool.preset == 'eu' else 'State-level rates as of January 1, 2026, from the Tax Foundation. Local rates are added on top in most states.' }}</p>
+  </section>
+  {% endif %}
   {% endif %}
 </div></section>
 <script type="module" src="{{ url_for('static', filename='js/growth-tools.mjs') }}"></script>
+{% if growth_tool.kind == 'passport' %}<script type="module" src="{{ url_for('static', filename='js/passport-photo.mjs') }}"></script>{% endif %}
+{% if growth_tool.kind == 'tax' %}<script type="module" src="{{ url_for('static', filename='js/tax-tools.mjs') }}"></script>{% endif %}

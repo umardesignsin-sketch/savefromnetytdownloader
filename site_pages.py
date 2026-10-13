@@ -128,7 +128,7 @@ PAGES = (
         "privacy-policy", "Privacy Policy | SaveFromNet",
         "Learn what SaveFromNet processes when you analyze a public URL, download a file, or use the site.",
         "Privacy policy",
-        "This policy describes the current public downloader and utility tools. Last updated October 12, 2026.",
+        "This policy describes the current public downloader and utility tools. Last updated October 13, 2026.",
         (
             Section("Information used for a download", (
                 "When you submit a URL, the server processes that URL, the selected tool and format, and job status to complete your request. A browser identifier cookie associates an analysis and temporary download with the browser that requested it. The cookie lasts up to 30 days unless you clear it.",
@@ -138,8 +138,8 @@ PAGES = (
                 "If you use an image tool, the uploaded still image is decoded and converted in memory. The image bytes are returned in the response and are not added to download history or saved as a temporary media file. The batch image converter returns up to five processed files together in a ZIP response, or ten with an active Batch Pro pass.",
                 "Image tools limit upload size and pixel dimensions. The batch tool limits the total upload to 20 MB and the ZIP output to 32 MB. Processing strips embedded source metadata such as location information from output files. Your browser keeps the result until you download it or leave the page.",
             )),
-            Section("Translation, forecasts, and portrait editing", (
-                "Arithmetic in the free calculator runs in your browser. The portrait background remover also processes your selected image on your device; its MediaPipe runtime downloads from jsDelivr and a segmentation model downloads from Google's model host. The image is not sent to SaveFromNet for this tool.",
+            Section("Translation, forecasts, photos and calculators", (
+                "Arithmetic in the free calculator and the VAT, GST and sales tax calculators runs in your browser. The portrait background remover and the passport photo tools also process your selected image on your device; their MediaPipe runtime downloads from jsDelivr and face and segmentation models download from Google's model host. The image is not sent to SaveFromNet for these tools.",
                 "When you request a translation, the submitted text and selected languages are sent through SaveFromNet to MyMemory. Do not submit confidential text. For a US forecast, a ZIP code is sent to Zippopotam.us to find approximate coordinates and to the National Weather Service to obtain forecast periods. Those providers may handle network data under their own policies. SaveFromNet caches a forecast response for about ten minutes.",
             )),
             Section("Optional Batch Pro purchases", (
