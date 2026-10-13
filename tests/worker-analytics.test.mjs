@@ -64,3 +64,18 @@ test('visit signal hashes the visitor and uses Cloudflare country, not client in
   });
   assert.equal((await worker.fetch(crossSite, env)).status, 403);
 });
+
+test('consent region asks UK, EU and EEA visitors and fails safe when unknown', async () => {
+  const ask = async (country, method = 'GET') => {
+    const request = new Request('https://savefromnet.fun/api/consent-region', { method });
+    if (country !== undefined) Object.defineProperty(request, 'cf', { value: { country } });
+    return worker.fetch(request, {});
+  };
+  for (const [country, required] of [['GB', true], ['DE', true], ['NO', true], ['US', false], ['IN', false], ['AU', false], ['XX', true], ['T1', true], [undefined, true]]) {
+    const response = await ask(country);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { required }, `country ${country}`);
+    assert.equal(response.headers.get('Cache-Control'), 'private, no-store');
+  }
+  assert.equal((await ask('GB', 'POST')).status, 405);
+});

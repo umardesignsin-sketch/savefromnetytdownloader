@@ -44,6 +44,18 @@ function dashboardAuthorized(request, env) {
   } catch { return false; }
 }
 
+// Google Analytics needs prior consent here: the UK, the 27 EU member states and
+// the rest of the EEA. An unknown location is treated as needing consent.
+const CONSENT_COUNTRIES = new Set([
+  "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE",
+  "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE",
+  "IS", "LI", "NO", "GB",
+]);
+
+function consentRequired(country) {
+  return !/^[A-Z]{2}$/.test(country || "") || country === "XX" || country === "T1" || CONSENT_COUNTRIES.has(country);
+}
+
 function privateHeaders(extra = {}) {
   return { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow", ...extra };
 }
@@ -198,6 +210,10 @@ export default {
       const headers = new Headers(response.headers);
       for (const [key, value] of Object.entries(privateHeaders())) headers.set(key, value);
       return new Response(response.body, { status: response.status, headers });
+    }
+    if (pathname === "/api/consent-region") {
+      if (request.method !== "GET") return new Response("Method not allowed", { status: 405 });
+      return Response.json({ required: consentRequired(request.cf?.country) }, { headers: privateHeaders() });
     }
     if (pathname === "/api/visit") {
       if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });

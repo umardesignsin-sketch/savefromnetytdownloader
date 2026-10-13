@@ -23,8 +23,7 @@
   <link rel="stylesheet" href="/static/css/polish.css">
   <link rel="stylesheet" href="/static/css/localized.css">
   {% for item in schema %}<script type="application/ld+json">{{ item | tojson }}</script>{% endfor %}
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-L1G52YY7TJ"></script>
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-L1G52YY7TJ');</script>
+  <script src="/static/js/consent.js" defer></script>
 </head>
 <body data-tool="{{ tool.slug if tool else 'universal-video-downloader' }}" data-platform="{{ tool.platform if tool and tool.platform != 'universal' else 'unknown' }}" data-page-type="{{ 'tool' if tool else 'home' }}" data-lang="{{ lang }}">
   <a class="skip-link" href="#main">{{ ui.nav_tools }}</a>
@@ -68,7 +67,7 @@
     <section class="container localized-directory" aria-label="{{ ui.related_title }}"><h2>{{ ui.related_title }}</h2><div class="localized-links">{% for slug in all_slugs %}{% if not tool or slug != tool.slug %}<a href="/{{ lang }}/{{ slug }}">{{ localized_tools[slug].heading }} <span aria-hidden="true">→</span></a>{% endif %}{% endfor %}</div></section>
     <section class="history-section section-space"><div class="container narrow"><details><summary><span><strong>{{ ui.history_title }}</strong></span><span>{{ ui.history_view }} <span aria-hidden="true">⌄</span></span></summary><div id="history-list" class="history-list"></div></details></div></section>
   </main>
-  <footer class="site-footer"><div class="container localized-footer"><a class="brand" href="/{{ lang }}">savefromnet<span class="brand-dot">.</span>fun</a><p>{{ ui.footer }}</p><nav aria-label="{{ ui.nav_tools }}"><a href="/privacy-policy">Privacy</a><a href="/terms">Terms</a><a href="/dmca">DMCA</a></nav></div></footer>
+  <footer class="site-footer"><div class="container localized-footer"><a class="brand" href="/{{ lang }}">savefromnet<span class="brand-dot">.</span>fun</a><p>{{ ui.footer }}</p><nav aria-label="{{ ui.nav_tools }}"><a href="/privacy-policy">Privacy</a><a href="/terms">Terms</a><a href="/dmca">DMCA</a><button type="button" class="cookie-settings-link" data-cookie-settings>Cookie settings</button></nav></div></footer>
   <script src="/static/js/visitor.js" defer></script><script src="/static/js/site.js" defer></script>
 </body>
 </html>
