@@ -34,24 +34,32 @@ class LocalizedPagesTest(unittest.TestCase):
                     for language, url in alternates("https://savefromnet.fun", slug):
                         self.assertIn(f'hreflang="{language}" href="{url}"', html)
 
-    def test_sitemap_has_exact_published_routes_and_alternates(self):
+    def test_sitemap_lists_every_language_version_as_a_plain_url_list(self):
         response = self.client.get("/sitemap.xml")
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["X-Robots-Tag"], "noindex")
+        text = response.get_data(as_text=True)
+        self.assertNotIn("xhtml", text)  # plain sitemap: browsers show it as an XML tree
         root = ElementTree.fromstring(response.data)
-        ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9",
-              "x": "http://www.w3.org/1999/xhtml"}
-        entries = {item.findtext("s:loc", namespaces=ns): item for item in root.findall("s:url", ns)}
+        ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        entries = [item.findtext("s:loc", namespaces=ns) for item in root.findall("s:url", ns)]
+        self.assertTrue(all(len(item) == 1 for item in root.findall("s:url", ns)))
         expected_count = 3 + len(TOOLS) + len(IMAGE_TOOLS) + len(GUIDES) + len(PAGES)
         expected_count += len(LANGUAGE_UI) * (1 + len(PUBLISHED_SLUGS))
         self.assertEqual(len(entries), expected_count)
+        self.assertEqual(len(set(entries)), len(entries))
+        self.assertEqual(len(text.splitlines()), expected_count + 3)  # one entry per line
         for slug in (None, *PUBLISHED_SLUGS):
-            expected = dict(alternates("https://savefromnet.fun", slug))
-            for url in set(expected.values()):
-                with self.subTest(url=url):
-                    self.assertIn(url, entries)
-                    links = {item.get("hreflang"): item.get("href")
-                             for item in entries[url].findall("x:link", ns)}
-                    self.assertEqual(links, expected)
+            for _, url in alternates("https://savefromnet.fun", slug):
+                self.assertIn(url, entries)
+
+    def test_english_pages_declare_their_language_alternates(self):
+        for slug in (None, *PUBLISHED_SLUGS):
+            path = "/" + (slug or "")
+            with self.subTest(path=path):
+                html = self.client.get(path).get_data(as_text=True)
+                for language, url in alternates("https://savefromnet.fun", slug):
+                    self.assertIn(f'hreflang="{language}" href="{url}"', html)
 
     def test_unsupported_translation_is_not_a_thin_page(self):
         self.assertEqual(self.client.get("/es/nonexistent-downloader").status_code, 404)

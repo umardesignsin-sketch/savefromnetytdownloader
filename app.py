@@ -742,16 +742,14 @@ def sitemap():
     pages += [SITE_URL + page.path for page in PAGES]
     pages += [SITE_URL + f"/{lang}" for lang in LANGUAGE_UI]
     pages += [SITE_URL + f"/{lang}/{slug}" for lang in LANGUAGE_UI for slug in PUBLISHED_SLUGS]
-    alternate_map = {}
-    for slug in (None, *PUBLISHED_SLUGS):
-        group = alternates(SITE_URL, slug)
-        for _, url in group:
-            alternate_map[url] = group
-    body = "".join(
-        "<url><loc>" + xml_escape(url) + "</loc>" + "".join(
-            f'<xhtml:link rel="alternate" hreflang="{lang}" href="{xml_escape(href)}" />'
-            for lang, href in alternate_map.get(url, ())) + "</url>" for url in pages)
-    return Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">' + body + "</urlset>", mimetype="application/xml")
+    # Language alternates are declared with <link rel="alternate" hreflang> in each
+    # page's HTML, so the sitemap stays a plain URL list that every reader can parse.
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    lines += [f"  <url><loc>{xml_escape(url)}</loc></url>" for url in pages]
+    lines.append("</urlset>")
+    xml = "\n".join(lines) + "\n"
+    return Response(xml, mimetype="application/xml", headers={"X-Robots-Tag": "noindex"})
 
 
 if __name__ == "__main__":
