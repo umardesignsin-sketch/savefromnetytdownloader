@@ -6,3 +6,10 @@
 /youtube-transcript-in/* /youtube-to-transcript 301
 /de /youtube-to-transcript 301
 /pt /youtube-to-transcript 301
+/tubemate-alternative /youtube-downloader 301
+/compare/y2mate /youtube-downloader 301
+/compare/youtubetotranscript /youtube-to-transcript 301
+/compare /tools 301
+/tools/youtube-to-srt /youtube-to-transcript 301
+/tools/youtube-transcript-to-text /youtube-to-transcript 301
+/blog/youtube-to-transcript-complete-guide /youtube-to-transcript 301
