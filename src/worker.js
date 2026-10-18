@@ -199,7 +199,7 @@ export default {
       if (request.method !== "GET") return new Response("Method not allowed", { status: 405 });
       if (!dashboardAuthorized(request, env)) return dashboardChallenge();
       return new Response(dashboardHtml, {
-        headers: privateHeaders({ "Content-Type": "text/html; charset=utf-8", "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" }),
+        headers: privateHeaders({ "Content-Type": "text/html; charset=utf-8", "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" }),
       });
     }
     if (pathname === "/api/analytics" || pathname === "/api/analytics/world") {
