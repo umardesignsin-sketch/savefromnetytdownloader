@@ -93,6 +93,14 @@ class RegionalPageTests(unittest.TestCase):
             for tool in REGIONAL_TOOLS:
                 self.assertIn(f'href="{tool.path}"', page)
 
+    def test_each_country_tool_links_its_sibling_tools(self):
+        for tool in REGIONAL_TOOLS:
+            with self.subTest(tool=tool.slug):
+                page = self.client.get(tool.path).get_data(as_text=True)
+                related = re.search(r'<section aria-labelledby="related-country-tools">(.*?)</section>', page, re.S).group(1)
+                siblings = {t.path for t in REGIONAL_TOOLS if t.kind == tool.kind and t.slug != tool.slug}
+                self.assertEqual(set(re.findall(r'href="([^"]+)"', related)), siblings)
+
     def test_privacy_policy_discloses_on_device_photo_processing(self):
         page = unescape(self.client.get("/privacy-policy").get_data(as_text=True))
         self.assertIn("passport photo tools also process your selected image on your device", page)

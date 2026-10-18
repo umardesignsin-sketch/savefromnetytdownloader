@@ -100,6 +100,7 @@
     </section>
     {% endfor %}
     {% if growth_tool is defined and growth_tool %}<section aria-labelledby="growth-faq"><h2 id="growth-faq">Frequently asked questions</h2>{% for question, answer in growth_tool.faq %}<details class="growth-faq"><summary>{{ question }}</summary><p>{{ answer }}</p></details>{% endfor %}</section>{% endif %}
+    {% if growth_tool is defined and growth_tool and growth_tool.region %}<section aria-labelledby="related-country-tools"><h2 id="related-country-tools">{{ 'Passport photos for other countries' if growth_tool.kind == 'passport' else 'VAT, GST and sales tax in other countries' }}</h2><div class="content-links">{% for item in growth_tools if item.region and item.kind == growth_tool.kind and item.slug != growth_tool.slug %}<a href="{{ item.path }}">{{ item.name }} <span aria-hidden="true">→</span></a>{% endfor %}</div></section>{% endif %}
   </article>
   <aside class="content-aside" aria-label="Related pages"><h2>Explore SaveFromNet</h2><a href="/tools">All working tools</a><a href="/supported-links">Supported URL formats</a><a href="/guides">Practical guides</a><a href="/about">About the service</a><a href="/contact">Contact us</a></aside>
 </div></div>
