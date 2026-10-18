@@ -14,7 +14,7 @@ from guides import GUIDES
 from image_tools import IMAGE_TOOLS
 from localized_pages import LANGUAGE_UI, LOCALIZED_GUIDES, LOCALIZED_TOOLS, PUBLISHED_SLUGS, alternates
 from public_pages import PAGES
-from tools import BY_SLUG, TOOLS
+from tools import BY_SLUG, PLATFORMS, TOOLS
 
 # Reported by Search Console as "Crawled - currently not indexed" on 2026-10-18.
 THIN_PAGES = (
@@ -23,7 +23,7 @@ THIN_PAGES = (
     "/fr/instagram-reels-downloader", "/fr/pinterest-video-downloader", "/fr/facebook-video-downloader",
     "/fr/youtube-shorts-downloader", "/fr/youtube-downloader",
 )
-SAMPLE_IDS = {"youtube": "aqz-KE-bpKQ", "instagram": "C1a2B3c4D5e", "facebook": "1234567890", "pinterest": "1234567890"}
+SAMPLE_ID = "12345678901"  # numeric and 11 characters: a valid ID shape on every platform
 
 
 def visible_words(page):
@@ -94,6 +94,7 @@ class LocalizedPagesTest(unittest.TestCase):
             _, lang, slug = path.split("/")
             self.assertIn(slug, LOCALIZED_GUIDES[lang])
         for lang, guides in LOCALIZED_GUIDES.items():
+            self.assertEqual(set(guides), set(PUBLISHED_SLUGS))
             ui = LANGUAGE_UI[lang]
             for slug, guide in guides.items():
                 with self.subTest(lang=lang, slug=slug):
@@ -129,8 +130,8 @@ class LocalizedPagesTest(unittest.TestCase):
                 tool = BY_SLUG[slug]
                 for shape, _ in guide.links:
                     with self.subTest(lang=lang, slug=slug, shape=shape):
-                        detection = detect_url(shape.replace("ID", SAMPLE_IDS[tool.platform]))
-                        self.assertEqual(detection.platform, tool.platform)
+                        detection = detect_url(re.sub(r"\bID\b", SAMPLE_ID, shape))
+                        self.assertIn(detection.platform, PLATFORMS if tool.platform == "universal" else (tool.platform,))
                         self.assertIn(detection.content_type, tool.content_types)
 
     def test_guides_send_other_link_types_to_the_tool_that_accepts_them(self):

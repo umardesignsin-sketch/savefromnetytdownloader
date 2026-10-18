@@ -675,6 +675,422 @@ LOCALIZED_GUIDES = {
                 ("universal-video-downloader", "Enlaces de otras plataformas en un solo campo"),
             ),
         ),
+        "universal-video-downloader": LocalizedGuide(
+            facts=(
+                ("Plataformas", "YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads y Dailymotion"),
+                ("Opciones", "Vídeo, audio o imágenes, según lo que devuelva la fuente"),
+                ("Límite", "Un enlace cada vez; archivos preparados de hasta 512 MB"),
+            ),
+            steps=(
+                "Copia el enlace de la publicación concreta que quieres guardar, en cualquiera de las ocho plataformas compatibles. Puedes pegarlo con o sin https:// al principio.",
+                "Pulsa «Analizar enlace». El detector reconoce la plataforma por el dominio y la ruta y envía el enlace al extractor adecuado; un dominio no compatible se rechaza antes de hacer ninguna consulta.",
+                "Revisa la tarjeta: puede mostrar filas de vídeo, de audio o de imagen. Elige una de las que aparecen y pulsa «Preparar descarga».",
+                "Cuando aparezca «Guardar archivo», descárgalo desde tu navegador. El archivo temporal se borra al cabo de una hora, aproximadamente.",
+            ),
+            links=(
+                ("youtube.com/watch?v=ID", "Un vídeo de YouTube; también sirven youtu.be/ID y youtube.com/shorts/ID."),
+                ("instagram.com/p/ID/", "Una publicación de Instagram; los Reels usan instagram.com/reel/ID/."),
+                ("tiktok.com/@USUARIO/video/ID", "Un vídeo de TikTok; las publicaciones de fotos usan /photo/ID, y también sirven los enlaces cortos vm.tiktok.com."),
+                ("facebook.com/reel/ID", "Un Reel de Facebook; también fb.watch/ID y las páginas watch?v= o /videos/."),
+                ("pinterest.com/pin/ID/", "Un Pin; también el enlace corto pin.it/ID."),
+                ("reddit.com/r/COMUNIDAD/comments/ID/", "Una publicación de Reddit; también redd.it/ID."),
+                ("threads.com/@USUARIO/post/ID", "Una publicación de Threads; los enlaces threads.net se convierten a threads.com."),
+                ("dailymotion.com/video/ID", "Un vídeo de Dailymotion; también dai.ly/ID."),
+            ),
+            sections=(
+                ("Qué tiene de distinto el descargador universal", (
+                    "Las páginas específicas filtran el resultado: el convertidor a MP3 solo muestra el MP3 y el descargador de Reels solo muestra vídeo. Esta página no filtra nada. Enseña todo lo que el servidor puede preparar para el enlace: vídeo, audio original, conversión a MP3 o imágenes. Es útil cuando no sabes qué herramienta usar o quieres comparar todas las opciones.",
+                    "También acepta enlaces que las páginas en español no cubren, como un perfil público de Instagram, una historia de Instagram o las historias de una cuenta de TikTok. Muchos de esos contenidos exigen iniciar sesión y, en ese caso, no devuelven nada.",
+                )),
+                ("Cómo se decide qué aparece en la tarjeta", (
+                    "YouTube, Facebook, Reddit, Dailymotion y los vídeos de TikTok e Instagram pasan por un extractor que devuelve filas de vídeo por altura, en MP4 o WebM, además del audio original y un MP3 cuando hay sonido. Las publicaciones de Instagram, los Pins y las fotos de TikTok devuelven elementos originales, hasta 12 por enlace, cada uno con su extensión real. Threads ofrece como máximo un vídeo MP4.",
+                    "Ningún archivo puede superar 512 MB, y las filas de vídeo que lo superarían ni siquiera aparecen. El tamaño solo se muestra cuando la fuente da datos suficientes; el signo ≈ marca una estimación.",
+                )),
+                ("Enlaces que no funcionan", (
+                    "Un feed, una búsqueda, un tablero de Pinterest, una lista de reproducción o la portada de una red social no identifican un archivo concreto. Tampoco se procesan publicaciones privadas, eliminadas, en directo o que exigen iniciar sesión. Si el dominio no pertenece a una de las ocho plataformas, la página lo indica sin consultar ninguna web: SaveFromNet no descarga de sitios arbitrarios.",
+                )),
+            ),
+            faq=(
+                ("¿Hay que pegar el enlace con https://?", "No. Si falta, se añade automáticamente. Los enlaces con puerto, usuario o contraseña se rechazan."),
+                ("¿Es mejor usar esta página o la de cada plataforma?", "El análisis es el mismo. Esta página muestra todas las opciones juntas; las páginas específicas filtran la lista y explican con más detalle los enlaces de su plataforma."),
+                ("¿Puedo pegar varios enlaces a la vez?", "No. Analiza un enlace cada vez y prepara una descarga por cada fila que elijas. Si analizas muchos enlaces seguidos y aparece «Demasiadas solicitudes», espera un minuto."),
+                ("¿Dónde se guarda el archivo?", "Donde tu navegador guarda las descargas. El archivo temporal se conserva alrededor de una hora en el servidor y, mientras tanto, aparece en «Descargas recientes de este navegador»."),
+            ),
+            see_also=(
+                ("youtube-downloader", "YouTube: vídeo y audio"),
+                ("instagram-downloader", "Publicaciones y Reels de Instagram"),
+                ("tiktok-downloader", "Vídeos y fotos de TikTok"),
+                ("facebook-video-downloader", "Vídeos y Reels de Facebook"),
+                ("reddit-video-downloader", "Vídeos de Reddit con sonido"),
+            ),
+        ),
+        "youtube-to-mp3": LocalizedGuide(
+            facts=(
+                ("Enlaces", "Un vídeo o Short público: youtube.com/watch, youtu.be o youtube.com/shorts"),
+                ("Resultado", "Una sola opción: MP3 convertido a partir del audio accesible"),
+                ("Límite", "Un contenido cada vez; archivos de hasta 512 MB"),
+            ),
+            steps=(
+                "Abre el vídeo o Short que tienes derecho a guardar y copia su enlace con Compartir > Copiar enlace o desde la barra del navegador.",
+                "Pégalo arriba y pulsa «Analizar enlace». El servidor comprueba si ese contenido tiene una pista de sonido accesible.",
+                "Si la tiene, la tarjeta muestra la fila «Converted MP3». Pulsa «Preparar descarga»: durante «Extrayendo audio», el servidor convierte el sonido con ffmpeg.",
+                "Cuando aparezca «Guardar archivo», descarga el MP3. En vídeos largos la conversión tarda más; mantén la página abierta.",
+            ),
+            links=(
+                ("youtube.com/watch?v=ID", "La página de un vídeo. Si el enlace lleva &list=, solo se convierte el vídeo indicado por v=, nunca la lista."),
+                ("youtu.be/ID", "El enlace corto de Compartir, con o sin ?si=."),
+                ("youtube.com/shorts/ID", "Un Short concreto."),
+                ("music.youtube.com/watch?v=ID", "Una pista pública de YouTube Music."),
+            ),
+            sections=(
+                ("Qué contiene el MP3", (
+                    "YouTube no entrega archivos MP3. El servidor descarga la mejor pista de audio accesible (normalmente M4A u Opus en WebM) y la convierte a MP3 con ffmpeg. Por eso la tarjeta muestra una sola fila, «Converted MP3», sin tamaño: el archivo no existe hasta que termina la conversión.",
+                    "El MP3 es más compatible con reproductores, coches y programas antiguos, pero es una conversión con pérdida: no recupera detalle que falte en el original y no hay una tasa de bits fija garantizada.",
+                )),
+                ("Si prefieres el audio sin convertir", (
+                    "Si quieres la pista original sin volver a codificarla, usa el descargador y convertidor de YouTube: allí aparece también la fila «Original audio» con su formato real, junto al MP3 y a los archivos de vídeo.",
+                )),
+                ("Problemas frecuentes", (
+                    "Si el enlace se rechaza, comprueba que apunta a un solo vídeo o Short: las listas, los canales y las búsquedas no se aceptan. Si el análisis falla, el vídeo puede ser privado, estar eliminado, tener restricción de edad o de región, ser un directo en curso o estar bloqueado para accesos automáticos.",
+                    "Si no aparece la fila MP3, el contenido no tiene una pista de sonido accesible. Si la tarjeta lleva abierta más de diez minutos, vuelve a analizar el enlace antes de preparar la descarga.",
+                )),
+            ),
+            faq=(
+                ("¿Cómo convierto un vídeo de YouTube a MP3?", "Pega el enlace de un vídeo o Short público, pulsa «Analizar enlace», elige «Converted MP3» y pulsa «Preparar descarga». Cuando termine la conversión, guarda el archivo."),
+                ("¿Puedo convertir una lista de reproducción entera?", "No. Cada análisis corresponde a un solo vídeo; si el enlace incluye &list=, la lista se ignora."),
+                ("¿Por qué el MP3 no indica tamaño?", "Porque se crea al convertir. El tamaño final depende de la duración y de la conversión, y no se conoce hasta que termina."),
+                ("¿Funciona en el móvil?", "Sí. Usa el navegador del teléfono; el MP3 terminado se guarda donde tu navegador guarda las descargas."),
+            ),
+            see_also=(
+                ("youtube-downloader", "Audio original y vídeo: descargador y convertidor de YouTube"),
+                ("youtube-video-downloader", "El vídeo completo: descargador de vídeos de YouTube"),
+                ("tiktok-to-mp3", "El sonido de un vídeo de TikTok en MP3"),
+            ),
+        ),
+        "youtube-to-mp4": LocalizedGuide(
+            facts=(
+                ("Enlaces", "Un vídeo o Short público: youtube.com/watch, youtu.be o youtube.com/shorts"),
+                ("Resultado", "Solo filas MP4 con sonido, por altura"),
+                ("Límite", "Un contenido cada vez; hasta 512 MB y 2160 píxeles de altura"),
+            ),
+            steps=(
+                "Copia el enlace de un único vídeo o Short público que tengas derecho a guardar.",
+                "Pégalo arriba y pulsa «Analizar enlace». La tarjeta muestra solo las filas MP4 que el servidor puede preparar para ese contenido.",
+                "Elige una altura. Por defecto queda marcada la mejor opción de hasta 1080 píxeles; puedes escoger otra.",
+                "Pulsa «Preparar descarga». Si el MP4 necesita unir imagen y sonido, verás la etapa «Combinando vídeo y audio» antes de «Guardar archivo».",
+            ),
+            links=(
+                ("youtube.com/watch?v=ID", "La página de un vídeo; &list= y &t= se ignoran."),
+                ("youtu.be/ID", "El enlace corto de Compartir."),
+                ("youtube.com/shorts/ID", "Un Short concreto."),
+                ("m.youtube.com/watch?v=ID", "La versión móvil del sitio."),
+            ),
+            sections=(
+                ("Qué significa una fila MP4", (
+                    "Cada fila es un archivo MP4 terminado: imagen en MP4 combinada con audio M4A, o un MP4 que ya trae el sonido. La etiqueta indica la altura en píxeles, y la tarjeta añade las dimensiones, la tasa de bits y el tamaño cuando YouTube los facilita.",
+                    "Las resoluciones altas de YouTube llegan sin sonido, así que el servidor solo ofrece una altura si puede unirle una pista de audio compatible. Nunca se entrega un MP4 mudo como si estuviera completo.",
+                )),
+                ("Por qué falta una resolución", (
+                    "Algunas alturas solo existen en WebM; esta página no las muestra y no las renombra como MP4. Si necesitas esa resolución en WebM, el descargador de vídeos de YouTube muestra los dos contenedores. También se descartan las opciones de más de 512 MB o de más de 2160 píxeles de altura, así que un vídeo largo puede quedarse sin 4K o sin 1080p.",
+                )),
+                ("MP4 y compatibilidad", (
+                    "MP4 es el contenedor que aceptan casi todos los móviles, televisores y editores, y por eso esta página se centra en él. Aun así, el códec de vídeo dentro del MP4 depende de lo que publique YouTube; si un dispositivo antiguo no reproduce el archivo, puede servir una altura menor o un reproductor como VLC.",
+                )),
+            ),
+            faq=(
+                ("¿Cómo descargo un vídeo de YouTube en MP4?", "Pega el enlace, pulsa «Analizar enlace», elige una fila MP4 y pulsa «Preparar descarga». Cuando termine, guarda el archivo."),
+                ("¿El MP4 tendrá sonido?", "Sí. Solo se ofrecen las alturas que el servidor puede combinar con audio M4A o que ya incluyen sonido."),
+                ("¿Por qué no aparece ninguna fila?", "Puede que el vídeo solo tenga WebM dentro del límite de tamaño, o que sea privado, esté eliminado, en directo o restringido. Prueba el descargador de vídeos de YouTube para ver todos los contenedores."),
+            ),
+            see_also=(
+                ("youtube-video-downloader", "MP4 y WebM: descargador de vídeos de YouTube"),
+                ("youtube-to-mp3", "Solo el sonido: convertidor de YouTube a MP3"),
+                ("youtube-shorts-downloader", "Enlaces /shorts/: descargador de YouTube Shorts"),
+            ),
+        ),
+        "instagram-downloader": LocalizedGuide(
+            facts=(
+                ("Enlaces", "Una publicación /p/ o un Reel /reel/ públicos"),
+                ("Opciones", "Fotos, vídeos o elementos de carrusel originales, hasta 12"),
+                ("Acceso", "Solo lo que Instagram muestra sin iniciar sesión"),
+            ),
+            steps=(
+                "En Instagram, abre la publicación o el Reel, toca el icono de compartir y elige Copiar enlace.",
+                "Pégalo arriba y pulsa «Analizar enlace». El servidor consulta esa publicación como un visitante sin cuenta.",
+                "Revisa los elementos: en una publicación aparecen numerados («Item 1 · original», «Item 2 · original»…) con su extensión real; en un Reel aparecen filas de vídeo y, si hay sonido, de audio.",
+                "Elige uno, pulsa «Preparar descarga» y guárdalo. Repite con cada elemento del carrusel que necesites: cada uno se prepara por separado.",
+            ),
+            links=(
+                ("instagram.com/p/ID/", "Una publicación con foto, vídeo o carrusel. El parámetro ?igsh= de Compartir no afecta."),
+                ("instagram.com/reel/ID/", "Un Reel; también la variante instagram.com/reels/ID/."),
+                ("instagram.com/tv/ID/", "Un vídeo antiguo de IGTV; se trata como una publicación."),
+            ),
+            sections=(
+                ("Publicaciones: cada elemento por separado", (
+                    "Para una dirección /p/, el servidor lista los elementos originales de la publicación, hasta 12, cada uno con su extensión: JPG, PNG o WebP para las fotos y MP4 o WebM para los vídeos. No se crea un ZIP ni se une el carrusel en un solo archivo. Estos elementos aparecen sin tamaño estimado.",
+                    "Si Instagram no deja leer los elementos, el servidor prueba con el extractor de vídeo, que puede encontrar el vídeo de una publicación pública. Las publicaciones solo de fotos no tienen ese segundo intento y fallan si Instagram pide iniciar sesión.",
+                )),
+                ("Reels: vídeo y audio", (
+                    "Un enlace /reel/ se analiza con el extractor de vídeo. La tarjeta puede mostrar filas de vídeo por altura, la pista de audio original y un MP3 convertido cuando el Reel tiene sonido. Si solo te interesa el vídeo, el descargador de Reels muestra una lista más corta.",
+                )),
+                ("El acceso anónimo decide", (
+                    "Una publicación que ves en la aplicación con tu cuenta puede estar oculta para un servidor sin cuenta. Si al abrir el enlace en una ventana privada Instagram pide iniciar sesión, SaveFromNet tampoco podrá leerla. No se usan contraseñas ni cookies, y los perfiles privados quedan fuera.",
+                )),
+            ),
+            faq=(
+                ("¿Puedo descargar todas las fotos de un carrusel?", "Sí, una a una. El análisis lista hasta 12 elementos accesibles, y cada uno se prepara y se guarda por separado."),
+                ("¿Por qué falla una publicación de fotos y un Reel no?", "Instagram suele pedir inicio de sesión a los accesos automáticos a las fotos. Los vídeos tienen un segundo extractor y las fotos no, así que a veces no hay resultado."),
+                ("¿Se pueden descargar historias aquí?", "No. Esta página acepta publicaciones /p/ y Reels. El descargador universal acepta enlaces de historias públicas, pero la mayoría exigen iniciar sesión o caducan pronto."),
+            ),
+            see_also=(
+                ("instagram-reels-downloader", "Solo el vídeo de un Reel"),
+                ("instagram-photo-downloader", "Solo las fotos de una publicación"),
+                ("universal-video-downloader", "Perfiles e historias: descargador universal"),
+            ),
+        ),
+        "instagram-photo-downloader": LocalizedGuide(
+            facts=(
+                ("Enlaces", "Una publicación pública con fotos: instagram.com/p/ID/"),
+                ("Opciones", "Solo las imágenes originales, hasta 12 por publicación"),
+                ("Acceso", "Sin iniciar sesión; perfiles privados excluidos"),
+            ),
+            steps=(
+                "Abre la publicación con fotos y copia su enlace con el icono de compartir > Copiar enlace, o desde la barra del navegador.",
+                "Pégalo arriba y pulsa «Analizar enlace». El servidor lee los elementos de la publicación y deja solo las imágenes.",
+                "Cada foto aparece numerada con su extensión real (JPG, PNG o WebP). Elige la que necesitas y pulsa «Preparar descarga».",
+                "Guarda el archivo y repite con las demás fotos del carrusel: cada una es una descarga independiente.",
+            ),
+            links=(
+                ("instagram.com/p/ID/", "Una publicación con una foto o un carrusel. El parámetro ?igsh= de Compartir no afecta."),
+            ),
+            sections=(
+                ("La imagen tal como la publica Instagram", (
+                    "La herramienta descarga el archivo de imagen que Instagram expone para cada elemento, sin recortarlo, ampliarlo ni recomprimirlo. No crea una resolución mayor que la publicada ni extrae fotogramas de un vídeo. Si una publicación solo tiene vídeos, no aparece ninguna foto.",
+                    "Los elementos se muestran sin tamaño estimado. Para convertir después tu propia imagen a otro formato o tamaño, usa las herramientas de imagen del sitio.",
+                )),
+                ("Carruseles y publicaciones mixtas", (
+                    "En un carrusel, cada foto accesible aparece como una fila propia, hasta un máximo de 12. Si el carrusel mezcla fotos y vídeos, esta página solo muestra las fotos; para ver también los vídeos, usa el descargador de Instagram general. Instagram puede mostrar menos elementos a un visitante sin cuenta que en la aplicación.",
+                )),
+                ("Por qué una foto pública puede fallar", (
+                    "Instagram suele redirigir los accesos automáticos a sus fotos hacia la página de inicio de sesión. Cuando eso ocurre no hay resultado, aunque la publicación se vea en tu aplicación. SaveFromNet no usa tu cuenta ni accede a perfiles privados; prueba más tarde o comprueba el enlace en una ventana privada.",
+                )),
+            ),
+            faq=(
+                ("¿Puedo pegar un enlace de Reel?", "No. Los Reels son vídeos y tienen su propio descargador. Esta página acepta enlaces /p/ y muestra solo imágenes."),
+                ("¿Por qué no aparece el tamaño de la foto?", "El servidor no lo conoce antes de descargarla; por eso la fila indica «Tamaño desconocido»."),
+                ("¿Puedo descargar la foto de perfil o una historia?", "No en esta página. Solo se aceptan publicaciones /p/."),
+                ("¿Puedo descargar todas las fotos de una vez?", "No. Cada foto se prepara y se guarda por separado; no se crea un ZIP. Pulsa «Preparar descarga» para cada una que necesites."),
+                ("¿En qué formato se guarda la foto?", "En el que expone Instagram, habitualmente JPG. La extensión aparece en cada fila antes de descargar, y el archivo no se convierte."),
+            ),
+            see_also=(
+                ("instagram-downloader", "Fotos y vídeos juntos: descargador de Instagram"),
+                ("instagram-reels-downloader", "Reels de Instagram"),
+                ("pinterest-video-downloader", "Imágenes de un Pin de Pinterest"),
+            ),
+        ),
+        "tiktok-downloader": LocalizedGuide(
+            facts=(
+                ("Enlaces", "Un vídeo /video/, una publicación de fotos /photo/ o un enlace corto vm.tiktok.com"),
+                ("Opciones", "Vídeo y sonido para los vídeos; imágenes, hasta 12, para las fotos"),
+                ("Límite", "Un enlace cada vez; archivos de hasta 512 MB"),
+            ),
+            steps=(
+                "En TikTok, toca Compartir en el vídeo o en la publicación de fotos y elige Copiar enlace. Normalmente obtendrás un enlace corto vm.tiktok.com o la dirección completa.",
+                "Pégalo arriba y pulsa «Analizar enlace». Un vídeo pasa por el extractor de vídeo; una publicación /photo/ se lee como una galería de imágenes.",
+                "Revisa la tarjeta: filas de vídeo y de audio para un vídeo, o imágenes numeradas para una publicación de fotos. Elige una y pulsa «Preparar descarga».",
+                "Guarda el archivo cuando esté listo. Si TikTok bloquea la consulta, vuelve a intentarlo más tarde.",
+            ),
+            links=(
+                ("tiktok.com/@USUARIO/video/ID", "Un vídeo concreto; el identificador es numérico."),
+                ("tiktok.com/@USUARIO/photo/ID", "Una publicación de fotos (carrusel)."),
+                ("vm.tiktok.com/ID", "El enlace corto de Compartir; también vt.tiktok.com/ID y tiktok.com/t/ID."),
+            ),
+            sections=(
+                ("Vídeos y publicaciones de fotos", (
+                    "Para un vídeo, la tarjeta muestra los archivos de vídeo que devuelve TikTok, con su altura y, cuando hay datos, su tamaño. Si el vídeo tiene sonido, aparece también un MP3 convertido, y la pista de audio original cuando TikTok la entrega por separado.",
+                    "Para una publicación /photo/, la tarjeta muestra las imágenes originales numeradas, hasta 12, con su extensión real y sin tamaño estimado. La música de una publicación de fotos no se ofrece aquí.",
+                )),
+                ("Enlaces cortos", (
+                    "Los enlaces vm.tiktok.com, vt.tiktok.com y tiktok.com/t/ se tratan siempre como vídeo. Si un enlace corto lleva a una publicación de fotos y el análisis falla, ábrelo en el navegador y copia la dirección completa con /photo/.",
+                )),
+                ("Cuando TikTok bloquea la consulta", (
+                    "TikTok limita a veces las peticiones desde centros de datos aunque la publicación se vea en tu móvil. Las publicaciones eliminadas, privadas, con restricción de región o reservadas a usuarios con sesión también fallan. SaveFromNet no inicia sesión ni evita esas restricciones; si aparece «No se pudo acceder a esta publicación pública.», prueba más tarde.",
+                )),
+            ),
+            faq=(
+                ("¿Qué enlace de TikTok debo pegar?", "El de un vídeo o una publicación de fotos concreta, o su enlace corto. Un perfil, la página Para ti o una búsqueda no identifican un archivo."),
+                ("¿Puedo descargar las fotos de un carrusel de TikTok?", "Sí, con la dirección /photo/. Se listan hasta 12 imágenes, y cada una se prepara por separado."),
+                ("¿Puedo descargar historias de TikTok aquí?", "No. Esta página acepta vídeos y publicaciones de fotos. El descargador universal acepta enlaces de historias públicas, aunque muchas exigen iniciar sesión o ya han caducado."),
+                ("¿Por qué las fotos no indican tamaño?", "Las imágenes de una publicación de fotos se listan antes de descargarlas, así que el servidor aún no conoce su tamaño y la fila muestra «Tamaño desconocido»."),
+            ),
+            see_also=(
+                ("tiktok-to-mp3", "Solo el sonido: convertidor de TikTok a MP3"),
+                ("universal-video-downloader", "Historias y otras plataformas: descargador universal"),
+                ("instagram-reels-downloader", "Reels de Instagram"),
+            ),
+        ),
+        "tiktok-to-mp3": LocalizedGuide(
+            facts=(
+                ("Enlaces", "Un vídeo público: tiktok.com/@usuario/video/ID o un enlace corto"),
+                ("Resultado", "Una sola opción: MP3 convertido a partir del sonido del vídeo"),
+                ("Límite", "Un vídeo cada vez; las publicaciones de fotos no se aceptan"),
+            ),
+            steps=(
+                "En TikTok, toca Compartir en el vídeo y elige Copiar enlace.",
+                "Pégalo arriba y pulsa «Analizar enlace». El servidor comprueba si el vídeo tiene una pista de sonido accesible.",
+                "Si la tiene, aparece la fila «Converted MP3». Pulsa «Preparar descarga»; durante «Extrayendo audio», el servidor convierte el sonido con ffmpeg.",
+                "Guarda el MP3 cuando aparezca «Guardar archivo».",
+            ),
+            links=(
+                ("tiktok.com/@USUARIO/video/ID", "Un vídeo concreto."),
+                ("vm.tiktok.com/ID", "El enlace corto de Compartir; también vt.tiktok.com/ID y tiktok.com/t/ID."),
+            ),
+            sections=(
+                ("De dónde sale el MP3", (
+                    "El servidor toma el sonido que TikTok entrega con el vídeo y lo convierte a MP3 con ffmpeg. Es el audio de ese clip tal como se publicó, con la música o la voz que se oiga en él; no se busca la canción original en otro servicio.",
+                    "La fila MP3 no indica tamaño porque el archivo se crea al convertir. Tampoco se promete una tasa de bits fija: convertir no recupera calidad que falte en el original.",
+                )),
+                ("Qué no se puede convertir", (
+                    "Las publicaciones de fotos (/photo/) no se aceptan en esta página, y un clip sin pista de sonido no produce un MP3. Tampoco los vídeos eliminados, privados, con restricción de región o reservados a usuarios con sesión.",
+                    "Un enlace corto se trata como vídeo. Si lleva a una publicación de fotos, el análisis fallará: para las imágenes, usa el descargador de TikTok con la dirección /photo/.",
+                )),
+                ("Uso responsable del audio", (
+                    "La música de muchos vídeos de TikTok pertenece a terceros. Descarga solo audio propio o que tengas permiso para usar como piensas hacerlo.",
+                )),
+            ),
+            faq=(
+                ("¿Cómo convierto un TikTok a MP3?", "Pega el enlace del vídeo, pulsa «Analizar enlace», elige «Converted MP3» y pulsa «Preparar descarga». Cuando termine, guarda el archivo."),
+                ("¿Por qué no aparece la opción MP3?", "El vídeo no tiene una pista de sonido accesible o TikTok ha bloqueado la consulta. Si el enlace es de una publicación de fotos, la página lo rechaza."),
+                ("¿Puedo convertir el sonido de una publicación de fotos?", "No. Esta página solo acepta vídeos."),
+                ("¿Puedo obtener el audio original sin convertir?", "Aquí no: esta página solo ofrece el MP3. El descargador de TikTok muestra la pista original cuando TikTok la entrega por separado."),
+                ("¿Funciona en el móvil?", "Sí. Copia el enlace en la aplicación de TikTok, pégalo en esta página desde el navegador del teléfono y guarda el MP3; la carpeta de destino depende de tu navegador."),
+            ),
+            see_also=(
+                ("tiktok-downloader", "Vídeo y fotos: descargador de TikTok"),
+                ("youtube-to-mp3", "Convertidor de YouTube a MP3"),
+            ),
+        ),
+        "reddit-video-downloader": LocalizedGuide(
+            facts=(
+                ("Enlaces", "El enlace permanente de una publicación: reddit.com/r/comunidad/comments/ID/ o redd.it/ID"),
+                ("Opciones", "Archivos de vídeo por altura, con sonido cuando Reddit lo ofrece"),
+                ("Límite", "Una publicación cada vez; archivos de hasta 512 MB"),
+            ),
+            steps=(
+                "Abre la publicación con el vídeo y copia su dirección desde la barra del navegador. Debe contener /comments/ seguido del identificador.",
+                "Pégala arriba y pulsa «Analizar enlace». El detector valida el dominio y la ruta y quita los parámetros de seguimiento antes de consultar Reddit.",
+                "Elige una de las filas de vídeo. Por defecto queda marcada la mejor opción de hasta 1080 píxeles de altura.",
+                "Pulsa «Preparar descarga». Si Reddit separa imagen y sonido, verás «Combinando vídeo y audio» antes de «Guardar archivo».",
+            ),
+            links=(
+                ("reddit.com/r/COMUNIDAD/comments/ID/", "El enlace permanente de una publicación; puede llevar el título detrás."),
+                ("reddit.com/user/USUARIO/comments/ID/", "Una publicación hecha en un perfil de usuario."),
+                ("redd.it/ID", "El enlace corto de una publicación."),
+                ("old.reddit.com/r/COMUNIDAD/comments/ID/", "La interfaz antigua de Reddit; se trata igual."),
+            ),
+            sections=(
+                ("Enlaces de Compartir con /s/", (
+                    "La aplicación de Reddit suele copiar enlaces del tipo reddit.com/r/comunidad/s/código. Esa forma no identifica la publicación y el detector la rechaza. Abre el enlace en el navegador, espera a que cargue la publicación y copia la dirección que contiene /comments/.",
+                )),
+                ("Vídeo con sonido", (
+                    "Reddit suele guardar la imagen y el sonido de sus vídeos por separado. Cuando las dos pistas son públicas y compatibles, el servidor las descarga y las une en un solo MP4. Si la publicación no tiene ninguna pista de sonido, las filas se marcan con «no audio»: la conversión no puede inventar voz ni música.",
+                )),
+                ("Qué publicaciones no funcionan", (
+                    "Las publicaciones eliminadas, privadas, en cuarentena o marcadas para adultos pueden no estar disponibles sin cuenta. Una publicación de texto o de imagen no contiene vídeo, y una que enlaza a YouTube u otro sitio no aloja el vídeo en Reddit: usa la herramienta de esa plataforma.",
+                )),
+            ),
+            faq=(
+                ("¿Cómo descargo un vídeo de Reddit?", "Copia el enlace permanente de la publicación, pégalo arriba, pulsa «Analizar enlace», elige una fila de vídeo y pulsa «Preparar descarga». Guarda el archivo cuando esté listo."),
+                ("¿Por qué se rechaza mi enlace de la aplicación?", "Probablemente es un enlace /s/ de Compartir. Ábrelo en el navegador y copia la dirección con /comments/."),
+                ("¿Sirve el enlace de una comunidad o de un perfil?", "No. Una comunidad r/… o un perfil contienen muchas publicaciones; pega el enlace de una sola."),
+                ("¿Puedo guardar solo el sonido de un vídeo de Reddit?", "En esta página no: solo muestra vídeo. El descargador universal enseña también el audio original y un MP3 cuando la publicación tiene sonido."),
+            ),
+            see_also=(
+                ("universal-video-downloader", "Otras plataformas en un solo campo"),
+                ("youtube-video-downloader", "Vídeos de YouTube enlazados desde Reddit"),
+            ),
+        ),
+        "threads-video-downloader": LocalizedGuide(
+            facts=(
+                ("Enlaces", "Una publicación pública: threads.com/@usuario/post/ID"),
+                ("Resultado", "Como máximo un vídeo MP4 de origen"),
+                ("Límite", "Una publicación cada vez; archivos de hasta 512 MB"),
+            ),
+            steps=(
+                "En Threads, abre la publicación, toca Compartir y elige Copiar enlace, o copia la dirección desde el navegador.",
+                "Pégala arriba y pulsa «Analizar enlace». El servidor lee los metadatos públicos de esa publicación, los mismos que usan las vistas previas de enlaces.",
+                "Si encuentra un vídeo alojado en los servidores de Meta, la tarjeta muestra una fila «Source video» en MP4.",
+                "Pulsa «Preparar descarga» y guarda el archivo, que se llama threads-video.mp4. Hazlo pronto: el acceso al archivo de origen puede cambiar.",
+            ),
+            links=(
+                ("threads.com/@USUARIO/post/ID", "Una publicación concreta. El parámetro ?xmt= que añade Compartir no afecta."),
+                ("threads.net/@USUARIO/post/ID", "La dirección antigua; se convierte a threads.com antes del análisis."),
+            ),
+            sections=(
+                ("Por qué hay una sola opción", (
+                    "Threads no tiene un extractor estable como YouTube. SaveFromNet lee la etiqueta de vídeo de los metadatos públicos de la página y solo la acepta si el archivo está en los servidores de medios de Meta. Esa etiqueta apunta a un único MP4, así que no hay lista de resoluciones, ni duración, ni tamaño previo.",
+                    "Si la publicación tiene varios vídeos o mezcla fotos y vídeo, solo puede ofrecerse el que aparezca en esos metadatos. Las fotos de Threads no se descargan con esta herramienta.",
+                )),
+                ("Por qué el resultado puede estar vacío", (
+                    "Muchas publicaciones con vídeo no incluyen esa etiqueta para visitantes sin cuenta, y Threads puede redirigir al inicio de sesión. En ese caso la página indica que no hay un vídeo público. Los perfiles y los feeds no son enlaces a una publicación.",
+                )),
+                ("Si la preparación falla", (
+                    "La dirección del archivo que publica Meta es temporal. Si la preparación termina con un error porque el vídeo de origen ya no está disponible, vuelve a analizar el enlace para obtener una dirección nueva y prepara la descarga enseguida. El vídeo se transfiere tal cual, sin convertirlo, y la descarga se detiene si supera 512 MB.",
+                )),
+            ),
+            faq=(
+                ("¿Qué enlace de Threads debo pegar?", "El de una publicación concreta, con la forma threads.com/@usuario/post/ID. Los enlaces threads.net también sirven."),
+                ("¿Puedo descargar fotos de Threads?", "No. Esta herramienta solo busca un vídeo en los metadatos públicos de la publicación."),
+                ("¿Por qué el archivo se llama threads-video.mp4?", "El servidor guarda siempre los vídeos de Threads con ese nombre; puedes cambiarlo después en tu dispositivo."),
+                ("¿El vídeo tendrá sonido?", "Se descarga el MP4 tal como lo publica Meta, sin combinar ni convertir nada: si el archivo de origen tiene sonido, lo conserva."),
+                ("¿Funciona en el móvil?", "Sí. Copia el enlace con Compartir en la aplicación de Threads, pégalo aquí desde el navegador del teléfono y guarda el archivo cuando esté listo."),
+            ),
+            see_also=(
+                ("instagram-reels-downloader", "Reels de Instagram"),
+                ("facebook-video-downloader", "Vídeos de Facebook"),
+                ("universal-video-downloader", "Otras plataformas en un solo campo"),
+            ),
+        ),
+        "dailymotion-video-downloader": LocalizedGuide(
+            facts=(
+                ("Enlaces", "Un vídeo público: dailymotion.com/video/ID o dai.ly/ID"),
+                ("Opciones", "Alturas en MP4 o WebM devueltas para ese vídeo"),
+                ("Límite", "Un vídeo cada vez; archivos de hasta 512 MB"),
+            ),
+            steps=(
+                "Abre el vídeo en Dailymotion y copia su dirección o el enlace corto dai.ly del botón Compartir.",
+                "Pégalo arriba y pulsa «Analizar enlace». Un enlace dai.ly se convierte primero en la dirección dailymotion.com/video/ del mismo vídeo.",
+                "Compara las alturas disponibles. Por defecto queda marcada la mejor opción de hasta 1080 píxeles; puedes elegir otra.",
+                "Pulsa «Preparar descarga» y guarda el archivo cuando aparezca «Guardar archivo».",
+            ),
+            links=(
+                ("dailymotion.com/video/ID", "La página de un vídeo; el identificador suele empezar por x."),
+                ("dai.ly/ID", "El enlace corto que genera Compartir."),
+            ),
+            sections=(
+                ("Cómo leer las calidades", (
+                    "Dailymotion puede ofrecer varias alturas del mismo vídeo. Cada fila indica el contenedor, la altura y, cuando la fuente informa de la tasa de bits y la duración, un tamaño aproximado marcado con ≈. Que el reproductor muestre una calidad no garantiza que un descargador sin cuenta reciba el mismo archivo.",
+                    "Una altura mayor suele ocupar más, pero el códec y la tasa de bits también cuentan. Las opciones que superarían 512 MB no aparecen, lo que puede dejar fuera las calidades altas de un vídeo largo.",
+                )),
+                ("Enlaces que no identifican un vídeo", (
+                    "Los canales, las listas de reproducción y las búsquedas no son enlaces a un vídeo concreto, y el detector los rechaza. Los vídeos privados, eliminados o bloqueados por región tampoco se procesan; en ese último caso, la página indica que el contenido no está disponible en la región del servidor.",
+                )),
+                ("Sonido y archivo final", (
+                    "Las calidades de Dailymotion suelen llegar con la imagen y el sonido juntos, así que normalmente no hace falta combinar pistas. Si la fuente no ofrece ninguna pista de sonido, la fila se marca con «no audio» en lugar de presentarse como un vídeo completo. El archivo se guarda en el contenedor que indica la fila.",
+                )),
+            ),
+            faq=(
+                ("¿Funciona un enlace dai.ly?", "Sí. Se convierte a la dirección del vídeo en dailymotion.com antes del análisis."),
+                ("¿Por qué el tamaño aparece como desconocido?", "Dailymotion no siempre da la tasa de bits o la duración necesarias. Mostrar «Tamaño desconocido» es más fiel que inventar una cifra."),
+                ("¿Puedo descargar una lista de reproducción?", "No. Analiza cada vídeo con su propio enlace."),
+                ("¿Puedo descargar un vídeo privado o protegido con contraseña?", "No. Solo se procesan vídeos públicos que se pueden ver sin iniciar sesión ni introducir una contraseña."),
+                ("¿Funciona en el móvil?", "Sí. Copia el enlace con Compartir en la aplicación de Dailymotion, pégalo en esta página desde el navegador y guarda el archivo; la carpeta depende de tu navegador."),
+            ),
+            see_also=(
+                ("universal-video-downloader", "Otras plataformas en un solo campo"),
+                ("youtube-video-downloader", "Vídeos de YouTube"),
+            ),
+        ),
     },
     "fr": {
         "youtube-downloader": LocalizedGuide(
@@ -939,12 +1355,428 @@ LOCALIZED_GUIDES = {
                 ("universal-video-downloader", "Liens d'autres plateformes dans un seul champ"),
             ),
         ),
+        "universal-video-downloader": LocalizedGuide(
+            facts=(
+                ("Plateformes", "YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads et Dailymotion"),
+                ("Choix", "Vidéo, audio ou images, selon ce que renvoie la source"),
+                ("Limite", "Un lien à la fois ; fichiers préparés jusqu'à 512 Mo"),
+            ),
+            steps=(
+                "Copiez le lien de la publication précise que vous voulez enregistrer, sur l'une des huit plateformes prises en charge. Vous pouvez le coller avec ou sans https:// au début.",
+                "Cliquez sur « Analyser le lien ». Le détecteur reconnaît la plateforme d'après le domaine et le chemin, puis transmet le lien à l'extracteur adapté ; un domaine non pris en charge est refusé avant toute requête.",
+                "Examinez la fiche : elle peut contenir des lignes vidéo, audio ou image. Choisissez l'une de celles qui s'affichent, puis cliquez sur « Préparer le téléchargement ».",
+                "Quand « Enregistrer le fichier » apparaît, téléchargez-le depuis votre navigateur. Le fichier temporaire est supprimé au bout d'une heure environ.",
+            ),
+            links=(
+                ("youtube.com/watch?v=ID", "Une vidéo YouTube ; youtu.be/ID et youtube.com/shorts/ID fonctionnent aussi."),
+                ("instagram.com/p/ID/", "Une publication Instagram ; les Reels utilisent instagram.com/reel/ID/."),
+                ("tiktok.com/@UTILISATEUR/video/ID", "Une vidéo TikTok ; les publications photo utilisent /photo/ID, et les liens courts vm.tiktok.com sont acceptés."),
+                ("facebook.com/reel/ID", "Un Reel Facebook ; fb.watch/ID et les pages watch?v= ou /videos/ fonctionnent aussi."),
+                ("pinterest.com/pin/ID/", "Une épingle ; le lien court pin.it/ID fonctionne aussi."),
+                ("reddit.com/r/NOM/comments/ID/", "Une publication Reddit ; redd.it/ID fonctionne aussi."),
+                ("threads.com/@UTILISATEUR/post/ID", "Une publication Threads ; les liens threads.net sont convertis en threads.com."),
+                ("dailymotion.com/video/ID", "Une vidéo Dailymotion ; dai.ly/ID fonctionne aussi."),
+            ),
+            sections=(
+                ("Ce qui distingue le téléchargeur universel", (
+                    "Les pages spécialisées filtrent le résultat : le convertisseur MP3 n'affiche que le MP3, le téléchargeur de Reels que la vidéo. Cette page ne filtre rien. Elle montre tout ce que le serveur peut préparer pour le lien : vidéo, audio d'origine, conversion MP3 ou images. Elle est utile quand vous ne savez pas quel outil choisir ou que vous voulez comparer toutes les options.",
+                    "Elle accepte aussi des liens que les pages en français ne couvrent pas, comme un profil Instagram public, une Story Instagram ou les Stories d'un compte TikTok. Beaucoup de ces contenus exigent une connexion et ne renvoient alors rien.",
+                )),
+                ("Comment le contenu de la fiche est déterminé", (
+                    "YouTube, Facebook, Reddit, Dailymotion ainsi que les vidéos TikTok et Instagram passent par un extracteur qui renvoie des lignes vidéo par hauteur, en MP4 ou en WebM, plus l'audio d'origine et un MP3 quand il y a du son. Les publications Instagram, les épingles et les photos TikTok renvoient des éléments d'origine, jusqu'à 12 par lien, chacun avec sa véritable extension. Threads propose au plus une vidéo MP4.",
+                    "Aucun fichier ne peut dépasser 512 Mo, et les lignes vidéo qui dépasseraient cette limite n'apparaissent même pas. La taille ne s'affiche que si la source fournit assez de données ; le signe ≈ indique une estimation.",
+                )),
+                ("Les liens qui ne fonctionnent pas", (
+                    "Un fil, une recherche, un tableau Pinterest, une playlist ou la page d'accueil d'un réseau social ne désignent pas un fichier précis. Les publications privées, supprimées, en direct ou réservées aux comptes connectés ne sont pas traitées non plus. Si le domaine n'appartient pas à l'une des huit plateformes, la page le signale sans interroger aucun site : SaveFromNet ne télécharge pas depuis des sites arbitraires.",
+                )),
+            ),
+            faq=(
+                ("Faut-il coller le lien avec https:// ?", "Non. S'il manque, il est ajouté automatiquement. Les liens contenant un port, un nom d'utilisateur ou un mot de passe sont refusés."),
+                ("Vaut-il mieux utiliser cette page ou celle de la plateforme ?", "L'analyse est la même. Cette page affiche toutes les options ensemble ; les pages spécialisées filtrent la liste et détaillent les liens de leur plateforme."),
+                ("Puis-je coller plusieurs liens à la fois ?", "Non. Analysez un lien à la fois et préparez un téléchargement par ligne choisie. Si vous analysez beaucoup de liens d'affilée et que « Trop de demandes » s'affiche, attendez une minute."),
+                ("Où le fichier est-il enregistré ?", "Là où votre navigateur enregistre les téléchargements. Le fichier temporaire reste environ une heure sur le serveur et figure entre-temps dans « Téléchargements récents de ce navigateur »."),
+            ),
+            see_also=(
+                ("youtube-downloader", "YouTube : vidéo et audio"),
+                ("instagram-downloader", "Publications et Reels Instagram"),
+                ("tiktok-downloader", "Vidéos et photos TikTok"),
+                ("facebook-video-downloader", "Vidéos et Reels Facebook"),
+                ("reddit-video-downloader", "Vidéos Reddit avec le son"),
+            ),
+        ),
+        "youtube-to-mp3": LocalizedGuide(
+            facts=(
+                ("Liens", "Une vidéo ou un Short public : youtube.com/watch, youtu.be ou youtube.com/shorts"),
+                ("Résultat", "Une seule option : un MP3 converti depuis l'audio accessible"),
+                ("Limite", "Un contenu à la fois ; fichiers jusqu'à 512 Mo"),
+            ),
+            steps=(
+                "Ouvrez la vidéo ou le Short que vous avez le droit d'enregistrer et copiez son lien via Partager > Copier le lien ou depuis la barre du navigateur.",
+                "Collez-le ci-dessus et cliquez sur « Analyser le lien ». Le serveur vérifie que ce contenu possède une piste sonore accessible.",
+                "Si c'est le cas, la fiche affiche la ligne « Converted MP3 ». Cliquez sur « Préparer le téléchargement » : pendant l'étape « Extraction de l'audio », le serveur convertit le son avec ffmpeg.",
+                "Quand « Enregistrer le fichier » apparaît, téléchargez le MP3. Pour une longue vidéo, la conversion prend plus de temps ; gardez la page ouverte.",
+            ),
+            links=(
+                ("youtube.com/watch?v=ID", "La page d'une vidéo. Si le lien contient &list=, seule la vidéo désignée par v= est convertie, jamais la playlist."),
+                ("youtu.be/ID", "Le lien court du bouton Partager, avec ou sans ?si=."),
+                ("youtube.com/shorts/ID", "Un Short précis."),
+                ("music.youtube.com/watch?v=ID", "Un titre public de YouTube Music."),
+            ),
+            sections=(
+                ("Ce que contient le MP3", (
+                    "YouTube ne fournit pas de fichiers MP3. Le serveur télécharge la meilleure piste audio accessible (généralement en M4A ou en Opus dans un WebM) et la convertit en MP3 avec ffmpeg. C'est pourquoi la fiche n'affiche qu'une ligne, « Converted MP3 », sans taille : le fichier n'existe qu'à la fin de la conversion.",
+                    "Le MP3 est plus compatible avec les lecteurs, les autoradios et les anciens logiciels, mais c'est une conversion avec perte : elle ne restaure pas les détails absents de l'original, et aucun débit fixe n'est garanti.",
+                )),
+                ("Pour garder l'audio sans conversion", (
+                    "Si vous voulez la piste d'origine sans réencodage, utilisez le téléchargeur et convertisseur YouTube : la ligne « Original audio » y apparaît avec son format réel, à côté du MP3 et des fichiers vidéo.",
+                )),
+                ("Problèmes fréquents", (
+                    "Si le lien est refusé, vérifiez qu'il désigne une seule vidéo ou un seul Short : les playlists, chaînes et recherches ne sont pas acceptées. Si l'analyse échoue, la vidéo peut être privée, supprimée, limitée par âge ou par région, en direct ou bloquée pour les accès automatisés.",
+                    "Si la ligne MP3 n'apparaît pas, le contenu n'a pas de piste sonore accessible. Si la fiche est ouverte depuis plus de dix minutes, analysez de nouveau le lien avant de préparer le téléchargement.",
+                )),
+            ),
+            faq=(
+                ("Comment convertir une vidéo YouTube en MP3 ?", "Collez le lien d'une vidéo ou d'un Short public, cliquez sur « Analyser le lien », choisissez « Converted MP3 » puis « Préparer le téléchargement ». Une fois la conversion terminée, enregistrez le fichier."),
+                ("Puis-je convertir une playlist entière ?", "Non. Chaque analyse correspond à une seule vidéo ; si le lien contient &list=, la playlist est ignorée."),
+                ("Pourquoi le MP3 n'indique-t-il pas de taille ?", "Parce qu'il est créé pendant la conversion. Sa taille finale dépend de la durée et de la conversion, et n'est connue qu'à la fin."),
+                ("Est-ce que ça fonctionne sur téléphone ?", "Oui. Utilisez le navigateur du téléphone ; le MP3 terminé est enregistré là où votre navigateur range les téléchargements."),
+            ),
+            see_also=(
+                ("youtube-downloader", "Audio d'origine et vidéo : téléchargeur et convertisseur YouTube"),
+                ("youtube-video-downloader", "La vidéo complète : téléchargeur de vidéos YouTube"),
+                ("tiktok-to-mp3", "Le son d'une vidéo TikTok en MP3"),
+            ),
+        ),
+        "youtube-to-mp4": LocalizedGuide(
+            facts=(
+                ("Liens", "Une vidéo ou un Short public : youtube.com/watch, youtu.be ou youtube.com/shorts"),
+                ("Résultat", "Uniquement des lignes MP4 avec le son, par hauteur"),
+                ("Limite", "Un contenu à la fois ; jusqu'à 512 Mo et 2160 pixels de hauteur"),
+            ),
+            steps=(
+                "Copiez le lien d'une seule vidéo ou d'un seul Short public que vous avez le droit d'enregistrer.",
+                "Collez-le ci-dessus et cliquez sur « Analyser le lien ». La fiche n'affiche que les lignes MP4 que le serveur peut préparer pour ce contenu.",
+                "Choisissez une hauteur. Par défaut, la meilleure option jusqu'à 1080 pixels est cochée ; vous pouvez en choisir une autre.",
+                "Cliquez sur « Préparer le téléchargement ». Si le MP4 doit réunir l'image et le son, l'étape « Fusion vidéo et audio » s'affiche avant « Enregistrer le fichier ».",
+            ),
+            links=(
+                ("youtube.com/watch?v=ID", "La page d'une vidéo ; &list= et &t= sont ignorés."),
+                ("youtu.be/ID", "Le lien court du bouton Partager."),
+                ("youtube.com/shorts/ID", "Un Short précis."),
+                ("m.youtube.com/watch?v=ID", "La version mobile du site."),
+            ),
+            sections=(
+                ("Ce que signifie une ligne MP4", (
+                    "Chaque ligne est un fichier MP4 complet : une image MP4 associée à un audio M4A, ou un MP4 qui contient déjà le son. L'étiquette indique la hauteur en pixels, et la fiche ajoute les dimensions, le débit et la taille quand YouTube les fournit.",
+                    "Les hautes résolutions de YouTube arrivent sans son ; le serveur ne propose donc une hauteur que s'il peut y associer une piste audio compatible. Un MP4 muet n'est jamais présenté comme complet.",
+                )),
+                ("Pourquoi une résolution manque", (
+                    "Certaines hauteurs n'existent qu'en WebM ; cette page ne les affiche pas et ne les renomme pas en MP4. Si vous avez besoin de cette résolution en WebM, le téléchargeur de vidéos YouTube montre les deux conteneurs. Les options de plus de 512 Mo ou de plus de 2160 pixels de hauteur sont aussi écartées : une longue vidéo peut donc perdre la 4K ou le 1080p.",
+                )),
+                ("MP4 et compatibilité", (
+                    "Le MP4 est le conteneur accepté par presque tous les téléphones, téléviseurs et logiciels de montage, d'où cette page dédiée. Le codec vidéo qu'il contient dépend toutefois de ce que publie YouTube ; si un ancien appareil ne lit pas le fichier, une hauteur plus faible ou un lecteur comme VLC peut aider.",
+                )),
+            ),
+            faq=(
+                ("Comment télécharger une vidéo YouTube en MP4 ?", "Collez le lien, cliquez sur « Analyser le lien », choisissez une ligne MP4 puis « Préparer le téléchargement ». Une fois terminé, enregistrez le fichier."),
+                ("Le MP4 aura-t-il du son ?", "Oui. Seules les hauteurs que le serveur peut associer à un audio M4A, ou qui contiennent déjà le son, sont proposées."),
+                ("Pourquoi aucune ligne n'apparaît-elle ?", "La vidéo n'a peut-être que du WebM dans la limite de taille, ou elle est privée, supprimée, en direct ou restreinte. Essayez le téléchargeur de vidéos YouTube pour voir tous les conteneurs."),
+            ),
+            see_also=(
+                ("youtube-video-downloader", "MP4 et WebM : téléchargeur de vidéos YouTube"),
+                ("youtube-to-mp3", "Le son seul : convertisseur YouTube en MP3"),
+                ("youtube-shorts-downloader", "Liens /shorts/ : téléchargeur de YouTube Shorts"),
+            ),
+        ),
+        "instagram-downloader": LocalizedGuide(
+            facts=(
+                ("Liens", "Une publication /p/ ou un Reel /reel/ publics"),
+                ("Choix", "Photos, vidéos ou éléments de carrousel d'origine, jusqu'à 12"),
+                ("Accès", "Uniquement ce qu'Instagram montre sans connexion"),
+            ),
+            steps=(
+                "Dans Instagram, ouvrez la publication ou le Reel, touchez l'icône de partage puis Copier le lien.",
+                "Collez-le ci-dessus et cliquez sur « Analyser le lien ». Le serveur consulte cette publication comme un visiteur non connecté.",
+                "Examinez les éléments : pour une publication, ils sont numérotés (« Item 1 · original », « Item 2 · original »…) avec leur véritable extension ; pour un Reel, des lignes vidéo et, s'il y a du son, audio s'affichent.",
+                "Choisissez-en un, cliquez sur « Préparer le téléchargement » et enregistrez-le. Recommencez pour chaque élément du carrousel dont vous avez besoin : chacun est préparé séparément.",
+            ),
+            links=(
+                ("instagram.com/p/ID/", "Une publication avec photo, vidéo ou carrousel. Le paramètre ?igsh= ajouté par Partager n'a aucun effet."),
+                ("instagram.com/reel/ID/", "Un Reel ; la variante instagram.com/reels/ID/ fonctionne aussi."),
+                ("instagram.com/tv/ID/", "Une ancienne vidéo IGTV ; elle est traitée comme une publication."),
+            ),
+            sections=(
+                ("Publications : chaque élément séparément", (
+                    "Pour une adresse /p/, le serveur liste les éléments d'origine de la publication, jusqu'à 12, chacun avec son extension : JPG, PNG ou WebP pour les photos, MP4 ou WebM pour les vidéos. Aucun ZIP n'est créé et le carrousel n'est pas fusionné en un seul fichier. Ces éléments s'affichent sans taille estimée.",
+                    "Si Instagram ne laisse pas lire les éléments, le serveur essaie l'extracteur vidéo, qui peut trouver la vidéo d'une publication publique. Les publications composées uniquement de photos n'ont pas cette seconde chance et échouent si Instagram exige une connexion.",
+                )),
+                ("Reels : vidéo et audio", (
+                    "Un lien /reel/ est analysé par l'extracteur vidéo. La fiche peut afficher des lignes vidéo par hauteur, la piste audio d'origine et un MP3 converti lorsque le Reel a du son. Si seule la vidéo vous intéresse, le téléchargeur de Reels affiche une liste plus courte.",
+                )),
+                ("L'accès anonyme est décisif", (
+                    "Une publication visible dans l'application avec votre compte peut être cachée à un serveur sans compte. Si Instagram demande de se connecter quand vous ouvrez le lien dans une fenêtre de navigation privée, SaveFromNet ne pourra pas la lire non plus. Aucun mot de passe ni cookie n'est utilisé, et les profils privés sont exclus.",
+                )),
+            ),
+            faq=(
+                ("Puis-je télécharger toutes les photos d'un carrousel ?", "Oui, une par une. L'analyse liste jusqu'à 12 éléments accessibles, et chacun est préparé et enregistré séparément."),
+                ("Pourquoi une publication photo échoue-t-elle alors qu'un Reel fonctionne ?", "Instagram demande souvent une connexion aux accès automatisés à ses photos. Les vidéos ont un second extracteur, pas les photos ; il arrive donc qu'aucun résultat ne s'affiche."),
+                ("Puis-je télécharger des Stories ici ?", "Non. Cette page accepte les publications /p/ et les Reels. Le téléchargeur universel accepte les liens de Stories publiques, mais la plupart exigent une connexion ou expirent rapidement."),
+            ),
+            see_also=(
+                ("instagram-reels-downloader", "La vidéo d'un Reel seulement"),
+                ("instagram-photo-downloader", "Les photos d'une publication seulement"),
+                ("universal-video-downloader", "Profils et Stories : téléchargeur universel"),
+            ),
+        ),
+        "instagram-photo-downloader": LocalizedGuide(
+            facts=(
+                ("Liens", "Une publication publique avec photos : instagram.com/p/ID/"),
+                ("Choix", "Uniquement les images d'origine, jusqu'à 12 par publication"),
+                ("Accès", "Sans connexion ; profils privés exclus"),
+            ),
+            steps=(
+                "Ouvrez la publication avec photos et copiez son lien via l'icône de partage > Copier le lien, ou depuis la barre du navigateur.",
+                "Collez-le ci-dessus et cliquez sur « Analyser le lien ». Le serveur lit les éléments de la publication et ne garde que les images.",
+                "Chaque photo apparaît numérotée avec sa véritable extension (JPG, PNG ou WebP). Choisissez celle qu'il vous faut et cliquez sur « Préparer le téléchargement ».",
+                "Enregistrez le fichier, puis recommencez pour les autres photos du carrousel : chacune est un téléchargement distinct.",
+            ),
+            links=(
+                ("instagram.com/p/ID/", "Une publication avec une photo ou un carrousel. Le paramètre ?igsh= ajouté par Partager n'a aucun effet."),
+            ),
+            sections=(
+                ("L'image telle qu'Instagram la publie", (
+                    "L'outil télécharge le fichier image qu'Instagram expose pour chaque élément, sans le recadrer, l'agrandir ni le recompresser. Il ne crée pas de résolution supérieure à celle publiée et n'extrait pas d'image d'une vidéo. Si une publication ne contient que des vidéos, aucune photo n'apparaît.",
+                    "Les éléments s'affichent sans taille estimée. Pour convertir ensuite votre propre image dans un autre format ou une autre taille, utilisez les outils d'image du site.",
+                )),
+                ("Carrousels et publications mixtes", (
+                    "Dans un carrousel, chaque photo accessible apparaît sur sa propre ligne, dans la limite de 12. Si le carrousel mélange photos et vidéos, cette page n'affiche que les photos ; pour voir aussi les vidéos, utilisez le téléchargeur Instagram général. Instagram peut montrer moins d'éléments à un visiteur non connecté que dans l'application.",
+                )),
+                ("Pourquoi une photo publique peut échouer", (
+                    "Instagram redirige souvent les accès automatisés à ses photos vers la page de connexion. Dans ce cas, aucun résultat ne s'affiche, même si la publication est visible dans votre application. SaveFromNet n'utilise pas votre compte et n'accède pas aux profils privés ; réessayez plus tard ou vérifiez le lien dans une fenêtre de navigation privée.",
+                )),
+            ),
+            faq=(
+                ("Puis-je coller un lien de Reel ?", "Non. Les Reels sont des vidéos et ont leur propre téléchargeur. Cette page accepte les liens /p/ et n'affiche que des images."),
+                ("Pourquoi la taille de la photo n'est-elle pas indiquée ?", "Le serveur ne la connaît pas avant le téléchargement ; la ligne affiche donc « Taille inconnue »."),
+                ("Puis-je télécharger une photo de profil ou une Story ?", "Pas sur cette page. Seules les publications /p/ sont acceptées."),
+                ("Puis-je télécharger toutes les photos d'un coup ?", "Non. Chaque photo est préparée et enregistrée séparément ; aucun ZIP n'est créé. Cliquez sur « Préparer le téléchargement » pour chacune."),
+                ("Dans quel format la photo est-elle enregistrée ?", "Dans celui qu'expose Instagram, généralement JPG. L'extension figure sur chaque ligne avant le téléchargement, et le fichier n'est pas converti."),
+            ),
+            see_also=(
+                ("instagram-downloader", "Photos et vidéos ensemble : téléchargeur Instagram"),
+                ("instagram-reels-downloader", "Reels Instagram"),
+                ("pinterest-video-downloader", "Images d'une épingle Pinterest"),
+            ),
+        ),
+        "tiktok-downloader": LocalizedGuide(
+            facts=(
+                ("Liens", "Une vidéo /video/, une publication photo /photo/ ou un lien court vm.tiktok.com"),
+                ("Choix", "Vidéo et son pour les vidéos ; images, jusqu'à 12, pour les photos"),
+                ("Limite", "Un lien à la fois ; fichiers jusqu'à 512 Mo"),
+            ),
+            steps=(
+                "Dans TikTok, touchez Partager sur la vidéo ou la publication photo, puis Copier le lien. Vous obtenez généralement un lien court vm.tiktok.com ou l'adresse complète.",
+                "Collez-le ci-dessus et cliquez sur « Analyser le lien ». Une vidéo passe par l'extracteur vidéo ; une publication /photo/ est lue comme une galerie d'images.",
+                "Examinez la fiche : lignes vidéo et audio pour une vidéo, images numérotées pour une publication photo. Choisissez-en une et cliquez sur « Préparer le téléchargement ».",
+                "Enregistrez le fichier quand il est prêt. Si TikTok bloque la requête, réessayez plus tard.",
+            ),
+            links=(
+                ("tiktok.com/@UTILISATEUR/video/ID", "Une vidéo précise ; l'identifiant est numérique."),
+                ("tiktok.com/@UTILISATEUR/photo/ID", "Une publication photo (carrousel)."),
+                ("vm.tiktok.com/ID", "Le lien court du bouton Partager ; vt.tiktok.com/ID et tiktok.com/t/ID fonctionnent aussi."),
+            ),
+            sections=(
+                ("Vidéos et publications photo", (
+                    "Pour une vidéo, la fiche affiche les fichiers vidéo renvoyés par TikTok, avec leur hauteur et, quand les données existent, leur taille. Si la vidéo a du son, un MP3 converti apparaît aussi, ainsi que la piste audio d'origine lorsque TikTok la fournit séparément.",
+                    "Pour une publication /photo/, la fiche affiche les images d'origine numérotées, jusqu'à 12, avec leur véritable extension et sans taille estimée. La musique d'une publication photo n'est pas proposée ici.",
+                )),
+                ("Liens courts", (
+                    "Les liens vm.tiktok.com, vt.tiktok.com et tiktok.com/t/ sont toujours traités comme des vidéos. Si un lien court mène à une publication photo et que l'analyse échoue, ouvrez-le dans le navigateur et copiez l'adresse complète contenant /photo/.",
+                )),
+                ("Quand TikTok bloque la requête", (
+                    "TikTok limite parfois les requêtes provenant de centres de données, même si la publication s'affiche sur votre téléphone. Les publications supprimées, privées, limitées par région ou réservées aux comptes connectés échouent aussi. SaveFromNet ne se connecte pas et ne contourne pas ces restrictions ; si le message « Cette publication publique est inaccessible. » apparaît, réessayez plus tard.",
+                )),
+            ),
+            faq=(
+                ("Quel lien TikTok faut-il coller ?", "Le lien d'une vidéo ou d'une publication photo précise, ou son lien court. Un profil, la page Pour toi ou une recherche ne désignent pas un fichier."),
+                ("Puis-je télécharger les photos d'un carrousel TikTok ?", "Oui, avec l'adresse /photo/. Jusqu'à 12 images sont listées, et chacune est préparée séparément."),
+                ("Puis-je télécharger des Stories TikTok ici ?", "Non. Cette page accepte les vidéos et les publications photo. Le téléchargeur universel accepte les liens de Stories publiques, mais beaucoup exigent une connexion ou ont déjà expiré."),
+                ("Pourquoi les photos n'indiquent-elles pas de taille ?", "Les images d'une publication photo sont listées avant d'être téléchargées : le serveur ne connaît donc pas encore leur taille, et la ligne affiche « Taille inconnue »."),
+            ),
+            see_also=(
+                ("tiktok-to-mp3", "Le son seul : convertisseur TikTok en MP3"),
+                ("universal-video-downloader", "Stories et autres plateformes : téléchargeur universel"),
+                ("instagram-reels-downloader", "Reels Instagram"),
+            ),
+        ),
+        "tiktok-to-mp3": LocalizedGuide(
+            facts=(
+                ("Liens", "Une vidéo publique : tiktok.com/@utilisateur/video/ID ou un lien court"),
+                ("Résultat", "Une seule option : un MP3 converti depuis le son de la vidéo"),
+                ("Limite", "Une vidéo à la fois ; les publications photo ne sont pas acceptées"),
+            ),
+            steps=(
+                "Dans TikTok, touchez Partager sur la vidéo puis Copier le lien.",
+                "Collez-le ci-dessus et cliquez sur « Analyser le lien ». Le serveur vérifie que la vidéo possède une piste sonore accessible.",
+                "Si c'est le cas, la ligne « Converted MP3 » apparaît. Cliquez sur « Préparer le téléchargement » ; pendant l'étape « Extraction de l'audio », le serveur convertit le son avec ffmpeg.",
+                "Enregistrez le MP3 quand « Enregistrer le fichier » apparaît.",
+            ),
+            links=(
+                ("tiktok.com/@UTILISATEUR/video/ID", "Une vidéo précise."),
+                ("vm.tiktok.com/ID", "Le lien court du bouton Partager ; vt.tiktok.com/ID et tiktok.com/t/ID fonctionnent aussi."),
+            ),
+            sections=(
+                ("D'où vient le MP3", (
+                    "Le serveur prend le son que TikTok fournit avec la vidéo et le convertit en MP3 avec ffmpeg. C'est l'audio de ce clip tel qu'il a été publié, avec la musique ou la voix qu'on y entend ; la chanson d'origine n'est pas recherchée sur un autre service.",
+                    "La ligne MP3 n'indique pas de taille, car le fichier est créé pendant la conversion. Aucun débit fixe n'est promis non plus : convertir ne restaure pas une qualité absente de l'original.",
+                )),
+                ("Ce qui ne peut pas être converti", (
+                    "Les publications photo (/photo/) ne sont pas acceptées sur cette page, et un clip sans piste sonore ne produit pas de MP3. Les vidéos supprimées, privées, limitées par région ou réservées aux comptes connectés non plus.",
+                    "Un lien court est traité comme une vidéo. S'il mène à une publication photo, l'analyse échouera : pour les images, utilisez le téléchargeur TikTok avec l'adresse /photo/.",
+                )),
+                ("Utiliser l'audio de façon responsable", (
+                    "La musique de nombreuses vidéos TikTok appartient à des tiers. Ne téléchargez que l'audio qui vous appartient ou que vous êtes autorisé à utiliser pour l'usage prévu.",
+                )),
+            ),
+            faq=(
+                ("Comment convertir un TikTok en MP3 ?", "Collez le lien de la vidéo, cliquez sur « Analyser le lien », choisissez « Converted MP3 » puis « Préparer le téléchargement ». Une fois terminé, enregistrez le fichier."),
+                ("Pourquoi l'option MP3 n'apparaît-elle pas ?", "La vidéo n'a pas de piste sonore accessible, ou TikTok a bloqué la requête. Un lien de publication photo est refusé par la page."),
+                ("Puis-je convertir le son d'une publication photo ?", "Non. Cette page n'accepte que les vidéos."),
+                ("Puis-je obtenir l'audio d'origine sans conversion ?", "Pas ici : cette page ne propose que le MP3. Le téléchargeur TikTok affiche la piste d'origine lorsque TikTok la fournit séparément."),
+                ("Est-ce que ça fonctionne sur téléphone ?", "Oui. Copiez le lien dans l'application TikTok, collez-le sur cette page depuis le navigateur du téléphone et enregistrez le MP3 ; le dossier de destination dépend de votre navigateur."),
+            ),
+            see_also=(
+                ("tiktok-downloader", "Vidéo et photos : téléchargeur TikTok"),
+                ("youtube-to-mp3", "Convertisseur YouTube en MP3"),
+            ),
+        ),
+        "reddit-video-downloader": LocalizedGuide(
+            facts=(
+                ("Liens", "Le permalien d'une publication : reddit.com/r/communauté/comments/ID/ ou redd.it/ID"),
+                ("Choix", "Fichiers vidéo par hauteur, avec le son quand Reddit le fournit"),
+                ("Limite", "Une publication à la fois ; fichiers jusqu'à 512 Mo"),
+            ),
+            steps=(
+                "Ouvrez la publication contenant la vidéo et copiez son adresse depuis la barre du navigateur. Elle doit contenir /comments/ suivi de l'identifiant.",
+                "Collez-la ci-dessus et cliquez sur « Analyser le lien ». Le détecteur vérifie le domaine et le chemin, puis retire les paramètres de suivi avant d'interroger Reddit.",
+                "Choisissez une ligne vidéo. Par défaut, la meilleure option jusqu'à 1080 pixels de hauteur est cochée.",
+                "Cliquez sur « Préparer le téléchargement ». Si Reddit sépare l'image et le son, l'étape « Fusion vidéo et audio » s'affiche avant « Enregistrer le fichier ».",
+            ),
+            links=(
+                ("reddit.com/r/NOM/comments/ID/", "Le permalien d'une publication ; il peut être suivi du titre."),
+                ("reddit.com/user/NOM/comments/ID/", "Une publication faite sur un profil utilisateur."),
+                ("redd.it/ID", "Le lien court d'une publication."),
+                ("old.reddit.com/r/NOM/comments/ID/", "L'ancienne interface de Reddit ; elle est traitée de la même façon."),
+            ),
+            sections=(
+                ("Les liens de partage en /s/", (
+                    "L'application Reddit copie souvent des liens de la forme reddit.com/r/communauté/s/code. Cette forme ne désigne pas la publication et le détecteur la refuse. Ouvrez le lien dans le navigateur, attendez que la publication se charge et copiez l'adresse qui contient /comments/.",
+                )),
+                ("Une vidéo avec le son", (
+                    "Reddit stocke souvent l'image et le son de ses vidéos séparément. Lorsque les deux pistes sont publiques et compatibles, le serveur les télécharge et les réunit dans un seul MP4. Si la publication n'a aucune piste sonore, les lignes sont marquées « no audio » : la conversion ne peut pas inventer de voix ni de musique.",
+                )),
+                ("Les publications qui ne fonctionnent pas", (
+                    "Les publications supprimées, privées, en quarantaine ou réservées aux adultes peuvent être inaccessibles sans compte. Une publication de texte ou d'image ne contient pas de vidéo, et une publication qui renvoie vers YouTube ou un autre site n'héberge pas la vidéo sur Reddit : utilisez l'outil de cette plateforme.",
+                )),
+            ),
+            faq=(
+                ("Comment télécharger une vidéo Reddit ?", "Copiez le permalien de la publication, collez-le ci-dessus, cliquez sur « Analyser le lien », choisissez une ligne vidéo puis « Préparer le téléchargement ». Enregistrez le fichier quand il est prêt."),
+                ("Pourquoi mon lien de l'application est-il refusé ?", "Il s'agit sans doute d'un lien de partage en /s/. Ouvrez-le dans le navigateur et copiez l'adresse contenant /comments/."),
+                ("Le lien d'une communauté ou d'un profil fonctionne-t-il ?", "Non. Une communauté r/… ou un profil contient de nombreuses publications ; collez le lien d'une seule."),
+                ("Puis-je garder uniquement le son d'une vidéo Reddit ?", "Pas sur cette page, qui n'affiche que la vidéo. Le téléchargeur universel montre aussi l'audio d'origine et un MP3 lorsque la publication a du son."),
+            ),
+            see_also=(
+                ("universal-video-downloader", "Autres plateformes dans un seul champ"),
+                ("youtube-video-downloader", "Vidéos YouTube partagées sur Reddit"),
+            ),
+        ),
+        "threads-video-downloader": LocalizedGuide(
+            facts=(
+                ("Liens", "Une publication publique : threads.com/@utilisateur/post/ID"),
+                ("Résultat", "Au plus une vidéo MP4 d'origine"),
+                ("Limite", "Une publication à la fois ; fichiers jusqu'à 512 Mo"),
+            ),
+            steps=(
+                "Dans Threads, ouvrez la publication, touchez Partager puis Copier le lien, ou copiez l'adresse depuis le navigateur.",
+                "Collez-la ci-dessus et cliquez sur « Analyser le lien ». Le serveur lit les métadonnées publiques de cette publication, celles qu'utilisent les aperçus de liens.",
+                "S'il trouve une vidéo hébergée sur les serveurs de Meta, la fiche affiche une ligne « Source video » en MP4.",
+                "Cliquez sur « Préparer le téléchargement » et enregistrez le fichier, nommé threads-video.mp4. Faites-le rapidement : l'accès au fichier source peut changer.",
+            ),
+            links=(
+                ("threads.com/@UTILISATEUR/post/ID", "Une publication précise. Le paramètre ?xmt= ajouté par Partager n'a aucun effet."),
+                ("threads.net/@UTILISATEUR/post/ID", "L'ancienne adresse ; elle est convertie en threads.com avant l'analyse."),
+            ),
+            sections=(
+                ("Pourquoi une seule option", (
+                    "Threads n'a pas d'extracteur stable comme YouTube. SaveFromNet lit la balise vidéo des métadonnées publiques de la page et ne l'accepte que si le fichier est hébergé sur les serveurs de médias de Meta. Cette balise désigne un seul MP4 : il n'y a donc ni liste de résolutions, ni durée, ni taille à l'avance.",
+                    "Si la publication contient plusieurs vidéos ou mélange photos et vidéo, seule celle qui figure dans ces métadonnées peut être proposée. Les photos Threads ne se téléchargent pas avec cet outil.",
+                )),
+                ("Pourquoi le résultat peut être vide", (
+                    "Beaucoup de publications vidéo n'incluent pas cette balise pour les visiteurs non connectés, et Threads peut rediriger vers la connexion. La page indique alors qu'aucune vidéo publique n'est disponible. Les profils et les fils ne sont pas des liens vers une publication.",
+                )),
+                ("Si la préparation échoue", (
+                    "L'adresse du fichier publiée par Meta est temporaire. Si la préparation se termine par une erreur parce que la vidéo source n'est plus disponible, analysez de nouveau le lien pour obtenir une adresse fraîche et lancez aussitôt le téléchargement. La vidéo est transférée telle quelle, sans conversion, et le téléchargement s'arrête si elle dépasse 512 Mo.",
+                )),
+            ),
+            faq=(
+                ("Quel lien Threads faut-il coller ?", "Celui d'une publication précise, de la forme threads.com/@utilisateur/post/ID. Les liens threads.net fonctionnent aussi."),
+                ("Puis-je télécharger des photos Threads ?", "Non. Cet outil cherche uniquement une vidéo dans les métadonnées publiques de la publication."),
+                ("Pourquoi le fichier s'appelle-t-il threads-video.mp4 ?", "Le serveur enregistre toujours les vidéos Threads sous ce nom ; vous pouvez le renommer ensuite sur votre appareil."),
+                ("La vidéo aura-t-elle du son ?", "Le MP4 est téléchargé tel que Meta le publie, sans fusion ni conversion : si le fichier source a du son, il le conserve."),
+                ("Est-ce que ça fonctionne sur téléphone ?", "Oui. Copiez le lien via Partager dans l'application Threads, collez-le ici depuis le navigateur du téléphone et enregistrez le fichier une fois prêt."),
+            ),
+            see_also=(
+                ("instagram-reels-downloader", "Reels Instagram"),
+                ("facebook-video-downloader", "Vidéos Facebook"),
+                ("universal-video-downloader", "Autres plateformes dans un seul champ"),
+            ),
+        ),
+        "dailymotion-video-downloader": LocalizedGuide(
+            facts=(
+                ("Liens", "Une vidéo publique : dailymotion.com/video/ID ou dai.ly/ID"),
+                ("Choix", "Hauteurs en MP4 ou WebM renvoyées pour cette vidéo"),
+                ("Limite", "Une vidéo à la fois ; fichiers jusqu'à 512 Mo"),
+            ),
+            steps=(
+                "Ouvrez la vidéo sur Dailymotion et copiez son adresse, ou le lien court dai.ly du bouton Partager.",
+                "Collez-le ci-dessus et cliquez sur « Analyser le lien ». Un lien dai.ly est d'abord converti en adresse dailymotion.com/video/ de la même vidéo.",
+                "Comparez les hauteurs disponibles. Par défaut, la meilleure option jusqu'à 1080 pixels est cochée ; vous pouvez en choisir une autre.",
+                "Cliquez sur « Préparer le téléchargement » et enregistrez le fichier quand « Enregistrer le fichier » apparaît.",
+            ),
+            links=(
+                ("dailymotion.com/video/ID", "La page d'une vidéo ; l'identifiant commence généralement par x."),
+                ("dai.ly/ID", "Le lien court généré par Partager."),
+            ),
+            sections=(
+                ("Lire les qualités", (
+                    "Dailymotion peut proposer plusieurs hauteurs d'une même vidéo. Chaque ligne indique le conteneur, la hauteur et, quand la source donne le débit et la durée, une taille approximative précédée de ≈. Qu'un lecteur affiche une qualité ne garantit pas qu'un téléchargeur sans compte reçoive le même fichier.",
+                    "Une hauteur plus élevée prend généralement plus de place, mais le codec et le débit comptent aussi. Les options qui dépasseraient 512 Mo n'apparaissent pas, ce qui peut écarter les hautes qualités d'une longue vidéo.",
+                )),
+                ("Les liens qui ne désignent pas une vidéo", (
+                    "Les chaînes, playlists et recherches ne sont pas des liens vers une vidéo précise, et le détecteur les refuse. Les vidéos privées, supprimées ou bloquées par région ne sont pas traitées non plus ; dans ce dernier cas, la page indique que le contenu est indisponible dans la région du serveur.",
+                )),
+                ("Le son et le fichier final", (
+                    "Les qualités Dailymotion arrivent généralement avec l'image et le son ensemble, si bien qu'il n'y a d'ordinaire aucune piste à assembler. Si la source ne fournit aucune piste sonore, la ligne est marquée « no audio » au lieu d'être présentée comme une vidéo complète. Le fichier est enregistré dans le conteneur indiqué par la ligne.",
+                )),
+            ),
+            faq=(
+                ("Un lien dai.ly fonctionne-t-il ?", "Oui. Il est converti en adresse de la vidéo sur dailymotion.com avant l'analyse."),
+                ("Pourquoi la taille est-elle inconnue ?", "Dailymotion ne fournit pas toujours le débit ou la durée nécessaires. Afficher « Taille inconnue » est plus fidèle qu'inventer un chiffre."),
+                ("Puis-je télécharger une playlist ?", "Non. Analysez chaque vidéo avec son propre lien."),
+                ("Puis-je télécharger une vidéo privée ou protégée par mot de passe ?", "Non. Seules les vidéos publiques visibles sans connexion ni mot de passe sont traitées."),
+                ("Est-ce que ça fonctionne sur téléphone ?", "Oui. Copiez le lien via Partager dans l'application Dailymotion, collez-le sur cette page depuis le navigateur et enregistrez le fichier ; le dossier dépend de votre navigateur."),
+            ),
+            see_also=(
+                ("universal-video-downloader", "Autres plateformes dans un seul champ"),
+                ("youtube-video-downloader", "Vidéos YouTube"),
+            ),
+        ),
     },
 }
 
 PUBLISHED_SLUGS = tuple(LOCALIZED_TOOLS["es"])
 assert set(PUBLISHED_SLUGS) == set(LOCALIZED_TOOLS["fr"])
-assert set(LOCALIZED_GUIDES["es"]) == set(LOCALIZED_GUIDES["fr"]) <= set(PUBLISHED_SLUGS)
+assert set(LOCALIZED_GUIDES["es"]) == set(LOCALIZED_GUIDES["fr"]) == set(PUBLISHED_SLUGS)
 
 
 def alternates(base_url, slug=None):
