@@ -1,14 +1,42 @@
 """Check published translations as a reciprocal, functional URL set."""
 
+import html
+import json
+import re
 import unittest
 from xml.etree import ElementTree
 
+from markupsafe import escape
+
 from app import app
+from extractors.detect import detect_url
 from guides import GUIDES
 from image_tools import IMAGE_TOOLS
-from localized_pages import LANGUAGE_UI, PUBLISHED_SLUGS, alternates
+from localized_pages import LANGUAGE_UI, LOCALIZED_GUIDES, LOCALIZED_TOOLS, PUBLISHED_SLUGS, alternates
 from public_pages import PAGES
-from tools import TOOLS
+from tools import BY_SLUG, TOOLS
+
+# Reported by Search Console as "Crawled - currently not indexed" on 2026-10-18.
+THIN_PAGES = (
+    "/es/youtube-shorts-downloader", "/es/instagram-reels-downloader", "/es/pinterest-video-downloader",
+    "/es/facebook-video-downloader", "/es/youtube-video-downloader",
+    "/fr/instagram-reels-downloader", "/fr/pinterest-video-downloader", "/fr/facebook-video-downloader",
+    "/fr/youtube-shorts-downloader", "/fr/youtube-downloader",
+)
+SAMPLE_IDS = {"youtube": "aqz-KE-bpKQ", "instagram": "C1a2B3c4D5e", "facebook": "1234567890", "pinterest": "1234567890"}
+
+
+def visible_words(page):
+    page = re.sub(r"(?is)<(script|style|head)\b.*?</\1>", " ", page)
+    return len(re.findall(r"\w[\w'’.-]*", html.unescape(re.sub(r"<[^>]+>", " ", page))))
+
+
+def faq_schema_questions(page):
+    for block in re.findall(r'<script type="application/ld\+json">(.*?)</script>', page, re.S):
+        data = json.loads(block)
+        if data.get("@type") == "FAQPage":
+            return [item["name"] for item in data["mainEntity"]]
+    return []
 
 
 class LocalizedPagesTest(unittest.TestCase):
@@ -60,6 +88,68 @@ class LocalizedPagesTest(unittest.TestCase):
                 html = self.client.get(path).get_data(as_text=True)
                 for language, url in alternates("https://savefromnet.fun", slug):
                     self.assertIn(f'hreflang="{language}" href="{url}"', html)
+
+    def test_pages_search_console_found_thin_now_carry_a_full_guide(self):
+        for path in THIN_PAGES:
+            _, lang, slug = path.split("/")
+            self.assertIn(slug, LOCALIZED_GUIDES[lang])
+        for lang, guides in LOCALIZED_GUIDES.items():
+            ui = LANGUAGE_UI[lang]
+            for slug, guide in guides.items():
+                with self.subTest(lang=lang, slug=slug):
+                    page = self.client.get(f"/{lang}/{slug}").get_data(as_text=True)
+                    for anchor in ('id="steps"', 'id="supported-links"', 'id="format-guide"', 'id="faq"'):
+                        self.assertIn(anchor, page)
+                        self.assertIn(f'href="#{anchor[4:-1]}"', page)
+                    for text in (ui["steps_title"], ui["links_title"], ui["guide_title"], *guide.steps):
+                        self.assertIn(str(escape(text)), page)
+                    for label, value in guide.facts:
+                        self.assertIn(f"<dt>{escape(label)}</dt><dd>{escape(value)}</dd>", page)
+                    for shape, note in guide.links:
+                        self.assertIn(f"<dt><code>{escape(shape)}</code></dt><dd>{escape(note)}</dd>", page)
+                    for heading, paragraphs in guide.sections:
+                        self.assertIn(f"<h3>{escape(heading)}</h3>", page)
+                        for paragraph in paragraphs:
+                            self.assertIn(f"<p>{escape(paragraph)}</p>", page)
+                    questions = [LOCALIZED_TOOLS[lang][slug].question, *(q for q, _ in guide.faq),
+                                 ui["faq_availability_question"]]
+                    self.assertEqual(faq_schema_questions(page), questions)
+                    for question, answer in guide.faq:
+                        self.assertIn(f"<summary>{escape(question)}</summary><p>{escape(answer)}</p>", page)
+                    for target, label in guide.see_also:
+                        self.assertIn(target, PUBLISHED_SLUGS)
+                        self.assertNotEqual(target, slug)
+                        self.assertIn(f'<a href="/{lang}/{target}">{escape(label)} ', page)
+                    # The English tool pages carry 760-990 visible words; these were about 300.
+                    self.assertGreaterEqual(visible_words(page), 800)
+
+    def test_guide_link_shapes_are_accepted_by_that_tool(self):
+        for lang, guides in LOCALIZED_GUIDES.items():
+            for slug, guide in guides.items():
+                tool = BY_SLUG[slug]
+                for shape, _ in guide.links:
+                    with self.subTest(lang=lang, slug=slug, shape=shape):
+                        detection = detect_url(shape.replace("ID", SAMPLE_IDS[tool.platform]))
+                        self.assertEqual(detection.platform, tool.platform)
+                        self.assertIn(detection.content_type, tool.content_types)
+
+    def test_guides_send_other_link_types_to_the_tool_that_accepts_them(self):
+        shorts, videos, reels = (BY_SLUG[slug] for slug in (
+            "youtube-shorts-downloader", "youtube-video-downloader", "instagram-reels-downloader"))
+        self.assertNotIn(detect_url("https://youtu.be/aqz-KE-bpKQ").content_type, shorts.content_types)
+        self.assertNotIn(detect_url("https://www.youtube.com/shorts/aqz-KE-bpKQ").content_type, videos.content_types)
+        self.assertIn(detect_url("https://www.youtube.com/shorts/aqz-KE-bpKQ").content_type, BY_SLUG["youtube-downloader"].content_types)
+        self.assertIn(detect_url("https://www.youtube.com/shorts/aqz-KE-bpKQ").content_type, BY_SLUG["youtube-to-mp3"].content_types)
+        self.assertNotIn(detect_url("https://www.instagram.com/p/C1a2B3c4D5e/").content_type, reels.content_types)
+        self.assertIn(detect_url("https://www.instagram.com/p/C1a2B3c4D5e/").content_type, BY_SLUG["instagram-downloader"].content_types)
+
+    def test_english_tool_pages_link_to_their_translations_in_context(self):
+        for slug in PUBLISHED_SLUGS:
+            with self.subTest(slug=slug):
+                page = self.client.get(f"/{slug}").get_data(as_text=True)
+                for lang in LANGUAGE_UI:
+                    heading = escape(LOCALIZED_TOOLS[lang][slug].heading)
+                    self.assertIn(f'<a href="/{lang}/{slug}" hreflang="{lang}" lang="{lang}">{heading}</a>', page)
 
     def test_unsupported_translation_is_not_a_thin_page(self):
         self.assertEqual(self.client.get("/es/nonexistent-downloader").status_code, 404)

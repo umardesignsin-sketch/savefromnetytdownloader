@@ -54,6 +54,9 @@
     </div><div id="result" class="result-panel" aria-live="polite" hidden></div>
     <div id="progress-card" class="progress-panel" aria-live="polite" hidden><div class="progress-head"><div><h3 id="job-title"></h3><p id="job-stage"></p></div><strong id="job-percent">0%</strong></div><div class="progress-track"><div id="progress-bar"></div></div><p id="job-meta"></p><div id="job-result"></div></div>
     </div></section>
+    {% if guide %}<section class="localized-glance" aria-labelledby="glance-title"><div class="container narrow"><div class="localized-glance-card"><h2 id="glance-title">{{ ui.facts_title }}</h2><dl>{% for label, value in guide.facts %}<div><dt>{{ label }}</dt><dd>{{ value }}</dd></div>{% endfor %}</dl>
+      <nav class="localized-page-nav" aria-label="{{ ui.on_page }}"><a href="#steps">{{ ui.steps_title }}</a><a href="#supported-links">{{ ui.links_title }}</a><a href="#format-guide">{{ ui.guide_title }}</a><a href="#faq">{{ ui.faq_title }}</a></nav>
+    </div></div></section>{% endif %}
     <section id="tools" class="quick-tools" aria-label="{{ ui.platforms_title }}"><div class="container"><h2>{{ ui.platforms_title }}</h2><div class="quick-tools-grid">
       {% for item in related %}<a class="quick-tool" href="/{{ lang }}/{{ item.slug }}"><span class="platform-icon {{ item.platform }}" aria-hidden="true">{{ item.platform[0] | upper }}</span><span>{{ localized_tools[item.slug].heading }}</span></a>{% endfor %}
     </div></div></section>
@@ -63,6 +66,12 @@
       <section class="detail-card"><h2>{{ ui.limits_title }}</h2><p>{{ copy.limits if copy else ui.limits_home }}</p></section>
       <section id="rights" class="detail-card"><h2>{{ ui.nav_rights }}</h2><p>{{ ui.rights }}</p></section>
     </div>
+    {% if guide %}<article class="container localized-guide">
+      <section id="steps"><h2>{{ ui.steps_title }}</h2><ol class="localized-steps">{% for step in guide.steps %}<li>{{ step }}</li>{% endfor %}</ol></section>
+      <section id="supported-links"><h2>{{ ui.links_title }}</h2><p>{{ ui.links_intro }}</p><dl class="localized-link-list">{% for shape, note in guide.links %}<div><dt><code>{{ shape }}</code></dt><dd>{{ note }}</dd></div>{% endfor %}</dl></section>
+      <section id="format-guide"><h2>{{ ui.guide_title }}</h2>{% for heading, paragraphs in guide.sections %}<h3>{{ heading }}</h3>{% for paragraph in paragraphs %}<p>{{ paragraph }}</p>{% endfor %}{% endfor %}</section>
+      <nav class="localized-next" aria-labelledby="next-title"><h2 id="next-title">{{ ui.next_title }}</h2>{% for slug, label in guide.see_also %}<a href="/{{ lang }}/{{ slug }}">{{ label }} <span aria-hidden="true">→</span></a>{% endfor %}</nav>
+    </article>{% endif %}
     <section class="container localized-faq" id="faq"><h2>{{ ui.faq_title }}</h2>{% for question, answer in faq %}<details><summary>{{ question }}</summary><p>{{ answer }}</p></details>{% endfor %}</section>
     <section class="container localized-directory" aria-label="{{ ui.related_title }}"><h2>{{ ui.related_title }}</h2><div class="localized-links">{% for slug in all_slugs %}{% if not tool or slug != tool.slug %}<a href="/{{ lang }}/{{ slug }}">{{ localized_tools[slug].heading }} <span aria-hidden="true">→</span></a>{% endif %}{% endfor %}</div></section>
     <section class="history-section section-space"><div class="container narrow"><details><summary><span><strong>{{ ui.history_title }}</strong></span><span>{{ ui.history_view }} <span aria-hidden="true">⌄</span></span></summary><div id="history-list" class="history-list"></div></details></div></section>

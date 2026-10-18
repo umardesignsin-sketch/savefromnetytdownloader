@@ -21,7 +21,7 @@ from extractors.service import resolve
 from guides import BY_SLUG as GUIDES_BY_SLUG, GUIDES
 from growth_tools import BY_SLUG as GROWTH_BY_SLUG, GROWTH_TOOLS
 from image_tools import BY_SLUG as IMAGE_BY_SLUG, IMAGE_TOOLS
-from localized_pages import LANGUAGE_UI, LOCALIZED_TOOLS, PUBLISHED_SLUGS, alternates
+from localized_pages import LANGUAGE_UI, LOCALIZED_GUIDES, LOCALIZED_TOOLS, PUBLISHED_SLUGS, alternates
 from public_pages import BY_SLUG as PAGES_BY_SLUG, PAGES, TOOL_GROUPS
 from tools import BY_SLUG, PLATFORMS, TOOLS, related_tools
 from transcripts import get_transcript
@@ -251,7 +251,10 @@ def _page(tool=None, guide=None, guide_index=False):
                        "pinterest": "pinterest-pin-media", "reddit": "reddit-video-with-audio",
                        "threads": "threads-video-availability", "dailymotion": "dailymotion-video-quality"}
     platform_guide = GUIDES_BY_SLUG.get(platform_guides.get(tool.platform)) if tool else None
+    translations = [(lang, f"/{lang}/{tool.slug}", LANGUAGE_UI[lang]["name"], LOCALIZED_TOOLS[lang][tool.slug].heading)
+                    for lang in LANGUAGE_UI] if tool and not guide and tool.slug in PUBLISHED_SLUGS else []
     return render_template("site.html", tool=tool, title=title, description=description,
+                           translations=translations,
                            canonical=canonical, tools=TOOLS, platforms=PLATFORMS,
                            alternate_urls=alternates(SITE_URL, tool.slug if tool else None) if not (guide or guide_index) else (),
                            related=related_tools(tool) if tool else featured_tools, schema=schema,
@@ -272,6 +275,7 @@ def _localized_page(lang, slug=None):
     copy = LOCALIZED_TOOLS[lang].get(slug) if slug else None
     if slug and not copy:
         return render_template("404.html", tools=TOOLS), 404
+    guide = LOCALIZED_GUIDES[lang].get(slug) if slug else None
     tool = BY_SLUG[slug] if slug else None
     path = f"/{lang}" + (f"/{slug}" if slug else "")
     canonical = SITE_URL + path
@@ -280,6 +284,7 @@ def _localized_page(lang, slug=None):
     title = f"{heading} | SaveFromNet" if copy else ui["home_title"]
     description = f"{intro} {copy.formats}" if copy else intro
     faq = [(copy.question, copy.answer)] if copy else [(ui["faq_home_question"], ui["faq_home_answer"])]
+    faq += guide.faq if guide else ()
     faq.append((ui["faq_availability_question"], ui["faq_availability_answer"]))
     schema = [
         {"@context": "https://schema.org", "@type": "WebApplication", "name": heading,
@@ -295,7 +300,7 @@ def _localized_page(lang, slug=None):
     related = [item for item in related_tools(tool) if item.slug in PUBLISHED_SLUGS] if tool else []
     if not related:
         related = [BY_SLUG[item] for item in PUBLISHED_SLUGS[:8]]
-    return render_template("localized_page.html", lang=lang, ui=ui, copy=copy, tool=tool,
+    return render_template("localized_page.html", lang=lang, ui=ui, copy=copy, guide=guide, tool=tool,
                            heading=heading, intro=intro, title=title, description=description,
                            canonical=canonical, schema=schema, faq=faq,
                            alternate_urls=alternates(SITE_URL, slug),
