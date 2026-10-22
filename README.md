@@ -2,7 +2,7 @@
 
 A public media downloader for content the user owns or may download. It detects
 YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, and
-Dailymotion links. The 26 media and transcript tool pages share one URL validator, extraction service,
+Dailymotion links. The 27 media and transcript tool pages share one URL validator, extraction service,
 result UI, and background job runner. Eighteen working single-image tools, a
 batch image converter, five media utilities, and 21 practical media guides have their own pages. Localized tool pages,
 the guides hub, tool directory, supported-link reference, image-format guide, transcript API documentation and trust pages bring the
@@ -17,7 +17,7 @@ and the [working downloader directory](https://savefromnet.fun/tools).
 ## Architecture
 
 ```
-Cloudflare static assets: homepage, 26 media and transcript tools, 18 single-image tools, five media utilities, batch converter, localized pages, guides, directory/resource/trust pages, CSS, JS, sitemap
+Cloudflare static assets: homepage, 27 media and transcript tools, 18 single-image tools, five media utilities, batch converter, localized pages, guides, directory/resource/trust pages, CSS, JS, sitemap
        ↓ POST /api/analyze and /api/download
 Cloudflare Worker: per-IP rate limits
        ↓

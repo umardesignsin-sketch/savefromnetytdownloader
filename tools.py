@@ -25,6 +25,7 @@ class Tool:
     def heading(self):
         return {
             "youtube-downloader": "YouTube Downloader & Converter",
+            "y2mate-alternative": "Y2Mate Alternative: YouTube to MP3 & MP4",
             "youtube-to-mp3": "YouTube to MP3 Converter",
             "youtube-to-transcript": "YouTube to Transcript Converter",
             "tiktok-to-mp3": "TikTok to MP3 Converter",
@@ -79,6 +80,14 @@ class Tool:
                 ("What is the difference between TXT, SRT, and VTT?", "TXT is plain transcript text. SRT and WebVTT keep cue timestamps for subtitle editors and players. The files are generated in your browser from the caption cues shown on the page."),
                 ("Why can a public YouTube transcript fail?", "A video may have no captions, or YouTube may block the source request, require sign-in, restrict the region, or remove the upload. This tool does not bypass those limits."),
                 ("Can I use a YouTube Shorts link?", "Yes, direct Shorts links work when the Short has an accessible caption track. Playlists, private videos, live streams and links to an entire channel are not supported."),
+            )
+        if self.slug == "y2mate-alternative":
+            return (
+                ("Is SaveFromNet the same as Y2Mate?", "No. SaveFromNet is an independent YouTube and social media downloader. It is not affiliated with Y2Mate or with any site that uses the Y2Mate name."),
+                ("Can I convert YouTube to MP3 and MP4 here, like on Y2Mate?", "Yes. Paste one public YouTube video or Shorts link and the result lists the MP4 or WebM video qualities, the original audio and the MP3 conversion available for that upload."),
+                ("Do I need to install an app or sign up?", "No. SaveFromNet runs in your phone or desktop browser. There is no account, and you never enter a YouTube password."),
+                ("Why don't I see 320 kbps or 4K?", "Only formats the source actually provides are listed. A 4K option appears only when the upload has it and the finished file fits within the 512 MB limit, and an MP3 cannot exceed the quality of the source audio."),
+                ("Can I download a whole playlist?", "No. Paste the link to one public video or Short at a time. Private, age-restricted and region-restricted videos are not supported."),
             )
         if self.slug in PLATFORM_FAQS:
             return PLATFORM_FAQS[self.slug]
@@ -177,8 +186,16 @@ TOOL_META = {
         "Analyze a public YouTube video or Short, then choose an available video or audio file. SaveFromNet shows real formats before you download.",
     ),
     "youtube-video-downloader": (
-        "YouTube Video Downloader | SaveFromNet",
-        "Download a public YouTube video you may save. Paste a watch or youtu.be link, see available MP4 or WebM qualities, and prepare a temporary file.",
+        "YouTube Video Downloader – Free MP4 in HD | SaveFromNet",
+        "Download a public YouTube video as MP4 or WebM in the resolutions the upload offers, including HD. See real sizes first. Free, with no app or sign-up.",
+    ),
+    "y2mate-alternative": (
+        "Y2Mate Alternative – YouTube to MP3 & MP4 Downloader | SaveFromNet",
+        "A Y2Mate alternative for YouTube to MP3 and MP4. Paste a video or Shorts link, see the real formats and sizes first, then save. No app or sign-up.",
+    ),
+    "facebook-video-downloader": (
+        "Facebook Video Downloader – Save FB Videos & Reels | SaveFromNet",
+        "Download a public Facebook video or Reel as MP4. Paste the link, choose HD or SD when Facebook offers both, and save it. No app or Facebook login.",
     ),
     "youtube-to-mp3": (
         "YouTube MP3 Converter – YouTube to MP3 | SaveFromNet",
@@ -200,6 +217,23 @@ TOOL_META = {
 
 
 TOOL_SECTIONS = {
+    "y2mate-alternative": (
+        ("A Y2Mate alternative that shows real formats first", (
+            "If you used Y2Mate to turn a YouTube video into an MP3 or MP4, the steps here are the same: paste the link, wait for the analysis, pick a format and save the file. The difference is what you see before you choose. SaveFromNet lists only the files it can actually prepare for that upload, with each video resolution and its estimated size, the original audio track and an MP3 conversion, instead of a fixed menu of qualities that may not exist.",
+            "SaveFromNet is an independent service. It is not affiliated with Y2Mate or with any of the many sites that use similar names.",
+        )),
+        ("YouTube to MP3 and MP4 in one place", (
+            "Choose an MP4 or WebM video when you want the picture, or MP3 when you only need the sound. Video is offered up to the highest resolution the upload exposes, as long as the finished file fits within the 512 MB processing limit, and a high-resolution picture is merged with compatible audio so the file plays with sound. The MP3 is converted from the source audio, so it cannot add detail the upload never had.",
+            "Shorts work too: paste a youtube.com/shorts/ link the same way. For a page focused on one format, use the YouTube to MP3 converter or the YouTube to MP4 page.",
+        )),
+        ("What to check in any YouTube downloader", (
+            "A trustworthy downloader works in your browser without an app, extension or account, and tells you the real file type and size before processing. It should not ask for your YouTube password, promise 4K for every video, or offer to download a private video or a whole playlist.",
+            "SaveFromNet keeps finished files only briefly: your download link expires after 15 minutes and files are cleaned up after about an hour. It processes one public link at a time and does not bypass sign-in, age or region restrictions.",
+        )),
+        ("Download only what you may save", (
+            "Use SaveFromNet for videos you made, videos with a licence that allows downloading, or media you otherwise have permission to keep. Saving a file does not give you the right to re-upload or sell someone else's work.",
+        )),
+    ),
     "youtube-to-transcript": (
         ("How to get a YouTube video transcript", (
             "Paste a direct public watch-page, youtu.be, or Shorts URL in the form above. SaveFromNet checks the caption tracks for that one video, retrieves an accessible track, and displays its actual words and timestamps. Choose a returned language if more than one is available, then copy the text or save a file.",
@@ -237,6 +271,10 @@ TOOL_SECTIONS = {
         ("1080p and 4K depend on the source, audio and file limit", (
             "A high resolution picture stream may be separate from its sound. SaveFromNet shows a finished video only when it can pair compatible video and audio and prepare the result. It does not claim that a 4K label in the YouTube player means a downloadable 4K file exists here.",
             "The 512 MB job ceiling can rule out long or high bitrate files. If no 1080p or 4K option appears, choose a lower resolution actually returned for the link or use the file size guide to understand the estimate. The result may show MP4, WebM, or both; changing a file extension does not convert its encoding.",
+        )),
+        ("How to choose a YouTube video downloader", (
+            "The best YouTube video downloader for you comes down to a few checks. It should show the resolutions an upload actually offers before you commit, deliver the video with its sound, work without installing software or a browser extension, and keep your files private. SaveFromNet is built around those checks: the result card lists only formats it can prepare for that link, and a high-resolution picture is offered as a finished file only when it can be merged with compatible audio.",
+            "Be wary of any tool that promises every video in 4K, asks for your account password, or makes you install an app to save one public video. This page works in a phone or desktop browser, needs no account, and keeps the finished file only temporarily: the download link expires after 15 minutes and files are removed after about an hour.",
         )),
     ),
     "youtube-shorts-downloader": (
@@ -399,7 +437,8 @@ TOOL_SECTIONS = {
 
 TOOL_SEO_LINKS = {
     "youtube-to-transcript": (("/youtube-video-downloader", "Download an accessible YouTube video"), ("/youtube-to-mp3", "Convert accessible YouTube audio to MP3"), ("/youtube-shorts-downloader", "YouTube Shorts downloader"), ("/guides/youtube-video-formats", "Understand YouTube media formats")),
-    "youtube-downloader": (("/youtube-video-downloader", "YouTube Video Downloader"), ("/youtube-to-mp3", "YouTube to MP3 Converter"), ("/youtube-to-mp4", "YouTube to MP4"), ("/youtube-to-transcript", "YouTube to Transcript Converter")),
+    "youtube-downloader": (("/youtube-video-downloader", "YouTube Video Downloader"), ("/youtube-to-mp3", "YouTube to MP3 Converter"), ("/youtube-to-mp4", "YouTube to MP4"), ("/youtube-to-transcript", "YouTube to Transcript Converter"), ("/y2mate-alternative", "Looking for a Y2Mate alternative?")),
+    "y2mate-alternative": (("/youtube-to-mp3", "YouTube to MP3 converter"), ("/youtube-to-mp4", "YouTube to MP4"), ("/youtube-shorts-downloader", "YouTube Shorts downloader"), ("/guides/youtube-video-formats", "Understand YouTube formats")),
     "youtube-video-downloader": (("/guides/youtube-video-on-mobile", "Download your own YouTube video on a phone"), ("/guides/youtube-hd-4k-downloads", "Understand 1080p and 4K availability"), ("/guides/youtube-video-formats", "Understand YouTube formats"), ("/guides/video-file-size-estimates", "How file sizes are estimated"), ("/youtube-to-mp4", "MP4-only choices"), ("/youtube-to-mp3", "Convert YouTube audio to MP3"), ("/youtube-to-transcript", "Get a YouTube transcript")),
     "youtube-shorts-downloader": (("/youtube-video-downloader", "Standard YouTube videos"), ("/youtube-to-mp3", "Shorts audio to MP3")),
     "youtube-to-mp3": (("/youtube-audio-downloader", "YouTube audio formats"), ("/youtube-video-downloader", "Download the video instead"), ("/youtube-to-transcript", "Get a YouTube transcript"), ("/guides/mp3-vs-m4a", "MP3 versus M4A")),
@@ -444,6 +483,7 @@ TOOLS = [
     Tool("reddit-video-downloader", "reddit", "Reddit Video Downloader", "Download a video from one public Reddit post, with sound when a compatible audio stream is available.", ("post",), "The result shows MP4 qualities returned for that post; separate video and audio streams are merged when available.", "Use a reddit.com/r/community/comments/id/, reddit.com/user/name/comments/id/, or redd.it/id link.", "Deleted, private, quarantined, or adult-gated posts can be inaccessible."),
     Tool("threads-video-downloader", "threads", "Threads Video Downloader", "Check a public Threads post for a video exposed in its page metadata.", ("post",), "A source MP4 option appears only when Threads publishes a public video URL.", "Use a threads.com/@username/post/id URL.", "Threads often omits video metadata or requires login; those posts have no available format here."),
     Tool("dailymotion-video-downloader", "dailymotion", "Dailymotion Video Downloader", "Choose a format returned for one public Dailymotion video.", ("video",), "Available MP4 or WebM heights come from that video's extractor result.", "Use dailymotion.com/video/id or dai.ly/id.", "Private, geo-blocked, and removed videos cannot be processed."),
+    Tool("y2mate-alternative", "youtube", "Y2Mate Alternative", "A YouTube to MP3 and MP4 downloader that shows the real formats for a video before you save it.", ("video", "short"), "Choose an MP4 or WebM video, the original audio, or an MP3 conversion; only the formats this upload provides are listed.", "Paste a youtube.com/watch, youtube.com/shorts or youtu.be link to one public video.", "YouTube may block anonymous access to some videos, and a format the upload lacks cannot be created."),
     Tool("universal-video-downloader", "universal", "Universal Video Downloader", "Paste a public link from a supported platform and automatically route it to its extractor.", ("video", "short", "post", "pin", "reel", "photo", "story", "profile"), "The analyzed source decides which real video, audio, or image formats appear.", "Use one public URL from YouTube, Instagram, TikTok, Facebook, Pinterest, Reddit, Threads, or Dailymotion.", "The source may block, remove, or restrict individual posts."),
 ]
 

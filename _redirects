@@ -8,9 +8,8 @@
 /pt /youtube-to-transcript 301
 /hi /youtube-to-transcript 301
 /tubemate-alternative /youtube-downloader 301
-/y2mate-alternative /youtube-downloader 301
 /best-youtube-video-downloader /youtube-video-downloader 301
-/compare/y2mate /youtube-downloader 301
+/compare/y2mate /y2mate-alternative 301
 /compare/youtubetotranscript /youtube-to-transcript 301
 /compare/notegpt /youtube-to-transcript 301
 /compare /tools 301

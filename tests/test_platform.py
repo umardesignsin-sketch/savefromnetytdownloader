@@ -148,7 +148,7 @@ class SiteTests(unittest.TestCase):
         self.assertIn('/guides/how-to-copy-a-youtube-link', self.client.get('/sitemap.xml').get_data(as_text=True))
 
     def test_all_tool_routes_have_metadata_and_schema(self):
-        self.assertEqual(len(TOOLS), 26)
+        self.assertEqual(len(TOOLS), 27)
         for tool in TOOLS:
             with self.subTest(slug=tool.slug):
                 response = self.client.get(tool.path)
@@ -159,7 +159,7 @@ class SiteTests(unittest.TestCase):
                 schemas = [json.loads(block.split('</script>')[0]) for block in html.split('<script type="application/ld+json">')[1:]]
                 self.assertEqual({s["@type"] for s in schemas}, {"WebApplication", "FAQPage", "BreadcrumbList"})
         sitemap = self.client.get("/sitemap.xml").get_data(as_text=True)
-        self.assertEqual(sitemap.count("<url>"), 29 + len(GUIDES) + len(PAGES) + len(IMAGE_TOOLS) + len(LANGUAGE_UI) * (1 + len(PUBLISHED_SLUGS)))
+        self.assertEqual(sitemap.count("<url>"), 30 + len(GUIDES) + len(PAGES) + len(IMAGE_TOOLS) + len(LANGUAGE_UI) * (1 + len(PUBLISHED_SLUGS)))
         home = self.client.get("/").get_data(as_text=True)
         self.assertIn("<h1 id=\"download-heading\">Video Downloader <em>&amp; Converter</em></h1>", home)
         self.assertIn('href="/guides"', home)
