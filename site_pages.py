@@ -128,7 +128,7 @@ PAGES = (
         "privacy-policy", "Privacy Policy | SaveFromNet",
         "Learn what SaveFromNet processes when you analyze a public URL, download a file, or use the site.",
         "Privacy policy",
-        "This policy describes the current public downloader and utility tools. Last updated October 13, 2026.",
+        "This policy describes the current public downloader and utility tools. Last updated October 29, 2026.",
         (
             Section("Information used for a download", (
                 "When you submit a URL, the server processes that URL, the selected tool and format, and job status to complete your request. A browser identifier cookie associates an analysis and temporary download with the browser that requested it. The cookie lasts up to 30 days unless you clear it.",
@@ -152,8 +152,11 @@ PAGES = (
                 "The site also uses Google Analytics. Its tag measures page visits and browser or device information and may set a first-party _ga cookie to distinguish visits. Visitors in the UK, the EU and the wider EEA are asked first, and the tag loads only if they accept; elsewhere it loads by default. Anyone can accept or reject it at any time with Cookie settings in the page footer; rejecting removes the _ga cookies. Cookies that make downloads and download history work are always on. Google's handling of that measurement data is described in its own privacy information.",
                 "Cloudflare and the source website necessarily process network requests needed to deliver pages or inspect a public link. Their handling of network data is governed by their own policies.",
             ), (("https://support.google.com/analytics/answer/11593727", "Google Analytics data collection"),)),
+            Section("Advertising", (
+                "SaveFromNet shows ads from Monetag, an advertising network. Its script loads on our pages and can show a full-screen ad when you move to another page. Monetag receives your IP address, browser and device information and the page you are viewing, and may set its own cookies or use browser storage to choose ads and limit how often you see them. Monetag's handling of that data is described in its own privacy policy.",
+            ), (("https://monetag.com/privacy/", "Monetag privacy policy"),)),
             Section("External links", (
-                "The site does not load third-party advertising scripts. Links to source platforms, sponsors, Dodo Payments and other websites take you to services outside SaveFromNet.",
+                "Links to source platforms, sponsors, advertisers, Dodo Payments and other websites take you to services outside SaveFromNet.",
                 "Do not submit private, sensitive, or account-only URLs. The downloader only accepts supported public media links.",
             )),
             Section("Your choices and contact", (

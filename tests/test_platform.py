@@ -368,7 +368,7 @@ class SiteTests(unittest.TestCase):
         wrong = self.client.post("/api/event", json={"event": "tool_page_view", "platform": "tiktok", "tool": "youtube-to-mp3"})
         self.assertEqual(wrong.status_code, 400)
 
-    def test_former_ad_worker_is_inert_and_pages_have_no_monetag(self):
+    def test_former_ad_worker_is_inert_and_old_monetag_tag_is_gone(self):
         response = self.client.get("/sw.js")
         try:
             self.assertEqual(response.status_code, 200)
